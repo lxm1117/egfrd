@@ -27,7 +27,6 @@ public:
     typedef typename base_type::rng_type                rng_type;
     typedef typename base_type::position_type           position_type;
     typedef typename base_type::length_type             length_type;
-    typedef typename base_type::side_enum_type          side_enum_type;
     typedef typename traits_type::species_type          species_type;
     typedef typename traits_type::structure_type        structure_type;
 
@@ -132,7 +131,7 @@ public:
     
     // Vector used to determine whether a particle has crossed the structure
     // For the plane the normal vector is the natural choice
-    virtual position_type const side_comparison_vector() const
+    virtual position_type const& side_comparison_vector() const
     {
         return base_type::shape().unit_z();
     }
