@@ -19,6 +19,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
     def tearDown( self ):
         pass
 
+    '''
     def test_Instantiation( self ):
         D = 1e-12
 	v = -3e-8
@@ -127,7 +128,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
         self.failIf( t < 0.0 or t >= numpy.inf )
         print " "
         print "GreensFunction1DRadAbs_test.py : test_DrawTime_r0_equal_sigma_kf_large : t =",t
-
+        pass
 
     def test_DrawEventType( self ):
         D = 1e-12
@@ -172,7 +173,6 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
         eventType = gf.drawEventType( 0.0, t )
         self.assertEqual( eventType, 14 ) # REACTION
-
 
     def test_DrawR( self ):
         D = 1e-12
@@ -264,6 +264,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
         self.failIf( r < 0 or r > L )
         self.failIf( r < 0 or r > L )
         print "GreensFunction1DRadAbs_test.py : test_DrawR_squeezed : 2nd drawn r =",r
+    '''
 
 if __name__ == "__main__":
     unittest.main()
