@@ -45,8 +45,8 @@ template<typename Ttraits_, typename Tshape_>
 class BasicSurfaceImpl: public Surface<Ttraits_>
 {
 public:
-    typedef Surface<Ttraits_>                           base_type;
-    typedef Tshape_                                     shape_type;
+  typedef Surface<Ttraits_>                           base_type;
+  typedef Tshape_                                     shape_type;
 
     typedef typename base_type::structure_name_type         structure_name_type;
     typedef typename base_type::structure_id_type           structure_id_type;

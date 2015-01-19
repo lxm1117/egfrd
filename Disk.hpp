@@ -1,5 +1,4 @@
 #ifndef DISK_HPP
-
 #define DISK_HPP
 
 #include <ostream>
@@ -171,8 +170,7 @@ inline typename Disk<T_>::length_type
 distance(Disk<T_> const& obj,
                 typename Disk<T_>::position_type const& pos)
 {
-    typedef typename Disk<T_>::position_type position_type;
-    typedef typename Disk<T_>::length_type length_type;
+  typedef typename Disk<T_>::length_type length_type;
 
     /* First compute the (r,z) components of pos in a coordinate system 
      * defined by the vectors unitR and unit_z, where unitR is
