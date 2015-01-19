@@ -50,6 +50,7 @@ public:
     typedef Tobj_                                                                   structure_type;
     typedef Tid_                                                                    structure_id_type;
     typedef Ttraits_                                                                traits_type;
+
     typedef std::set<structure_id_type>                                             structure_id_set;
     typedef std::pair<const structure_id_type, boost::shared_ptr<structure_type> >  structure_id_pair;
     typedef std::map<structure_id_type, boost::shared_ptr<structure_type> >         structure_map;
@@ -76,17 +77,14 @@ public:
 
     typedef CylindricalSurface<traits_type>                                             cylindrical_surface_type;
     typedef std::pair<structure_id_type, boost::shared_ptr<cylindrical_surface_type> >  cylindrical_surface_id_pair_type;
-    typedef typename cylindrical_surface_type::side_enum_type                           cylindrical_surface_side_type;
     typedef ConnectivityContainer<structure_id_type, vector_type, 2>                    cylindrical_surface_bc_type;  // FIXME number of neighbors should be the length of the side enumerator
 
     typedef PlanarSurface<traits_type>                                                  planar_surface_type;
     typedef std::pair<structure_id_type, boost::shared_ptr<planar_surface_type> >       planar_surface_id_pair_type;
-    typedef typename planar_surface_type::side_enum_type                                planar_surface_side_type;
     typedef ConnectivityContainer<structure_id_type, vector_type, 4>                    planar_surface_bc_type;
 
     typedef CuboidalRegion<traits_type>                                                 cuboidal_region_type;
     typedef std::pair<structure_id_type, boost::shared_ptr<cuboidal_region_type> >      cuboidal_region_id_pair_type;
-    typedef typename cuboidal_region_type::side_enum_type                               cuboidal_region_side_type;
     typedef ConnectivityContainer<structure_id_type, vector_type, 6>                    cuboidal_region_bc_type;
 
 public:
@@ -450,7 +448,7 @@ apply_boundary (std::pair<typename Ttraits_::position_type,
     typedef typename plane_type::position_type              vector_type;
 
     typedef std::pair<structure_id_type, position_type>     neighbor_id_vector_type;
-    //typedef std::pair<position_type, structure_id_type>     position_structid_pair_type;
+    typedef std::pair<position_type, structure_id_type>     position_structid_pair_type;
 
     // Note that we assume that the new position is in the plane (dot(pos, unit_z)==0)
     // and that the position is already transposed for the plane.
@@ -469,8 +467,7 @@ apply_boundary (std::pair<typename Ttraits_::position_type,
     
     // info variables
     bool planes_are_orthogonal( false );
-
-    //bool planes_are_parallel( false );    
+    bool planes_are_parallel( false );    
     
     // Check for (currently unsupported) self-connections
     for( int i=0; i<4; i++ )
@@ -506,7 +503,7 @@ apply_boundary (std::pair<typename Ttraits_::position_type,
                 new_id = neighbor_id_vector.first;
                 
                 if(neighbor_id_vector.second == zero_vector)
-		  ;//planes_are_parallel = true;
+                    planes_are_parallel = true;
                 else{
                     planes_are_orthogonal = true;
                     neighbor_plane_par = multiply(origin_plane.unit_x(), component_x);
@@ -522,7 +519,7 @@ apply_boundary (std::pair<typename Ttraits_::position_type,
                 new_id = neighbor_id_vector.first;
                 
                 if(neighbor_id_vector.second == zero_vector)
-		  ;//planes_are_parallel = true;
+                    planes_are_parallel = true;
                 else{
                     planes_are_orthogonal = true;
                     neighbor_plane_par = multiply(origin_plane.unit_x(), component_x);
@@ -540,7 +537,7 @@ apply_boundary (std::pair<typename Ttraits_::position_type,
 
                 new_id = neighbor_id_vector.first;
                 if(neighbor_id_vector.second == zero_vector)
-		  ;//planes_are_parallel = true;
+                    planes_are_parallel = true;
                 else{
                     planes_are_orthogonal = true;
                     neighbor_plane_par = multiply(origin_plane.unit_y(), component_y);
@@ -555,7 +552,7 @@ apply_boundary (std::pair<typename Ttraits_::position_type,
 
                 new_id = neighbor_id_vector.first;
                 if(neighbor_id_vector.second == zero_vector)
-		  ;//planes_are_parallel = true;
+                    planes_are_parallel = true;
                 else{
                     planes_are_orthogonal = true;
                     neighbor_plane_par = multiply(origin_plane.unit_y(), component_y);

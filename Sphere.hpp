@@ -13,7 +13,6 @@ public:
     typedef T_ value_type;
     typedef Vector3<T_> position_type;
     typedef T_ length_type;
-    typedef enum side_enum_type {} side_enum_type;  // The typedef is a little bit C style but doesn't matter for C++
 
 public:
     Sphere()
