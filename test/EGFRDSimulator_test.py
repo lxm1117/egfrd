@@ -42,7 +42,7 @@ class EGFRDSimulatorTestCase(unittest.TestCase):
     def test_instantiation(self):
         self.failIf(self.s == None)
 
-
+'''
     def test_one_particle(self):
         place_particle(self.s.world, self.S, [0.0,0.0,0.0])
 
@@ -132,6 +132,7 @@ class EGFRDSimulatorTestCase(unittest.TestCase):
 
         for i in range(2):
             self.s.step()
+'''
 
 
 class EGFRDSimulatorTestCaseBase(unittest.TestCase):
@@ -154,6 +155,7 @@ class EGFRDSimulatorTestCaseBase(unittest.TestCase):
         self.kf_2 = 5e-19
         self.kb_1 = 4000
         self.kb_2 = 4000
+
 
     def add_planar_surface(self):
         m1 = model.create_planar_surface('m1',
@@ -249,7 +251,7 @@ class PlanarSurfaceTestCase(EGFRDSimulatorTestCaseBase):
         self.create_simulator() 
         self.add_reactions()
         self.add_particles(2)
-
+'''
     def test_run(self):
         for i in range(10):
             self.s.step()
@@ -261,7 +263,7 @@ class PlanarSurfaceTestCase(EGFRDSimulatorTestCaseBase):
             self.s.step()
         vtk_logger.stop()
         vtk_logger.cleanup()
-
+'''
 
 class CylindricalSurfaceTestCase(EGFRDSimulatorTestCaseBase):
     """Events happening *on* a cylindrical surface.
@@ -281,6 +283,7 @@ class CylindricalSurfaceTestCase(EGFRDSimulatorTestCaseBase):
         self.add_reactions()
         self.add_particles(2)
 
+'''
     def test_run(self):
         for i in range(10):
             self.s.step()
@@ -292,7 +295,7 @@ class CylindricalSurfaceTestCase(EGFRDSimulatorTestCaseBase):
             self.s.step()
         vtk_logger.stop()
         vtk_logger.cleanup()
-
+'''
 
 class PlanarSurfaceInteractionTestCase(EGFRDSimulatorTestCaseBase):
     """Events between the "world" and a planar surface.
@@ -308,7 +311,7 @@ class PlanarSurfaceInteractionTestCase(EGFRDSimulatorTestCaseBase):
         self.create_simulator() 
         self.add_particles(10)
         # Don't add all reactions.
-
+'''
     def test_interaction_single_is_formed(self):
         # Place a particle very close to the planar surface.
         z_position = float(self.A['radius']) * (1 + 1e-8)
@@ -316,7 +319,7 @@ class PlanarSurfaceInteractionTestCase(EGFRDSimulatorTestCaseBase):
 
         for i in range(100):
             self.s.step()
-
+'''
 
 class CylindricalSurfaceInteractionTestCase(EGFRDSimulatorTestCaseBase):
     """Events between the "world" and a cylindrical surface.
@@ -333,6 +336,7 @@ class CylindricalSurfaceInteractionTestCase(EGFRDSimulatorTestCaseBase):
         # Don't add particles yet.
         # Don't add all reactions.
 
+'''
     def test_simulation_does_not_come_to_a_halt(self):
         # Place a particle on the cylindrical surface.
         L = self.L
@@ -400,6 +404,7 @@ class CylindricalSurfaceInteractionTestCase(EGFRDSimulatorTestCaseBase):
 
         for i in range(100):
             self.s.step()
+'''
 
 
 if __name__ == "__main__":

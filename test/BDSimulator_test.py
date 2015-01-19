@@ -35,7 +35,7 @@ class BDSimulatorTestCase(unittest.TestCase):
     def test_instantiation(self):
         self.failIf(self.s == None)
 
-    
+'''    
     def test_one_particle(self):
         gfrdbase.place_particle(self.w, self.S, [0.0,0.0,0.0])
 
@@ -78,7 +78,7 @@ class BDSimulatorTestCase(unittest.TestCase):
 
         self.failIf(dist != 0, 'initial pos: %s,\tnew pos: %s' %
                     (initial_position, new_position))
-
+'''
 
 
 if __name__ == "__main__":

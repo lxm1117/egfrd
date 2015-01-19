@@ -24,7 +24,7 @@ class CylindricalSurfaceTestCase(unittest.TestCase):
                                                 self.radius,
                                                 [0, 0, 1],
                                                 self.L)
-
+'''
     def test_random_positions(self):
         # For a cylinder along z-axis, position z should not matter.
         for z in range(0, self.L):
@@ -53,7 +53,7 @@ class CylindricalSurfaceTestCase(unittest.TestCase):
 
         # Inside.
         assert self.world.distance(d.shape, [5, 5, self.r3]) == -1
-
+'''
 if __name__ == "__main__":
     unittest.main()
 
