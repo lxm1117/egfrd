@@ -8,6 +8,7 @@
 #include "newBDPropagator.hpp"
 #include "World.hpp"
 #include "ParticleSimulator.hpp"
+#include "utils/range.hpp"
 #include "utils/pair.hpp"
 
 template<typename Tworld_>

@@ -20,6 +20,7 @@
 #include "utils/fun_composition.hpp"
 #include "utils/fun_wrappers.hpp"
 #include "utils/pointer_as_ref.hpp"
+#include "utils/range.hpp"
 #include "utils/pair.hpp"
 #include "utils/math.hpp"
 #include "utils/stringizer.hpp"

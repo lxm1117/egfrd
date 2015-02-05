@@ -12,6 +12,7 @@
 #include "SpeciesTypeID.hpp"
 #include "SpeciesType.hpp"
 #include "utils/get_mapper_mf.hpp"
+#include "utils/range.hpp"
 #include "utils/pair.hpp"
 
 class NetworkRules;

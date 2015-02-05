@@ -15,13 +15,14 @@
 #include <boost/range/iterator_range.hpp>
 
 #include "Defs.hpp"
+#include "utils/range.hpp"
 #include "utils/get_mapper_mf.hpp"
 #include "utils/range_support.hpp"
+#include "utils/memberwise_compare.hpp"
 #include "exceptions.hpp"
 #include "utils.hpp"
 #include "SpeciesTypeID.hpp"
 #include "twofold_container.hpp"
-#include "utils/memberwise_compare.hpp"
 
 class NetworkRules;
 

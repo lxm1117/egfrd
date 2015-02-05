@@ -29,8 +29,8 @@
 #include "geometry.hpp"
 #include "GSLRandomNumberGenerator.hpp"
 #include "Point.hpp" // XXX: workaround. should be removed later.
-#include "utils/pair.hpp"
 #include "utils/range.hpp"
+#include "utils/pair.hpp"
 
 template<typename Tderived_, typename Tlen_, typename TD_>
 struct WorldTraitsBase

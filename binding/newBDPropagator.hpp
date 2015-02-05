@@ -2,6 +2,7 @@
 #define BINDING_NEW_BD_PROPAGATOR_HPP
 
 #include <boost/python.hpp>
+#include "utils/range.hpp"
 #include "utils/pair.hpp"
 #include "peer/utils.hpp"
 #include "peer/wrappers/range/pyiterable_range.hpp"
