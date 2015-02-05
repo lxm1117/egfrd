@@ -12,6 +12,8 @@
 #include "sorted_list.hpp"
 #include "utils/array_helper.hpp"
 #include "utils/get_default_impl.hpp"
+#include "utils/fun_composition.hpp"
+#include "utils/fun_wrappers.hpp"
 #include "utils/range.hpp"
 #include "utils/unassignable_adapter.hpp"
 #include "utils/get_default_impl.hpp"

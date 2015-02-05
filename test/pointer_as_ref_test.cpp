@@ -6,7 +6,6 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/test_case_template.hpp>
-
 #include "utils/pointer_as_ref.hpp"
 
 BOOST_AUTO_TEST_CASE(basic)

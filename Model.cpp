@@ -6,8 +6,8 @@
 #include <boost/type_traits/remove_pointer.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include "utils/fun_composition.hpp"
 #include "utils/fun_wrappers.hpp"
-
 #include "SpeciesType.hpp"
 #include "NetworkRules.hpp"
 #include "BasicNetworkRulesImpl.hpp"

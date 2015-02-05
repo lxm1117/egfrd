@@ -10,10 +10,10 @@
 #include <set>
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
+#include <GSLRandomNumberGenerator.hpp>
 #include "Sphere.hpp"
 #include "MatrixSpace.hpp"
 #include "utils/random.hpp"
-#include "GSLRandomNumberGenerator.hpp"
 
 BOOST_AUTO_TEST_CASE(sized)
 {

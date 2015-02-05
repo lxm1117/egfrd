@@ -26,11 +26,11 @@ template<typename Trange_, typename Ticat_>
 struct check_range_iterator_category
     : boost::is_convertible <
     typename boost::iterator_category_to_traversal <
-    typename range_iterator_category<Trange_>::type > ::type, typename boost::iterator_category_to_traversal<Ticat_>::type > {};
+    typename range_iterator_category<Trange_>::type > ::type, 
+    typename boost::iterator_category_to_traversal<Ticat_>::type > {};
 
 template<typename Trange_>
-struct is_sized
-    : check_range_iterator_category < Trange_, boost::random_access_traversal_tag >
+struct is_sized : check_range_iterator_category < Trange_, boost::random_access_traversal_tag >
 {
 };
 
