@@ -1,30 +1,17 @@
-#ifndef __CYLINDRICALBESSELGENERATOR_HPP
-#define __CYLINDRICALBESSELGENERATOR_HPP
+#ifndef CYLINDRICALBESSELGENERATOR_HPP
+#define CYLINDRICALBESSELGENERATOR_HPP
 
 #include <cmath>
-
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_sf_bessel.h>
-
 #include "Defs.hpp"
-
 
 class CylindricalBesselGenerator
 {
 public:
-
-    CylindricalBesselGenerator()
-    {
-        ; // do nothing
-    }
-
-    ~CylindricalBesselGenerator()
-    {
-        ; // do nothing
-    }
+    CylindricalBesselGenerator() {}
 
     Real J(UnsignedInteger n, Real z) const;
-
     Real Y(UnsignedInteger n, Real z) const;
 
     static UnsignedInteger getMinNJ();
@@ -35,7 +22,4 @@ public:
     static CylindricalBesselGenerator const& instance();
 };
 
-
-
-
-#endif /* __CYLINDRICALBESSELGENERATOR_HPP */
+#endif /* CYLINDRICALBESSELGENERATOR_HPP */

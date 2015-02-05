@@ -1,18 +1,19 @@
-#if !defined( __DEFS_HPP )
-#define __DEFS_HPP
+#ifndef DEFS_HPP 
+#define DEFS_HPP
 
-#include <cstddef>
+#include <vector>
 
 typedef double Real;
+typedef unsigned int uint;
 typedef long int Integer;
 typedef unsigned long int UnsignedInteger;
+typedef std::vector<Real> RealVector;
+typedef std::pair<Real, Real> real_pair;
+typedef std::vector<Real> RealVector;
 
-#define STR( S ) #S
+#define cMAX_ORDER			50
+
 #define THROW_UNLESS( CLASS, EXPRESSION )\
-    if(!(EXPRESSION))\
-      throw CLASS("Check ["+std::string(STR(EXPRESSION)) + "] failed.");
+    if (!(EXPRESSION)) throw CLASS ("Check ["+std::string(#EXPRESSION) + "] failed.");
 
-const Real SEPARATION_TOLERANCE( 1e-07  );
-const Real MINIMAL_SEPARATION_FACTOR( 1.0 + SEPARATION_TOLERANCE );
-
-#endif // __DEFS_HPP
+#endif // DEFS_HPP

@@ -12,7 +12,7 @@ class LogAppender;
 class LoggerManager;
 class LoggerManagerRegistry;
 
-class Logger: boost::noncopyable
+class Logger : boost::noncopyable
 {
 public:
     enum level
@@ -26,7 +26,6 @@ public:
     };
 
 public:
-    ~Logger();
 
     LoggerManager const& logging_manager() const;
 
@@ -103,14 +102,14 @@ private:
     void ensure_initialized();
 
 protected:
-    LoggerManagerRegistry const& registry_; 
+    LoggerManagerRegistry const& registry_;
     std::string const name_;
     boost::shared_ptr<LoggerManager> manager_;
     enum level level_;
     std::vector<boost::shared_ptr<LogAppender> > appenders_;
 };
 
-class LoggerManager: boost::noncopyable
+class LoggerManager : boost::noncopyable
 {
     friend class Logger;
 
@@ -127,8 +126,7 @@ public:
 
     LoggerManager(char const* name, enum Logger::level level = Logger::L_INFO);
 
-    static void register_logger_manager(char const* logger_name_pattern,
-                                        boost::shared_ptr<LoggerManager> const& manager);
+    static void register_logger_manager(char const* logger_name_pattern, boost::shared_ptr<LoggerManager> const& manager);
 
     static boost::shared_ptr<LoggerManager> get_logger_manager(char const* logger_name_patern);
 
@@ -145,12 +143,11 @@ protected:
 class LogAppender
 {
 public:
-    virtual ~LogAppender();
+    virtual ~LogAppender() {};
 
     virtual void flush() = 0;
 
-    virtual void operator()(enum Logger::level lv,
-                            char const* name, char const** chunks) = 0;
+    virtual void operator()(enum Logger::level lv, char const* name, char const** chunks) = 0;
 };
 
 #define LOG_DEBUG(args) if (log_.level() == Logger::L_DEBUG) log_.debug args

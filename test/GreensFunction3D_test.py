@@ -19,7 +19,7 @@ class GreensFunction3DTestCase(unittest.TestCase):
 
     def tearDown(self):
         pass
-    
+
     def test_instantiation(self):
         D = 1e-12
         r0 = 5e-8
@@ -30,7 +30,7 @@ class GreensFunction3DTestCase(unittest.TestCase):
     def test_drawR(self):
         D = 1e-12
         r0 = 2e-8
-        
+
         gf = mod.GreensFunction3D(D, r0)
 
         t = 1e-3
@@ -47,7 +47,7 @@ class GreensFunction3DTestCase(unittest.TestCase):
     def test_drawR_zerot_is_r0(self):
         D = 1e-12
         r0 = 2e-8
-        
+
         gf = mod.GreensFunction3D(D, r0)
 
         t = 0.0
@@ -64,7 +64,7 @@ class GreensFunction3DTestCase(unittest.TestCase):
     def test_drawR_smallt(self):
         D = 1e-12
         r0 = 2e-8
-        
+
         gf = mod.GreensFunction3D(D, r0)
 
         t = 1e-4
@@ -87,7 +87,7 @@ class GreensFunction3DTestCase(unittest.TestCase):
         D = 1e-12
         r0 = 5e-8
         t = 1e-4
-        
+
         gf = mod.GreensFunction3D(D, r0)
 
         #r = gf.drawR(0.5, r0, t)
@@ -108,11 +108,11 @@ class GreensFunction3DTestCase(unittest.TestCase):
     def test_ip_r_infinity_is_one(self):
 
         D = 1e-12
-        
+
         t = 1e-5
         r0 = 5e-8
         r = 2.5e-8
-        
+
         gf = mod.GreensFunction3D(D, r0)
 
         ip = gf.ip_r(numpy.inf, t)
@@ -124,11 +124,11 @@ class GreensFunction3DTestCase(unittest.TestCase):
         import scipy.integrate
 
         D = 1e-12
-        
+
         t = 1e-5
         r0 = 5e-8
         r = 2.5e-8
-        
+
         gf = mod.GreensFunction3D(D, r0)
 
         ip = gf.ip_r(0.0, t)
@@ -138,8 +138,8 @@ class GreensFunction3DTestCase(unittest.TestCase):
 
         resolution = 20
         for i in range(1, resolution):
-            r = i * maxr / resolution 
-            ip = gf.ip_r(r, t) 
+            r = i * maxr / resolution
+            ip = gf.ip_r(r, t)
             result = scipy.integrate.quad(gf.p_r, 0.0, r,
                                           args=(t, ))
             np = result[0]
@@ -151,11 +151,11 @@ class GreensFunction3DTestCase(unittest.TestCase):
         import scipy.integrate
 
         D = 1e-12
-        
+
         t = 1e-5
         r0 = 5e-8
         r = 2.5e-8
-        
+
         gf = mod.GreensFunction3D(D, r0)
 
         ip = gf.ip_theta(numpy.pi, r, t)
@@ -164,7 +164,7 @@ class GreensFunction3DTestCase(unittest.TestCase):
         np = result[0]
 
         pr = gf.p_r(r, t) / (2 * numpy.pi * r * r)
-        
+
         self.assertAlmostEqual(0.0, (pr-ip)/pr)
         self.assertAlmostEqual(0.0, (pr-np)/pr)
 
@@ -177,11 +177,11 @@ class GreensFunction3DTestCase(unittest.TestCase):
         import scipy.integrate
 
         D = 1e-12
-        
+
         t = 1e-3
         r0 = 5e-8
         r = 2.5e-8
-        
+
         gf = mod.GreensFunction3D(D, r0)
 
         ip = gf.ip_theta(0.0, r, t)
@@ -189,7 +189,7 @@ class GreensFunction3DTestCase(unittest.TestCase):
 
         resolution = 20
         for i in range(1, resolution):
-            theta = i * numpy.pi / resolution 
+            theta = i * numpy.pi / resolution
             ip = gf.ip_theta(theta, r, t)
             result = scipy.integrate.quad(gf.p_theta, 0.0, theta,
                                           args=(r, t))

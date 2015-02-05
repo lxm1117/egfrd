@@ -13,7 +13,7 @@ class GreensFunction3DAbsSymTestCase(unittest.TestCase):
 
     def tearDown(self):
         pass
-    
+
     def test_instantiation(self):
         D = 1e-12
         a = 1.0
@@ -36,7 +36,7 @@ class GreensFunction3DAbsSymTestCase(unittest.TestCase):
         D = 1e-12
         a = 0.0
         gf = mod.GreensFunction3DAbsSym(D, a)
-        
+
         t = gf.drawTime(0.5)
         self.assertEqual(0.0, t)
         r = gf.drawR(0.5, t)
@@ -112,7 +112,7 @@ class GreensFunction3DAbsSymTestCase(unittest.TestCase):
 
         D = 1e-12
         a=3.30588e-08
-        rnd=0.944502 
+        rnd=0.944502
         dt=0.00411832
 
         gf = mod.GreensFunction3DAbsSym(D, a)

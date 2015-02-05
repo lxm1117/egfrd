@@ -19,21 +19,22 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
     def tearDown( self ):
         pass
 
-    '''
+    
     def test_Instantiation( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-7
-	r0 = L/2
+        r0 = L/2
 
         gf = mod.GreensFunction1DRadAbs( D, kf, v, r0, L )
         self.failIf( gf == None )
 
 
-    def test_DrawTime( self ):
+    '''
+        def test_DrawTime( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-7
         r0 = 5e-8
@@ -53,10 +54,9 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
         self.failIf( t <= 0.0 or t >= numpy.inf )
         print "GreensFunction1DRadAbs_test.py : test_DrawTime : t =",t
 
-
     def test_DrawTime_a_equal_sigma( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 0
         r0 = L
@@ -70,7 +70,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
     def test_DrawTime_a_near_sigma( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-14
         r0 = L/2
@@ -87,7 +87,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
     def test_DrawTime_r0_equal_a( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-7
         r0 = L
@@ -102,14 +102,14 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
     def test_DrawTime_r0_equal_sigma_kf_zero( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 0.0 # note this
         L = 1e-7
         r0 = 0
 
         gf = mod.GreensFunction1DRadAbs( D, kf, v, r0, L )
 
-        t = gf.drawTime( 0.5 )				# This does not converge for negative v ~< -1e-16
+        t = gf.drawTime( 0.5 )                                # This does not converge for negative v ~< -1e-16
         self.failIf( t < 0.0 or t >= numpy.inf )
         print " "
         print "GreensFunction1DRadAbs_test.py : test_DrawTime_r0_equal_sigma_kf_zero : t =",t
@@ -117,7 +117,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
     def no_test_DrawTime_r0_equal_sigma_kf_large( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 20e-7
         r0 = 1e-12
@@ -132,7 +132,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
     def test_DrawEventType( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-7
         r0 = L/2
@@ -154,7 +154,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
     def no_test_DrawEventType_smallt( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-6
         r0 = L/2
@@ -176,7 +176,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
     def test_DrawR( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-7
         r0 = L/2
@@ -203,7 +203,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
     def test_DrawR_zerot( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 1e-7
         r0 = L/2
@@ -220,7 +220,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
     def test_DrawR_r0_equal_sigma( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-7
         r0 = 0
@@ -236,10 +236,10 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
     def test_DrawR_squeezed( self ):
 
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 0.02e-8
-	r0 = L/2
+        r0 = L/2
 
         gf = mod.GreensFunction1DRadAbs( D, kf, v, r0, L )
 
@@ -265,6 +265,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
         self.failIf( r < 0 or r > L )
         print "GreensFunction1DRadAbs_test.py : test_DrawR_squeezed : 2nd drawn r =",r
     '''
+
 
 if __name__ == "__main__":
     unittest.main()

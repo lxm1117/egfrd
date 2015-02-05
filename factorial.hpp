@@ -1,13 +1,12 @@
 #ifndef FACTORIAL_HPP
 #define FACTORIAL_HPP
 
+#include <cassert>
 
+// Table adopted and modified from GNU Scientific Library Version 1.9 (gamma.c).
 
-// Table adopted and modified from GNU Scientific Library Version 1.9 
-// (gamma.c).
-const int FACTORIAL_NMAX( 170 );
-
-static const double factorials[FACTORIAL_NMAX+1] = 
+const int FACTORIAL_NMAX(170);
+static const double factorials[FACTORIAL_NMAX + 1] =
 {
     1.0,
     1.0,
@@ -18,12 +17,10 @@ static const double factorials[FACTORIAL_NMAX+1] =
     720.0,
     5040.0,
     40320.0,
-
     362880.0,
     3628800.0,
     39916800.0,
     479001600.0,
-
     6227020800.0,
     87178291200.0,
     1307674368000.0,
@@ -182,7 +179,6 @@ static const double factorials[FACTORIAL_NMAX+1] =
     2.52607574497319838753801886917e302,
     4.26906800900470527493925188890e304,
     7.25741561530799896739672821113e306,
-
     /*
       1.24101807021766782342484052410e309,
       2.13455108077438865629072570146e311,
@@ -214,11 +210,10 @@ static const double factorials[FACTORIAL_NMAX+1] =
       1.98155243056480026018181712043e370,
       3.94328933682395251776181606966e372,
       7.88657867364790503552363213932e374,
-    */
+      */
 };
 
-
-static const double factorials_r[FACTORIAL_NMAX+1] = 
+static const double factorials_r[FACTORIAL_NMAX + 1] =
 {
     1.0 / 1.0,
     1.0 / 1.0,
@@ -229,11 +224,11 @@ static const double factorials_r[FACTORIAL_NMAX+1] =
     1.0 / 720.0,
     1.0 / 5040.0,
     1.0 / 40320.0,
-    1.0 /  362880.0,
+    1.0 / 362880.0,
     1.0 / 3628800.0,
     1.0 / 39916800.0,
     1.0 / 479001600.0,
-    1.0 /  6227020800.0,
+    1.0 / 6227020800.0,
     1.0 / 87178291200.0,
     1.0 / 1307674368000.0,
     1.0 / 20922789888000.0,
@@ -391,7 +386,6 @@ static const double factorials_r[FACTORIAL_NMAX+1] =
     1.0 / 2.52607574497319838753801886917e302,
     1.0 / 4.26906800900470527493925188890e304,
     1.0 / 7.25741561530799896739672821113e306,
-
     /*
       1.0 /   1.24101807021766782342484052410e309,
       1.0 /   2.13455108077438865629072570146e311,
@@ -423,20 +417,18 @@ static const double factorials_r[FACTORIAL_NMAX+1] =
       1.0 /   1.98155243056480026018181712043e370,
       1.0 /   3.94328933682395251776181606966e372,
       1.0 /   7.88657867364790503552363213932e374,
-    */
+      */
 };
 
-
-inline const double factorial( const unsigned int n )
+inline const double factorial(const unsigned int n)
 {
-    // assert( n <= FACTORIAL_NMAX );
+    assert(n <= FACTORIAL_NMAX);
     return factorials[n];
 }
 
-
-inline const double factorial_r( const unsigned int n )
+inline const double factorial_r(const unsigned int n)
 {
-    // assert( n <= FACTORIAL_NMAX );
+    assert(n <= FACTORIAL_NMAX);
     return factorials_r[n];
 }
 

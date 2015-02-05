@@ -6,16 +6,12 @@
 #include <cmath>
 #include <boost/bind.hpp>
 #include <gsl/gsl_sum.h>
-
 #include "Logger.hpp"
 #include "funcSum.hpp"
 
-typedef std::vector<Real> RealVector;
-
 static Logger& _log(Logger::get_logger("funcSum"));
 
-Real 
-funcSum_all(boost::function<Real(unsigned int i)> f, size_t max_i)
+Real funcSum_all(boost::function<Real(uint i)> f, size_t max_i)
 {
     Real sum(0.0);
 
@@ -27,8 +23,8 @@ funcSum_all(boost::function<Real(unsigned int i)> f, size_t max_i)
 
     sum = p_0;
 
-    RealVector::size_type i(1); 
-    while(i < max_i)
+    RealVector::size_type i(1);
+    while (i < max_i)
     {
         const Real p_i(f(i));
         sum += p_i;
@@ -39,10 +35,7 @@ funcSum_all(boost::function<Real(unsigned int i)> f, size_t max_i)
     return sum;
 }
 
-
-Real 
-funcSum_all_accel(boost::function<Real(unsigned int i)> f,
-                  size_t max_i, Real tolerance)
+Real funcSum_all_accel(boost::function<Real(uint i)> f, size_t max_i, Real tolerance)
 {
     RealVector pTable;
     pTable.reserve(max_i);
@@ -56,7 +49,7 @@ funcSum_all_accel(boost::function<Real(unsigned int i)> f,
     pTable.push_back(p_0);
 
     RealVector::size_type i(1);
-    for(;  i < max_i; ++i)
+    for (; i < max_i; ++i)
     {
         const Real p_i(f(i));
         pTable.push_back(p_i);
@@ -64,17 +57,12 @@ funcSum_all_accel(boost::function<Real(unsigned int i)> f,
 
     Real sum;
     Real error;
-    gsl_sum_levin_utrunc_workspace* 
-        workspace(gsl_sum_levin_utrunc_alloc(i));
-    gsl_sum_levin_utrunc_accel(&pTable[0], pTable.size(), workspace, 
-                                &sum, &error);
+    gsl_sum_levin_utrunc_workspace* workspace(gsl_sum_levin_utrunc_alloc(i));
+    gsl_sum_levin_utrunc_accel(&pTable[0], pTable.size(), workspace, &sum, &error);
     if (fabs(error) >= fabs(sum * tolerance))
     {
-        _log.error("series acceleration error: %.16g"
-                  " (rel error: %.16g), terms_used = %d (%d given)",
-                  fabs(error), fabs(error / sum),
-                  workspace->terms_used, pTable.size());
-        // TODO look into this crashing behaviour
+        _log.error("series acceleration error: %.16g (rel error: %.16g), terms_used = %d (%d given)", fabs(error), fabs(error / sum), workspace->terms_used, pTable.size());
+        // TODO look into this crashing behavior
     }
 
     gsl_sum_levin_utrunc_free(workspace);
@@ -82,10 +70,7 @@ funcSum_all_accel(boost::function<Real(unsigned int i)> f,
     return sum;
 }
 
-
-Real 
-funcSum(boost::function<Real(unsigned int i)> f, size_t max_i, Real tolerance)
-// funcSum
+Real funcSum(boost::function<Real(uint i)> f, size_t max_i, Real tolerance)
 // ==
 // Will simply calculate the sum over a certain function f, until it converges
 // (i.e. the sum > tolerance*current_term for a CONVERGENCE_CHECK number of 
@@ -105,7 +90,7 @@ funcSum(boost::function<Real(unsigned int i)> f, size_t max_i, Real tolerance)
 // (From: http://stackoverflow.com/questions/527413/how-boostfunction-and-boostbind-work)
 {
     // DEFAULT = 4
-    const unsigned int CONVERGENCE_CHECK(4);    
+    const uint CONVERGENCE_CHECK(4);
 
     Real sum(0.0);
     RealVector pTable;
@@ -121,10 +106,10 @@ funcSum(boost::function<Real(unsigned int i)> f, size_t max_i, Real tolerance)
 
     bool extrapolationNeeded(true);
 
-    unsigned int convergenceCounter(0);
+    uint convergenceCounter(0);
 
-    RealVector::size_type i(1); 
-    while(i < max_i)
+    RealVector::size_type i(1);
+    while (i < max_i)
     {
         const Real p_i(f(i));
         pTable.push_back(p_i);
@@ -134,7 +119,7 @@ funcSum(boost::function<Real(unsigned int i)> f, size_t max_i, Real tolerance)
 
         if (fabs(sum) * tolerance >= fabs(p_i)) // '=' is important
         {
-            ++convergenceCounter;          
+            ++convergenceCounter;
         }
         // this screws it up; why?
         else
@@ -142,28 +127,22 @@ funcSum(boost::function<Real(unsigned int i)> f, size_t max_i, Real tolerance)
             convergenceCounter = 0;
         }
 
-
         if (convergenceCounter >= CONVERGENCE_CHECK)
         {
             extrapolationNeeded = false;
             break;
         }
-        
+
     }
 
     if (extrapolationNeeded)
     {
         Real error;
-        gsl_sum_levin_utrunc_workspace* 
-            workspace(gsl_sum_levin_utrunc_alloc(i));
-        gsl_sum_levin_utrunc_accel(&pTable[0], pTable.size(), workspace, 
-            &sum, &error);
+        gsl_sum_levin_utrunc_workspace* workspace(gsl_sum_levin_utrunc_alloc(i));
+        gsl_sum_levin_utrunc_accel(&pTable[0], pTable.size(), workspace, &sum, &error);
         if (fabs(error) >= fabs(sum * tolerance * 10))
         {
-            _log.error("series acceleration error: %.16g"
-                      " (rel error: %.16g), terms_used = %d (%d given)",
-                      fabs(error), fabs(error / sum),
-                      workspace->terms_used, pTable.size());
+            _log.error("series acceleration error: %.16g (rel error: %.16g), terms_used = %d (%d given)", fabs(error), fabs(error / sum), workspace->terms_used, pTable.size());
         }
 
         gsl_sum_levin_utrunc_free(workspace);

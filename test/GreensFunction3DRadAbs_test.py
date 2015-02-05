@@ -19,7 +19,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
 
     def tearDown(self):
         pass
-    
+
     def test_instantiation(self):
         D = 1e-12
         kf = 1e8
@@ -37,7 +37,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         sigma = 1e-8
         a = 1e-7
         r0 = 5e-8
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         t = gf.drawTime(0.5)
@@ -56,7 +56,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         sigma = 1e-8
         a = sigma
         r0 = a
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         t = gf.drawTime(0.5)
@@ -68,7 +68,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         sigma = 1e-8
         a = sigma + sigma * 1e-6
         r0 = (a + sigma) * .5
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         t = gf.drawTime(0.5)
@@ -80,7 +80,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         sigma = 1e-8
         a = 1e-7
         r0 = a
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         t = gf.drawTime(0.5)
@@ -92,7 +92,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         sigma = 1e-8
         a = 1e-7
         r0 = sigma
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         t = gf.drawTime(0.5)
@@ -105,7 +105,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         sigma = 1e-8
         a = 10e-7
         r0 = sigma + 1e-12
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         t = gf.drawTime(0.5)
@@ -163,7 +163,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         sigma = 1e-8
         a = 1e-7
         r0 = 9e-8
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         print '==============================================='
@@ -191,7 +191,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         sigma = 1e-8
         a = sigma
         r0 = a
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         t, et = gf.drawTime2(0.5, 0.5)
@@ -201,10 +201,10 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
     def test_draw_time2_squeezed(self):
         D = 1e-12
         kf = 1e-10
-        sigma = 1e-8 
+        sigma = 1e-8
         a = sigma + sigma * 1e-6
         r0 = (a + sigma) * .5
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         t, et = gf.drawTime2(0.5, 0.5)
@@ -216,7 +216,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         sigma = 1e-8
         a = 1e-7
         r0 = a
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         t, et = gf.drawTime2(0.5, 0.5)
@@ -230,7 +230,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         sigma = 1e-8
         a = 1e-7
         r0 = sigma
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         t, et = gf.drawTime2(0.5, 0.5)
@@ -269,7 +269,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         sigma = 1e-8
         a = 10e-7
         r0 = sigma + 1e-12
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         t, et = gf.drawTime2(0.5, 0.5, r0)
@@ -283,7 +283,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         sigma = 1e-8
         a = 1e-7
         r0 = 2e-8
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         t = 1e-3
@@ -307,7 +307,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         sigma = 1e-8
         a = 1e-7
         r0 = 2e-8
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         t = 0.0
@@ -324,7 +324,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         r0 = sigma
 
         t = 1e-3
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         r = gf.drawR(0.5, t)
@@ -336,7 +336,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         kf = 1e-8
         sigma = 1e-8
         a = 1.01e-8
-        
+
         t = 1e-6
         r0 = 1.005e-8
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
@@ -364,7 +364,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         sigma = 1e-8
         a = 1e-7
         r0 = 5e-8
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         t = gf.drawTime(0.5)
@@ -388,7 +388,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         a = 1e-7
         r = 5e-8
         r0 = 5e-8
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         t = 0.0
@@ -403,7 +403,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         a = 1e-7
         r = 2e-8
         r0 = 2e-8
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         t = 1e-7  # well this is not *very* small..
@@ -418,7 +418,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         kf = 1e-8
         sigma = 1e-8
         a = 1.001e-8
-        
+
         t = 1e-8
         r = 1.0001e-8
         r0 = 1.0001e-8
@@ -469,7 +469,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
 
         t = 1e-3
         r = r0
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         theta = gf.drawTheta(0.5, r, t)
@@ -499,7 +499,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         kf = 0 # h = 0
 
         r =  1.03421535312e-07
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         theta = gf.drawTheta(0.5, r, t)
@@ -511,13 +511,13 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         D = 1e-12
         sigma = 1e-8
         kf = 1e-8
-        
+
         a = 1e-7
         r0 = 5e-8
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
         maxerror = 0.0
-        
+
         for i in range(100):
             alpha = gf.alpha0_i(i)
             error = abs(gf.f_alpha0(alpha) / alpha)
@@ -534,9 +534,9 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
 
         t = 1e-5
         r0 = 5e-8
-        
+
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         surv = gf.p_survival(t)
@@ -546,7 +546,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         self.failIf(surv <= 0.0)
         self.failIf(pleavea <= 0.0 or pleaves <= 0.0)
         self.assertAlmostEqual(surv, pleaves + pleavea)
-        
+
 
     def test_dpsurvival_is_leaves_plus_leavea(self):
 
@@ -556,9 +556,9 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
 
         t = 1e-3
         r0 = 2e-8
-        
+
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         dsurv = gf.dp_survival(t)
@@ -584,7 +584,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
 
         for i in range(5):
             psurv = gf.p_survival(t)
-            pleaves = gf.p_leaves(t) 
+            pleaves = gf.p_leaves(t)
             pleavea = gf.p_leavea(t)
             self.assertNotEqual(0.0, psurv)
             self.assertAlmostEqual(pleaves + pleavea, psurv)
@@ -601,7 +601,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         r0 = 5e-8
 
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         r = r0
@@ -620,10 +620,10 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         r0 = 5e-8
 
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
         r = r0
-        
+
         pintr = gf.p_int_r(a, t)
         psurv = gf.p_survival(t)
         self.assertAlmostEqual(pintr, psurv)
@@ -638,9 +638,9 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         r0 = 5e-8
 
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
-         
+
         pintr = gf.p_int_r(gf.getSigma(), t)
         self.assertEqual(0.0, pintr)
 
@@ -655,7 +655,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         r0 = sigma
 
         a = 3e-7
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         psurv = gf.p_survival(t)
@@ -683,16 +683,16 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         r0 = 5e-8
 
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
         r = r0
 
         ip = gf.ip_theta(0.0, r, t)
         self.assertEqual(0.0, ip)
-        
+
         resolution = 10
         for i in range(1, resolution):
-            theta = i * numpy.pi / resolution 
+            theta = i * numpy.pi / resolution
             ip = gf.ip_theta(theta, r, t)
             result = scipy.integrate.quad(gf.p_theta, 0.0, theta,
                                           args=(r, t))
@@ -711,7 +711,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         r = r0
 
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         ip = gf.ip_theta(numpy.pi, r, t)
@@ -731,7 +731,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         r0 = 5e-8
         r = r0
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         pint = gf.ip_theta(numpy.pi, r, t)
@@ -740,10 +740,10 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         resolution = 50
         for i in range(resolution):
             theta = i * numpy.pi / resolution
-            p = gf.p_theta(theta, r, t) / pint / resolution 
+            p = gf.p_theta(theta, r, t) / pint / resolution
             pmin = min(pmin, p)
             #print 'theta: ', theta, '\tp: ', p
-            
+
         self.failIf(pmin < 0.0, 'Negative p_theta; t= %g, %s'
                     % (t, gf.dump()))
 
@@ -759,7 +759,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         r0 = 5e-8
         r = r0
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         pint_prev = 0.0
@@ -781,7 +781,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         t = 1e-4
         r0 = 9e-8
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         leavea = gf.leavea(t) * numpy.pi * a * a * 2
@@ -795,19 +795,19 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         D = 1e-12
         sigma = 1e-8
         kf = 1e-8
-        
+
         t = 1e-7
         r0 = 5e-7
         r = 5e-7
         a = 1e-6
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
 
         resolution = 20
         for i in range(1, resolution):
-            theta = i * numpy.pi / resolution 
+            theta = i * numpy.pi / resolution
 
-            pfree = mod.p_theta_free(theta, r, r0, t, D) 
+            pfree = mod.p_theta_free(theta, r, r0, t, D)
             p = gf.p_theta(theta, r, t)* 4 * numpy.pi * r * r
             print pfree, p
 
@@ -820,12 +820,12 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         D = 1e-12
         sigma = 1e-8
         kf = 1e-18
-        
+
         a = 2e-7
-        
+
         gf = mod.GreensFunction3DRadAbs(D, kf, r0, sigma, a)
         maxerror = 0
-        
+
         for n in range(100):
             for i in range(1000):
                 alpha = gf.alpha_i(n, i)
@@ -837,6 +837,6 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
 
 
 
-        
+
 if __name__ == "__main__":
     unittest.main()

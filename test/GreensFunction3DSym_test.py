@@ -19,7 +19,7 @@ class GreensFunction3DSymTestCase(unittest.TestCase):
 
     def tearDown(self):
         pass
-    
+
     def test_instantiation(self):
         D = 1e-12
 
@@ -28,7 +28,7 @@ class GreensFunction3DSymTestCase(unittest.TestCase):
 
     def test_drawR(self):
         D = 1e-12
-        
+
         gf = mod.GreensFunction3DSym(D)
 
         t = 1e-3
@@ -45,7 +45,7 @@ class GreensFunction3DSymTestCase(unittest.TestCase):
     def test_drawR_zerot_is_zero(self):
 
         D = 1e-12
-        
+
         gf = mod.GreensFunction3DSym(D)
 
         t = 0.0
@@ -63,10 +63,10 @@ class GreensFunction3DSymTestCase(unittest.TestCase):
     def no_test_ip_r_infinity_is_one(self):
 
         D = 1e-12
-        
+
         t = 1e-5
         r = 2.5e-8
-        
+
         gf = mod.GreensFunction3DSym(D)
         ip = gf.ip_r(numpy.inf, t)
         self.assertEqual(1.0, ip)
@@ -77,7 +77,7 @@ class GreensFunction3DSymTestCase(unittest.TestCase):
 
         D = 1e-12
         t = 1e-5
-        
+
         gf = mod.GreensFunction3DSym(D)
 
         ip = gf.ip_r(0.0, t)
@@ -87,7 +87,7 @@ class GreensFunction3DSymTestCase(unittest.TestCase):
 
         resolution = 20
         for i in range(1, resolution):
-            r = i * maxr / resolution 
+            r = i * maxr / resolution
             ip = gf.ip_r(r, t)
             result = scipy.integrate.quad(gf.p_r, 0.0, r,
                                           args=(t, ))

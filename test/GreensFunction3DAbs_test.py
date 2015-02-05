@@ -19,7 +19,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
 
     def tearDown(self):
         pass
-    
+
     def test_instantiation(self):
         D = 1e-12
         kf = 1e8
@@ -35,7 +35,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         D = 1e-12
         a = 1e-7
         r0 = 5e-8
-        
+
         gf = mod.GreensFunction3DAbs(D, r0, a)
 
         t = gf.drawTime(0.5)
@@ -52,7 +52,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
 
         a = 1e-7
         r0 = a
-        
+
         gf = mod.GreensFunction3DAbs(D, r0, a)
 
         t = gf.drawTime(0.5)
@@ -63,7 +63,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
 
         a = 1e-7
         r0 = 2e-8
-        
+
         gf = mod.GreensFunction3DAbs(D, r0, a)
 
         t = 1e-3
@@ -84,7 +84,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         D = 1e-12
         a = 1e-7
         r0 = 2e-8
-        
+
         gf = mod.GreensFunction3DAbs(D, r0, a)
 
         t = 0.0
@@ -97,7 +97,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
 
         D = 1e-12
         a = 1.01e-8
-        
+
         t = 1e-6
         r0 = 1.005e-8
         gf = mod.GreensFunction3DAbs(D, r0, a)
@@ -123,7 +123,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         D = 1e-12
         a = 1e-7
         r0 = 5e-8
-        
+
         gf = mod.GreensFunction3DAbs(D, r0, a)
 
         t = gf.drawTime(0.5)
@@ -145,7 +145,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         a = 1e-7
         r = 5e-8
         r0 = 5e-8
-        
+
         gf = mod.GreensFunction3DAbs(D, r0, a)
 
         t = 0.0
@@ -159,7 +159,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         a = 1e-7
         r = 5e-8
         r0 = 5e-8
-        
+
         gf = mod.GreensFunction3DAbs(D, r0, a)
 
         t = 1e-4  # not very small though..
@@ -173,10 +173,10 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         a = 1e-7
         r = 5e-8
         r0 = 5e-8
-        
+
         gf = mod.GreensFunction3DAbs(D, r0, a)
 
-        t = 1e5 
+        t = 1e5
         theta = gf.drawTheta(0.5, r, t)
         self.failIf(theta < 0.0 or theta > numpy.pi)
 
@@ -187,7 +187,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         D = 1e-12
         #a = 1.01e-8  # this is a better test but currently fails
         a = 1.1e-8
-        
+
         t = 1e-5
 
         # near a
@@ -204,7 +204,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
 
         t = 1e-4
         r = a
-        
+
         gf = mod.GreensFunction3DAbs(D, r0, a)
 
         theta = gf.drawTheta(0.5, r, t)
@@ -218,7 +218,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
 
         t = 1e-2
         r = a
-        
+
         gf = mod.GreensFunction3DAbs(D, r0, a)
 
         theta = gf.drawTheta(0.5, r, t)
@@ -233,7 +233,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         r0 = 5e-8
 
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DAbs(D, r0, a)
 
         r = r0
@@ -249,10 +249,10 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         r0 = 5e-8
 
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DAbs(D, r0, a)
         r = r0
-        
+
         pintr = gf.p_int_r(a, t)
         psurv = gf.p_survival(t)
         self.assertAlmostEqual(pintr, psurv)
@@ -265,10 +265,10 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         r0 = 5e-8
 
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DAbs(D, r0, a)
         r = r0
-        
+
         pintr = gf.p_int_r(0.0, t)
         self.assertEqual(0.0, pintr)
 
@@ -282,16 +282,16 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         r0 = 5e-8
 
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DAbs(D, r0, a)
         r = r0
 
         ip = gf.ip_theta(0.0, r, t)
         self.assertEqual(0.0, ip)
-        
+
         resolution = 10
         for i in range(1, resolution):
-            theta = i * numpy.pi / resolution 
+            theta = i * numpy.pi / resolution
             ip = gf.ip_theta(theta, r, t)
             result = scipy.integrate.quad(gf.p_theta, 0.0, theta,
                                           args=(r, t))
@@ -312,7 +312,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         r = r0
 
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DAbs(D, kf, sigma, a)
 
         ip = gf.ip_theta(numpy.pi, r, r0, t)
@@ -332,7 +332,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         r0 = 5e-8
         r = r0
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DAbs(D, r0, a)
 
         pint = gf.ip_theta(numpy.pi, r, t)
@@ -341,10 +341,10 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         resolution = 50
         for i in range(resolution):
             theta = i * numpy.pi / resolution
-            p = gf.p_theta(theta, r, t) / pint / resolution 
+            p = gf.p_theta(theta, r, t) / pint / resolution
             pmin = min(pmin, p)
             #print 'theta: ', theta, '\tp: ', p
-            
+
         self.failIf(pmin < 0.0, 'Negative p_theta; t= %g, %s'
                     % (t, gf.dump()))
 
@@ -358,7 +358,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         r0 = 5e-8
         r = r0
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DAbs(D, r0, a)
 
         pint_prev = 0.0
@@ -378,7 +378,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         t = 1e-3
         r0 = 9e-8
         a = 1e-7
-        
+
         gf = mod.GreensFunction3DAbs(D, r0, a)
 
         dp = gf.dp_survival(t)

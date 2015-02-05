@@ -20,23 +20,22 @@
 
 template<typename Trange_>
 struct range_iterator_category
-    : boost::BOOST_ITERATOR_CATEGORY<typename boost::range_iterator<Trange_>::type> {};
+    : boost::BOOST_ITERATOR_CATEGORY < typename boost::range_iterator<Trange_>::type > {};
 
 template<typename Trange_, typename Ticat_>
 struct check_range_iterator_category
-    : boost::is_convertible<
-        typename boost::iterator_category_to_traversal<
-            typename range_iterator_category<Trange_>::type >::type,
-        typename boost::iterator_category_to_traversal<Ticat_>::type > {};
+    : boost::is_convertible <
+    typename boost::iterator_category_to_traversal <
+    typename range_iterator_category<Trange_>::type > ::type, typename boost::iterator_category_to_traversal<Ticat_>::type > {};
 
 template<typename Trange_>
 struct is_sized
-    : check_range_iterator_category<Trange_, boost::random_access_traversal_tag>
+    : check_range_iterator_category < Trange_, boost::random_access_traversal_tag >
 {
 };
 
 template<typename Trange_>
-struct range_size: boost::range_difference<Trange_> {};
+struct range_size : boost::range_difference < Trange_ > {};
 
 template<typename Trange_>
 struct range_size_retriever
@@ -58,12 +57,12 @@ size(Trange_ const& r)
 }
 
 template<typename Titer_>
-class sized_iterator_range: public boost::iterator_range<Titer_>
+class sized_iterator_range : public boost::iterator_range < Titer_ >
 {
     typedef boost::iterator_range<Titer_> base_type;
 
 public:
-    sized_iterator_range(): size_(0) {}
+    sized_iterator_range() : size_(0) {}
 
     template<typename Taiter_>
     sized_iterator_range(Taiter_ begin, Taiter_ end)
@@ -78,8 +77,7 @@ public:
         : base_type(r), size_(::size(r)) {}
 
     template<typename Taiter_>
-    sized_iterator_range(Taiter_ begin, Taiter_ end,
-            typename base_type::size_type size)
+    sized_iterator_range(Taiter_ begin, Taiter_ end, typename base_type::size_type size)
         : base_type(begin, end), size_(size) {}
 
     template<typename Trange_>
@@ -100,57 +98,53 @@ private:
 };
 
 template<typename Trange_>
-struct is_referencing_range: boost::mpl::false_ {};
+struct is_referencing_range : boost::mpl::false_ {};
 
 template<typename Titer_>
-struct is_referencing_range<std::pair<Titer_, Titer_> >: boost::mpl::true_ {};
+struct is_referencing_range<std::pair<Titer_, Titer_> > : boost::mpl::true_{};
 
 template<typename Titer_>
-struct is_referencing_range<boost::iterator_range<Titer_> >: boost::mpl::true_ {};
+struct is_referencing_range<boost::iterator_range<Titer_> > : boost::mpl::true_{};
 
 template<typename Titer_>
-struct is_sized<sized_iterator_range<Titer_> >: boost::mpl::true_
+struct is_sized<sized_iterator_range<Titer_> > : boost::mpl::true_
 {
 };
 
 template<typename Tfn, typename Trange>
 inline void call_with_size_if_randomly_accessible(
-    Tfn& fn, Trange const &range,
-    typename boost::enable_if<is_sized<Trange> >::type* = 0)
+    Tfn& fn, Trange const &range, typename boost::enable_if<is_sized<Trange> >::type* = 0)
 {
     fn(::size(range));
 }
 
 template<typename Tfn, typename Trange>
 inline void call_with_size_if_randomly_accessible(
-    Tfn& fn, Trange const &range,
-    typename boost::disable_if<is_sized<Trange> >::type* = 0)
+    Tfn& fn, Trange const &range, typename boost::disable_if<is_sized<Trange> >::type* = 0)
 {
 }
 
 template<typename Tfn, typename Trange>
 inline void call_with_size_if_randomly_accessible(
-    Tfn const& fn, Trange const &range,
-    typename boost::enable_if<is_sized<Trange> >::type* = 0)
+    Tfn const& fn, Trange const &range, typename boost::enable_if<is_sized<Trange> >::type* = 0)
 {
     fn(::size(range));
 }
 
 template<typename Tfn, typename Trange>
 inline void call_with_size_if_randomly_accessible(
-    Tfn const& fn, Trange const &range,
-    typename boost::disable_if<is_sized<Trange> >::type* = 0)
+    Tfn const& fn, Trange const &range, typename boost::disable_if<is_sized<Trange> >::type* = 0)
 {
 }
 
 template<typename Titer_>
-struct range_size<sized_iterator_range<Titer_> >
+struct range_size < sized_iterator_range<Titer_> >
 {
     typedef std::size_t type;
 };
 
 template<typename Titer_>
-struct range_size_retriever<sized_iterator_range<Titer_> >
+struct range_size_retriever < sized_iterator_range<Titer_> >
 {
     typedef sized_iterator_range<Titer_> argument_type;
     typedef typename range_size<argument_type>::type result_type;
@@ -163,27 +157,26 @@ struct range_size_retriever<sized_iterator_range<Titer_> >
 
 namespace detail {
 
-template<typename Trange_ = void, bool N_ = boost::mpl::and_<
-    boost::mpl::not_<boost::is_same<Trange_, void> >,
-    is_sized<Trange_> >::value>
-struct get_default_range_holder
-{
-    template<typename Titer_>
-    struct apply
+    template<typename Trange_ = void, bool N_ = boost::mpl::and_ <
+        boost::mpl::not_<boost::is_same<Trange_, void> >, is_sized<Trange_> > ::value>
+    struct get_default_range_holder
     {
-        typedef boost::iterator_range<Titer_> type;
+        template<typename Titer_>
+        struct apply
+        {
+            typedef boost::iterator_range<Titer_> type;
+        };
     };
-};
 
-template<typename Trange_>
-struct get_default_range_holder<Trange_, true>
-{
-    template<typename Titer_>
-    struct apply
+    template<typename Trange_>
+    struct get_default_range_holder < Trange_, true >
     {
-        typedef sized_iterator_range<Titer_> type;
+        template<typename Titer_>
+        struct apply
+        {
+            typedef sized_iterator_range<Titer_> type;
+        };
     };
-};
 
 } // namespace detail
 
@@ -248,7 +241,7 @@ struct get_transformed_range
 };
 
 template<typename Trange_, typename Tfun_>
-struct get_transformed_range<const Trange_, Tfun_>
+struct get_transformed_range < const Trange_, Tfun_ >
 {
     typedef transformed_range<typename boost::range_const_iterator<Trange_>::type, Tfun_, detail::get_default_range_holder<Trange_> > type;
 };
@@ -270,14 +263,13 @@ make_transform_iterator_range(Trange_ const& range, Tfun_ const& fun, bool)
 }
 
 template<typename Titer_, typename Tfun_, typename Tholder_getter_>
-struct range_size<transformed_range<Titer_, Tfun_, Tholder_getter_> >: public range_size<typename Tholder_getter_::template apply<Titer_>::type> {};
-
-
-template<typename Titer_, typename Tfun_, typename Tholder_getter_>
-struct is_sized<transformed_range<Titer_, Tfun_, Tholder_getter_> >: public is_sized<typename Tholder_getter_::template apply<Titer_>::type> {};
+struct range_size<transformed_range<Titer_, Tfun_, Tholder_getter_> > : public range_size < typename Tholder_getter_::template apply<Titer_>::type > {};
 
 template<typename Titer_, typename Tfun_, typename Tholder_getter_>
-struct range_size_retriever<transformed_range<Titer_, Tfun_, Tholder_getter_> >
+struct is_sized<transformed_range<Titer_, Tfun_, Tholder_getter_> > : public is_sized < typename Tholder_getter_::template apply<Titer_>::type > {};
+
+template<typename Titer_, typename Tfun_, typename Tholder_getter_>
+struct range_size_retriever < transformed_range<Titer_, Tfun_, Tholder_getter_> >
 {
     typedef transformed_range<Titer_, Tfun_, Tholder_getter_> argument_type;
     typedef typename range_size<typename Tholder_getter_::template apply<Titer_>::type>::type result_type;
@@ -290,19 +282,19 @@ struct range_size_retriever<transformed_range<Titer_, Tfun_, Tholder_getter_> >
 
 namespace detail {
 
-template<typename Tpred_, typename Trange_>
-struct get_filter_iterator_range
-{
-    typedef boost::filter_iterator<Tpred_, typename boost::range_iterator<Trange_>::type> iterator_type;
-    typedef boost::iterator_range<iterator_type> type;
-};
+    template<typename Tpred_, typename Trange_>
+    struct get_filter_iterator_range
+    {
+        typedef boost::filter_iterator<Tpred_, typename boost::range_iterator<Trange_>::type> iterator_type;
+        typedef boost::iterator_range<iterator_type> type;
+    };
 
-template<typename Tpred_, typename Trange_>
-struct get_filter_iterator_range<Tpred_, const Trange_>
-{
-    typedef boost::filter_iterator<Tpred_, typename boost::range_const_iterator<Trange_>::type> iterator_type;
-    typedef boost::iterator_range<iterator_type> type;
-};
+    template<typename Tpred_, typename Trange_>
+    struct get_filter_iterator_range < Tpred_, const Trange_ >
+    {
+        typedef boost::filter_iterator<Tpred_, typename boost::range_const_iterator<Trange_>::type> iterator_type;
+        typedef boost::iterator_range<iterator_type> type;
+    };
 
 } // namespace detail
 
@@ -314,8 +306,7 @@ make_filter_iterator_range(Trange_& range, Tpred_ pred)
     typedef typename filter_range_gen::iterator_type iterator;
     typedef typename filter_range_gen::type result_type;
 
-    return result_type(iterator(pred, boost::begin(range)),
-                       iterator(pred, boost::end(range)));
+    return result_type(iterator(pred, boost::begin(range)), iterator(pred, boost::end(range)));
 }
 
 template<typename Trange_, typename Tpred_>
@@ -326,8 +317,7 @@ make_filter_iterator_range(Trange_ const& range, Tpred_ pred)
     typedef typename filter_range_gen::iterator_type iterator;
     typedef typename filter_range_gen::type result_type;
 
-    return result_type(iterator(pred, boost::begin(range)),
-                       iterator(pred, boost::end(range)));
+    return result_type(iterator(pred, boost::begin(range)), iterator(pred, boost::end(range)));
 }
 
 #endif /* UTILS_RANGE_HPP */

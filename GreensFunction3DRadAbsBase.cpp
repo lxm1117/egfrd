@@ -4,6 +4,3 @@
 
 #include "GreensFunction3DRadAbsBase.hpp"
 
-GreensFunction3DRadAbsBase::~GreensFunction3DRadAbsBase()
-{
-}

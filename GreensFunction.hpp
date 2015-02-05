@@ -1,5 +1,5 @@
-#if !defined( __GREENSFUNCTION_HPP )
-#define __GREENSFUNCTION_HPP
+#ifndef GREENSFUNCTION_HPP
+#define GREENSFUNCTION_HPP
 
 #include "Defs.hpp"
 
@@ -13,11 +13,8 @@ public:
     };
 
 public:
-    GreensFunction( const Real D )
-      : D( D ) {}
-  
-    ~GreensFunction() {}
-  
+    GreensFunction(const Real D) : D(D) {}
+
     Real getD() const
     {
         return this->D;
@@ -27,4 +24,4 @@ protected:
     const Real D;
 };
 
-#endif // __GREENSFUNCTION_HPP
+#endif // GREENSFUNCTION_HPP

@@ -1,28 +1,26 @@
-#if !defined( __PAIRGREENSFUNCTION_HPP )
-#define __PAIRGREENSFUNCTION_HPP
+#ifndef PAIRGREENSFUNCTION_HPP
+#define PAIRGREENSFUNCTION_HPP
 
 #include "Defs.hpp"
 #include <string>
 #include "GreensFunction.hpp"
 
-class PairGreensFunction: public GreensFunction
+class PairGreensFunction : public GreensFunction
 {
 public:
     PairGreensFunction(Real D, Real kf, Real r0, Real Sigma)
-      : GreensFunction(D), kf(kf), r0(r0), Sigma(Sigma) {}
-    
-    virtual ~PairGreensFunction() {}
-    
+        : GreensFunction(D), kf(kf), r0(r0), Sigma(Sigma) {}
+
     Real getD() const
     {
         return this->D;
     }
-    
+
     Real getkf() const
     {
         return this->kf;
     }
-    
+
     Real getSigma() const
     {
         return this->Sigma;
@@ -37,16 +35,16 @@ public:
 
     virtual const char* getName() const = 0;
 
-    virtual Real drawTime(Real rnd) const = 0;
-    
-    virtual Real drawR(Real rnd, Real t) const = 0;
-    
-    virtual Real drawTheta(Real rnd, Real r, Real t) const = 0;
+    virtual Real drawTime(const Real rnd) const = 0;
+
+    virtual Real drawR(const Real rnd, const Real t) const = 0;
+
+    virtual Real drawTheta(const Real rnd, const Real r, const Real t) const = 0;
 
 protected:
-  const Real kf;
-  const Real r0;
-  const Real Sigma;
+    const Real kf;
+    const Real r0;
+    const Real Sigma;
 };
 
-#endif /* __PAIRGREENSFUNCTION_HPP */
+#endif /* PAIRGREENSFUNCTION_HPP */

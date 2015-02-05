@@ -1,52 +1,42 @@
-#if !defined( __FIRSTPASSAGENOCOLLISIONPAIRGREENSFUNCTION )
-#define __FIRSTPASSAGENOCOLLISIONPAIRGREENSFUNCTION 
+#ifndef GREENSFUNCTION3DABS_HPP
+#define GREENSFUNCTION3DABS_HPP
 
 #include <vector>
 #include <boost/array.hpp>
-
 #include <gsl/gsl_roots.h>
-
 #include "Logger.hpp"
 #include "GreensFunction3DRadAbsBase.hpp"
 
-class GreensFunction3DAbs: public GreensFunction3DRadAbsBase
+class GreensFunction3DAbs : public GreensFunction3DRadAbsBase
 {
-public:
-    typedef std::vector<Real> RealVector;
-
 private:
     // Error tolerance used by default.
-    static const Real TOLERANCE = 1e-8;
+    static const Real TOLERANCE;
 
     // SphericalBesselGenerator's accuracy, used by some
     // theta-related calculations.
-    static const Real THETA_TOLERANCE = 1e-5;
-
-    static const Real MIN_T = 1e-18;
-
-    static const unsigned int MAX_ORDER = 50;
-    static const unsigned int MAX_ALPHA_SEQ = 1005;
-
+    static const Real THETA_TOLERANCE;
+    static const Real MIN_T;
+    static const uint MAX_ORDER;
+    static const uint MAX_ALPHA_SEQ;
 
 public:
-    
-    GreensFunction3DAbs(Real D, Real r0, Real a); 
-    
-    virtual ~GreensFunction3DAbs();
+
+    GreensFunction3DAbs(Real D, Real r0, Real a);
 
     Real geta() const
     {
         return this->a;
     }
 
-    virtual Real drawTime(Real rnd) const;
+    virtual Real drawTime(const Real rnd) const;
 
-    virtual EventKind drawEventType(Real rnd, Real t) const;
-    
-    virtual Real drawR(Real rnd, Real t) const;
-    
-    virtual Real drawTheta(Real rnd, Real r, Real t) const;
-    
+    virtual EventKind drawEventType(const Real rnd, const Real t) const;
+
+    virtual Real drawR(const Real rnd, const Real t) const;
+
+    virtual Real drawTheta(const Real rnd, const Real r, const Real t) const;
+
     Real p_survival(Real t) const;
 
     Real dp_survival(Real t) const;
@@ -61,15 +51,13 @@ public:
 
     Real idp_theta(Real theta, Real r, Real t) const;
 
-
     Real p_n(Integer n, Real r, Real t) const;
 
-    Real dp_n(Integer n, Real t ) const;
+    Real dp_n(Integer n, Real t) const;
 
+    Real p_n_alpha(uint i, uint n, Real r, Real t) const;
 
-    Real p_n_alpha(unsigned int i, unsigned int n, Real r, Real t ) const;
-
-    Real dp_n_alpha(unsigned int i, unsigned int n, Real t) const;
+    Real dp_n_alpha(uint i, uint n, Real t) const;
 
     // methods below are kept public for debugging purpose.
 
@@ -82,28 +70,22 @@ public:
 
 protected:
 
-    Real p_theta_table(Real theta, Real r, Real t, 
-                       RealVector const& p_nTable ) const;
+    Real p_theta_table(Real theta, Real r, Real t, RealVector const& p_nTable) const;
 
-    Real ip_theta_table(Real theta, Real r, Real t,
-                        RealVector const& p_nTable ) const;
+    Real ip_theta_table(Real theta, Real r, Real t, RealVector const& p_nTable) const;
 
     void makep_nTable(RealVector& p_nTable, Real r, Real t) const;
-    
+
     void makedp_nTable(RealVector& p_nTable, Real t) const;
 
     struct ip_theta_params;
     static Real ip_theta_F(Real theta, ip_theta_params const* params);
 
 private:
-    
-    mutable boost::array<Integer,MAX_ORDER+1> alphaOffsetTable;
-    mutable boost::array<RealVector,MAX_ORDER+1> alphaTable;
-    //mutable std::vector<RealVector> alphaTable;
 
     Real a;
 
     static Logger& log_;
 };
 
-#endif // __FIRSTPASSAGEPAIRGREENSFUNCTION 
+#endif // GREENSFUNCTION3DABS_HPP

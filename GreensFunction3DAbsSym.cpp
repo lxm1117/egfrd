@@ -3,7 +3,6 @@
 #endif /* HAVE_CONFIG_H */
 
 #include "compat.h"
-
 #include <sstream>
 #include <exception>
 #include <vector>
@@ -17,15 +16,19 @@
 #include <gsl/gsl_sf_expint.h>
 #include <gsl/gsl_sf_elljac.h>
 #include <gsl/gsl_roots.h>
-
 #include "findRoot.hpp"
 #include "GreensFunction3DAbsSym.hpp"
+
+const Real GreensFunction3DAbsSym::CUTOFF = 1e-10;
+const Real GreensFunction3DAbsSym::CUTOFF_H = 6.0;
+
+Logger& GreensFunction3DAbsSym::log_(Logger::get_logger("GreensFunction3DAbsSym"));
 
 /**
   EllipticTheta[4,0,q]
 
   Efficiently calculate EllipticTheta[4,0,q] for q < 1.0.
-*/
+  */
 
 Real GreensFunction3DAbsSym::ellipticTheta4Zero(Real q)
 {
@@ -41,37 +44,36 @@ Real GreensFunction3DAbsSym::ellipticTheta4Zero(Real q)
 
     const Integer N(1000);
     Real value(1.0);
-    
+
     Real q_n(q);
     Real q_2n(1.0);
-    
+
     for (Integer n(1); n <= N; ++n)
     {
         const Real term2(1.0 - q_2n * q);  // q^(2n-1) = (q^(n-1))^2 * q
-        
+
         q_2n = q_n * q_n;
-        
+
         const Real term1(1.0 - q_2n); // q^2n
-        
+
         const Real term(term1 * term2 * term2);
         const Real value_prev(value);
         value *= term;
-        
+
         // here only absolute error is checked because it is good enough
         // for our use.  (it's compared with 1 in p_survival).
-        if (fabs(value - value_prev) < 1e-18) 
+        if (fabs(value - value_prev) < 1e-18)
         {
             // normal exit.
             return value;
         }
-        
+
         q_n *= q;  // q_(++n)
     }
-    
+
     log_.warn("ellipticTheta4Zero: didn't converge");
     return value;
 }
-
 
 Real GreensFunction3DAbsSym::p_survival(Real t) const
 {
@@ -80,9 +82,9 @@ Real GreensFunction3DAbsSym::p_survival(Real t) const
     const Real asq(a * a);
     const Real PIsq(M_PI * M_PI);
 
-    const Real q(- D * PIsq * t / asq);
+    const Real q(-D * PIsq * t / asq);
     return 1.0 - ellipticTheta4Zero(exp(q));
-} 
+}
 
 Real GreensFunction3DAbsSym::p_int_r_free(Real r, Real t) const
 {
@@ -92,7 +94,7 @@ Real GreensFunction3DAbsSym::p_int_r_free(Real r, Real t) const
     const Real sqrtPI(sqrt(M_PI));
 
     return erf(r / (sqrtDt + sqrtDt))
-        - r * exp(- r * r / (4.0 * Dt)) / (sqrtPI * sqrtDt);
+        - r * exp(-r * r / (4.0 * Dt)) / (sqrtPI * sqrtDt);
 }
 
 Real GreensFunction3DAbsSym::p_int_r(Real r, Real t) const
@@ -115,26 +117,24 @@ Real GreensFunction3DAbsSym::p_int_r(Real r, Real t) const
     const Real PIr(M_PI * r);
     const Real PIr_a(PIr / a);
     const Real DtPIsq_asq(D * t * PIsq / asq);
-    
+
     const Real factor(2.0 / (a * M_PI));
 
-    const Real maxn((a / M_PI) * sqrt(log(exp(DtPIsq_asq) / CUTOFF) / 
-                                          (D * t)));
+    const Real maxn((a / M_PI) * sqrt(log(exp(DtPIsq_asq) / CUTOFF) /
+        (D * t)));
 
     const Integer N_MAX(10000);
 
-    const Integer N(std::min(static_cast<Integer>(ceil(maxn) + 1),
-                               N_MAX));
+    const Integer N(std::min(static_cast<Integer>(ceil(maxn) + 1), N_MAX));
     if (N == N_MAX)
     {
         log_.warn("p_int_r: didn't converge");
     }
-    
 
     for (Integer n(1); n <= N; ++n)
     {
-        const Real term1(exp(- n * n * DtPIsq_asq));
-      
+        const Real term1(exp(-n * n * DtPIsq_asq));
+
         const Real angle_n(n * PIr_a);
         Real sin_n;
         Real cos_n;
@@ -147,9 +147,9 @@ Real GreensFunction3DAbsSym::p_int_r(Real r, Real t) const
     }
 
     return value * factor;
-} 
+}
 
-Real GreensFunction3DAbsSym::p_r_fourier(Real r, Real t) const 
+Real GreensFunction3DAbsSym::p_r_fourier(Real r, Real t) const
 {
     Real value(0.0);
 
@@ -163,17 +163,9 @@ Real GreensFunction3DAbsSym::p_r_fourier(Real r, Real t) const
     long int n(1);
     for (;;)
     {
-        const Real term1(exp(- (PIsq * r * r + asq * n*n) / 
-                               (4.0 * D * PIsq * t)));
-
-        const Real term2(M_PI * r * 
-                          exp(gsl_sf_lncosh(a * r * n / 
-                                              (2.0 * D * M_PI * t))));
-
-        const Real term3(a * n *
-                          exp(gsl_sf_lnsinh(a * r * n / 
-                                              (2.0 * D * M_PI * t))));
-
+        const Real term1(exp(-(PIsq * r * r + asq * n*n) / (4.0 * D * PIsq * t)));
+        const Real term2(M_PI * r * exp(gsl_sf_lncosh(a * r * n / (2.0 * D * M_PI * t))));
+        const Real term3(a * n * exp(gsl_sf_lnsinh(a * r * n / (2.0 * D * M_PI * t))));
 
         const Real term(term1 * r * (term2 - term3));
         value += term;
@@ -195,7 +187,7 @@ Real GreensFunction3DAbsSym::p_r_fourier(Real r, Real t) const
     const Real factor(1.0 / (sqrt(2) * PIsq * pow(D * t, 1.5)));
 
     return value * factor;
-} 
+}
 
 struct p_survival_params
 {
@@ -207,7 +199,6 @@ static Real p_survival_F(Real t, p_survival_params const* params)
 {
     return params->rnd - params->gf->p_survival(t);
 }
-
 
 Real GreensFunction3DAbsSym::drawTime(Real rnd) const
 {
@@ -232,11 +223,7 @@ Real GreensFunction3DAbsSym::drawTime(Real rnd) const
 
     p_survival_params params = { this, rnd };
 
-    gsl_function F = 
-        {
-            reinterpret_cast<typeof(F.function)>(&p_survival_F),
-            &params 
-        };
+    gsl_function F = { reinterpret_cast<double(*)(double, void*)>(&p_survival_F), &params };
 
     const Real t_guess(a * a / (6. * D));
 
@@ -252,7 +239,7 @@ Real GreensFunction3DAbsSym::drawTime(Real rnd) const
         for (;;)
         {
             const Real high_value(GSL_FN_EVAL(&F, high));
-            
+
             if (high_value >= 0.0)
             {
                 break;
@@ -262,8 +249,8 @@ Real GreensFunction3DAbsSym::drawTime(Real rnd) const
             {
                 throw std::runtime_error(
                     (boost::format("GreensFunction3DAbsSym: couldn't adjust high. F(%.16g) = %.16g; %s") %
-                       high % GSL_FN_EVAL(&F, high) %
-                       boost::lexical_cast<std::string>(*this)).str());
+                    high % GSL_FN_EVAL(&F, high) %
+                    boost::lexical_cast<std::string>(*this)).str());
             }
             high *= 10;
         }
@@ -276,18 +263,16 @@ Real GreensFunction3DAbsSym::drawTime(Real rnd) const
         for (;;)
         {
             const Real low_value(GSL_FN_EVAL(&F, low));
-            
+
             if (low_value <= 0.0)
             {
                 break;
             }
-            
+
             if (fabs(low) <= t_guess * 1e-6 ||
                 fabs(low_value - low_value_prev) < CUTOFF)
             {
-                log_.info("couldn't adjust high. F(%.16g) = %.16g; %s",
-                          low, GSL_FN_EVAL(&F, low),
-                          boost::lexical_cast<std::string>(*this).c_str());
+                log_.info("couldn't adjust high. F(%.16g) = %.16g; %s", low, GSL_FN_EVAL(&F, low), boost::lexical_cast<std::string>(*this).c_str());
                 log_.info("returning low (%.16g)", low);
                 return low;
             }
@@ -296,12 +281,10 @@ Real GreensFunction3DAbsSym::drawTime(Real rnd) const
         }
     }
 
-
     const gsl_root_fsolver_type* solverType(gsl_root_fsolver_brent);
     gsl_root_fsolver* solver(gsl_root_fsolver_alloc(solverType));
 
-    const Real t(findRoot(F, solver, low, high, 1e-18, 1e-12,
-                            "GreensFunction3DAbsSym::drawTime"));
+    const Real t(findRoot(F, solver, low, high, 1e-18, 1e-12, "GreensFunction3DAbsSym::drawTime"));
 
     gsl_root_fsolver_free(solver);
 
@@ -320,13 +303,12 @@ static Real p_r_free_F(Real r, p_r_params const* params)
     return params->gf->p_int_r_free(r, params->t) - params->target;
 }
 
-
 static Real p_r_F(Real r, p_r_params const* params)
 {
     return params->gf->p_int_r(r, params->t) - params->target;
 }
 
-Real GreensFunction3DAbsSym::drawR(Real rnd, Real t) const 
+Real GreensFunction3DAbsSym::drawR(Real rnd, Real t) const
 {
     if (rnd >= 1.0 || rnd < 0.0)
     {
@@ -363,7 +345,7 @@ Real GreensFunction3DAbsSym::drawR(Real rnd, Real t) const
 
         assert(psurv >= 0.0);
 
-        F.function = reinterpret_cast<typeof(F.function)>(&p_r_F);
+        F.function = reinterpret_cast<double(*)(double, void*)>(&p_r_F);
     }
     else
     {
@@ -375,7 +357,7 @@ Real GreensFunction3DAbsSym::drawR(Real rnd, Real t) const
         }
 
         psurv = 1.0;
-        F.function = reinterpret_cast<typeof(F.function)>(&p_r_free_F);
+        F.function = reinterpret_cast<double(*)(double, void*)>(&p_r_free_F);
     }
 
     const Real target(psurv * rnd);
@@ -390,9 +372,8 @@ Real GreensFunction3DAbsSym::drawR(Real rnd, Real t) const
     const gsl_root_fsolver_type* solverType(gsl_root_fsolver_brent);
     gsl_root_fsolver* solver(gsl_root_fsolver_alloc(solverType));
 
-    const Real r(findRoot(F, solver, low, high, 1e-18, 1e-12,
-                            "GreensFunction3DAbsSym::drawR"));
-  
+    const Real r(findRoot(F, solver, low, high, 1e-18, 1e-12, "GreensFunction3DAbsSym::drawR"));
+
     gsl_root_fsolver_free(solver);
 
     return r;
@@ -403,5 +384,3 @@ std::string GreensFunction3DAbsSym::dump() const
     return (boost::format("D=%.16g, a=%.16g") % getD() % geta()).str();
 }
 
-Logger& GreensFunction3DAbsSym::log_(
-        Logger::get_logger("GreensFunction3DAbsSym"));

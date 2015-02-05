@@ -2,7 +2,6 @@
 #define MAP_ADAPTER_HPP
 
 #include <utility>
-//#include "utils.hpp"
 #include <boost/range/size.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
@@ -15,7 +14,6 @@
 #include <boost/range/const_iterator.hpp>
 #include <boost/range/reverse_iterator.hpp>
 #include <boost/range/const_reverse_iterator.hpp>
-#include "assoc_container_traits.hpp"
 
 template<typename Tcntnr_, typename Thdlr_>
 struct map_adapter

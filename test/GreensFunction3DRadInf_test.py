@@ -20,7 +20,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
 
     def tearDown(self):
         pass
-    
+
     def test_instantiation(self):
         D = 1e-12
         kf = 1e8
@@ -37,7 +37,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         kf = 1e-8
         sigma = 1e-8
         r0 = 5e-8
-        
+
         gf = mod.GreensFunction3DRadInf(D, kf, r0, sigma)
 
         t = gf.drawTime(0.5)
@@ -55,7 +55,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         kf = 0.0 # note this
         sigma = 1e-8
         r0 = sigma
-        
+
         gf = mod.GreensFunction3DRadInf(D, kf, r0, sigma)
 
         t = gf.drawTime(0.5)
@@ -66,7 +66,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         kf = 1e-8
         sigma = 1e-8
         r0 = 2e-8
-        
+
         gf = mod.GreensFunction3DRadInf(D, kf, r0, sigma)
 
         t = 1e-3
@@ -88,7 +88,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         kf = 1e-8
         sigma = 1e-8
         r0 = 2e-8
-        
+
         gf = mod.GreensFunction3DRadInf(D, kf, r0, sigma)
 
         t = 0.0
@@ -101,7 +101,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         kf = 1e-8
         sigma = 1e-8
         r0 = 1.000001e-8
-        
+
         gf = mod.GreensFunction3DRadInf(D, kf, r0, sigma)
 
         t = 1e-12
@@ -119,7 +119,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         r0 = sigma
 
         t = 1e-5
-        
+
         gf = mod.GreensFunction3DRadInf(D, kf, r0, sigma)
 
         r = gf.drawR(0.5, t)
@@ -133,7 +133,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         r0 = 2e-8
         t = 1e-3
         r = 2.1e-8
-        
+
         gf = mod.GreensFunction3DRadInf(D, kf, r0, sigma)
 
         theta = gf.drawTheta(0.5, r, t)
@@ -172,7 +172,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         sigma = 1e-8
         r = 5e-8
         r0 = 5e-8
-        
+
         gf = mod.GreensFunction3DRadInf(D, kf, r0, sigma)
 
         t = 0.0
@@ -191,7 +191,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
 
         r = sigma + disp + disp
         r0 = sigma + disp
-        
+
         gf = mod.GreensFunction3DRadInf(D, kf, r0, sigma)
         theta = gf.drawTheta(0.5, r, t)
 
@@ -206,7 +206,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
 
         t = 1e-3
         r = r0
-        
+
         gf = mod.GreensFunction3DRadInf(D, kf, r0, sigma)
 
         theta = gf.drawTheta(0.5, r, t)
@@ -222,7 +222,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         r0 = 2e-8
 
         gf = mod.GreensFunction3DRadInf(D, kf, r0, sigma)
-         
+
         pintr = gf.p_int_r(sigma, t)
         self.assertEqual(0.0, pintr)
 
@@ -236,7 +236,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         r0 = 2e-8
 
         gf = mod.GreensFunction3DRadInf(D, kf, r0, sigma)
-         
+
         pintr = gf.p_int_r(sigma, t)
 
         self.assertEqual(0.0, pintr)
@@ -252,7 +252,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         r0 = 2e-8
 
         gf = mod.GreensFunction3DRadInf(D, kf, r0, sigma)
-         
+
         pintr = gf.p_int_r(sigma * 1e8, t)
         psurv = gf.p_survival(t)
 
@@ -275,10 +275,10 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
 
         ip = gf.ip_theta(0.0, r, t)
         self.assertEqual(0.0, ip)
-        
+
         resolution = 10
         for i in range(1, resolution):
-            theta = i * numpy.pi / resolution 
+            theta = i * numpy.pi / resolution
             ip = gf.ip_theta(theta, r, t)
             result = scipy.integrate.quad(gf.p_theta, 0.0, theta,
                                           args=(r, t))
@@ -377,7 +377,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         t = 1e-3
         r0 = 5e-8
         r = r0
-        
+
         gf = mod.GreensFunction3DRadInf(D, kf, r0, sigma)
 
         pint = gf.ip_theta(numpy.pi, r, t)
@@ -386,10 +386,10 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         resolution = 50
         for i in range(resolution):
             theta = i * numpy.pi / resolution
-            p = gf.p_theta(theta, r, t) / pint / resolution 
+            p = gf.p_theta(theta, r, t) / pint / resolution
             pmin = min(pmin, p)
             #print 'theta: ', theta, '\tp: ', p
-            
+
         self.failIf(pmin < 0.0, 'Negative p_theta; t= %g, %s'
                     % (t, gf.dump()))
 
@@ -404,7 +404,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         t = 1e-3
         r0 = 5e-8
         r = r0
-        
+
         gf = mod.GreensFunction3DRadInf(D, kf, r0, sigma)
 
         pint_prev = 0.0
@@ -419,6 +419,6 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
 
 
 
-        
+
 if __name__ == "__main__":
     unittest.main()

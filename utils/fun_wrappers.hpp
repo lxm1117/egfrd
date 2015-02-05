@@ -6,22 +6,21 @@
 #include <boost/type_traits/is_reference.hpp>
 #include <boost/pointee.hpp>
 #include <boost/call_traits.hpp>
-#include "utils/fun_composition.hpp"
 
 template < typename T_ >
-struct delete_ptr: public std::unary_function<T_*, void>
+struct delete_ptr : public std::unary_function < T_*, void >
 {
     typedef void result_type;
     typedef T_* argument_type;
 
-    void operator()( T_* ptr ) const
+    void operator()(T_* ptr) const
     {
         delete ptr;
     }
 };
 
 template<typename T_, typename Targ_>
-struct reinterpret_caster: public std::unary_function<Targ_, T_>
+struct reinterpret_caster : public std::unary_function < Targ_, T_ >
 {
     T_ operator()(Targ_ const& v) const
     {
@@ -30,7 +29,7 @@ struct reinterpret_caster: public std::unary_function<Targ_, T_>
 };
 
 template<typename T_, typename Targ_>
-struct reinterpret_caster<T_&, Targ_&>: public std::unary_function<Targ_&, T_&>
+struct reinterpret_caster<T_&, Targ_&> : public std::unary_function < Targ_&, T_& >
 {
     T_& operator()(Targ_& v) const
     {
@@ -51,7 +50,7 @@ inline T_& reinterpret_cast_wrapper(Targ_& v)
 }
 
 template<typename T_, typename Targ_>
-struct dynamic_caster: std::unary_function<Targ_, T_>
+struct dynamic_caster : std::unary_function < Targ_, T_ >
 {
     T_ operator()(Targ_ const& v)
     {
@@ -60,7 +59,7 @@ struct dynamic_caster: std::unary_function<Targ_, T_>
 };
 
 template<typename T_, typename Targ_>
-struct dynamic_caster<T_&, Targ_&>: std::unary_function<Targ_&, T_&>
+struct dynamic_caster<T_&, Targ_&> : std::unary_function < Targ_&, T_& >
 {
     T_& operator()(Targ_& v)
     {
@@ -81,15 +80,12 @@ inline T_& dynamic_cast_wrapper(Targ_& v)
 }
 
 template<typename Talloc_>
-struct destruct_ptr
-    : std::unary_function<typename Talloc_::pointer, void>
+struct destruct_ptr : std::unary_function < typename Talloc_::pointer, void >
 {
-public:
     typedef typename Talloc_::pointer argument_type;
     typedef void result_type;
 
-public:
-    destruct_ptr(Talloc_& alloc): alloc_(alloc) {}
+    destruct_ptr(Talloc_& alloc) : alloc_(alloc) {}
 
     void operator()(argument_type ptr) const
     {
@@ -101,13 +97,12 @@ private:
 };
 
 template<typename Talloc_>
-struct default_initializer
-    : std::unary_function<typename Talloc_::reference, void>
+struct default_initializer : std::unary_function < typename Talloc_::reference, void >
 {
     typedef typename Talloc_::reference argument_type;
     typedef void result_type;
 
-    default_initializer(Talloc_& alloc): alloc_(alloc) {}
+    default_initializer(Talloc_& alloc) : alloc_(alloc) {}
 
     void operator()(argument_type ptr) const
     {
@@ -119,13 +114,12 @@ private:
 };
 
 template <typename T_>
-struct dereference: std::unary_function<T_, typename boost::pointee<T_>::type&>
+struct dereference : std::unary_function < T_, typename boost::pointee<T_>::type& >
 {
     typedef typename boost::pointee<T_>::type& result_type;
     typedef T_* argument_type;
 
-    result_type
-    operator()(typename boost::call_traits<T_>::param_type ptr) const
+    result_type         operator()(typename boost::call_traits<T_>::param_type ptr) const
     {
         return *ptr;
     }
