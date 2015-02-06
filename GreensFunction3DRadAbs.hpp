@@ -242,8 +242,8 @@ private:
     const Real h;
     const Real hsigma_p_1;
 
-    mutable boost::array<Integer, cMAX_ORDER> alphaOffsetTable;
-    mutable boost::array<RealVector, cMAX_ORDER> alphaTable;
+    mutable boost::array<Integer, GF_MAX_ORDER> alphaOffsetTable;
+    mutable boost::array<RealVector, GF_MAX_ORDER> alphaTable;
 
     const Real a;
 

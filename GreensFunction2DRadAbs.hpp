@@ -241,7 +241,7 @@ private:
 
     // Tables that hold calculated roots (y=0) of "alpha" function for each
     // order n.
-    mutable boost::array<RealVector, cMAX_ORDER> alphaTable;
+    mutable boost::array<RealVector, GF_MAX_ORDER> alphaTable;
 
     // Constants used in the roots of f_alpha() finding algorithm.
     // ====
@@ -259,12 +259,12 @@ private:
     // boundaries that allow the direct use of the estimate interval width 
     // pi/(sigma-a).
     //      Initial values are set by constructor.
-    mutable boost::array<Real, cMAX_ORDER> alpha_x_scan_table_;
+    mutable boost::array<Real, GF_MAX_ORDER> alpha_x_scan_table_;
     //
     // Table that keeps track of the number of previous subsequent roots that 
     // we're within margin of the distance to which they're expected to 
     // converge.
-    mutable boost::array<int, cMAX_ORDER> alpha_correctly_estimated_;
+    mutable boost::array<int, GF_MAX_ORDER> alpha_correctly_estimated_;
 
     static Logger& log_;
 

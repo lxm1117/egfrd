@@ -67,7 +67,7 @@ public:
     {
         try
         {
-#ifdef HAVE_PYINT_FROMSIZE_T
+#if PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION >= 5
             return PyInt_FromSize_t(count(self->impl_));
 #else
             std::size_t i(count(self->impl_));

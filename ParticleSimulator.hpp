@@ -3,6 +3,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
+#include "Defs.hpp"
 #include "Sphere.hpp"
 #include "Disk.hpp"
 #include "Cylinder.hpp"
@@ -42,8 +43,11 @@ struct ParticleSimulatorTraitsBase
     typedef VolumeClearer<typename world_type::particle_shape_type,
                           typename world_type::particle_id_type>    volume_clearer_type;
 
-    static const Real MINIMAL_SEPARATION_FACTOR = (1.0 + 1e-7);
+    static const Real MINIMAL_SEPARATION_FACTOR;
 };
+
+template<typename Tworld_>
+const Real ParticleSimulatorTraitsBase<typename Tworld_>::MINIMAL_SEPARATION_FACTOR = MINIMAL_SEPARATION_FACTOR;
 
 template<typename Ttraits_>
 class ParticleSimulator;

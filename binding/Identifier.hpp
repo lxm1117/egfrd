@@ -19,8 +19,6 @@
 #include <boost/python/object/function.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
-
-#include <unistd.h>
 #include <iostream>
 
 #include "peer/pickle_support.hpp"

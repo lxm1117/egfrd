@@ -22,8 +22,6 @@
 #include <boost/format.hpp>
 #include <numpy/arrayobject.h>
 
-#include <unistd.h>
-
 #include "peer/utils.hpp"
 #include "peer/numpy/type_mappings.hpp"
 #include "peer/pickle_support.hpp"

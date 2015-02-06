@@ -10,8 +10,8 @@
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/mpl/if.hpp>
-#include "utils/range.hpp"
 
+#include "utils/range.hpp"
 #include "peer/wrappers/iterator/stl_iterator_wrapper.hpp"
 #include "peer/wrappers/range/stl_container_wrapper.hpp"
 

@@ -24,7 +24,7 @@
 const Real GreensFunction3DRadAbs::TOLERANCE = 1e-8;
 const Real GreensFunction3DRadAbs::THETA_TOLERANCE = 1e-5;
 const Real GreensFunction3DRadAbs::MIN_T_FACTOR = 1e-8;
-const uint GreensFunction3DRadAbs::MAX_ORDER = cMAX_ORDER;
+const uint GreensFunction3DRadAbs::MAX_ORDER = GF_MAX_ORDER;
 const uint GreensFunction3DRadAbs::MAX_ALPHA_SEQ = 2000;
 
 Logger& GreensFunction3DRadAbs::log_(Logger::get_logger("GreensFunction3DRadAbs"));

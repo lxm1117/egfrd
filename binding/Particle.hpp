@@ -23,8 +23,6 @@
 #include <boost/range/size.hpp>
 #include <numpy/arrayobject.h>
 
-#include <unistd.h>
-
 #include "peer/compat.h"
 #include "peer/utils.hpp"
 #include "peer/numpy/type_mappings.hpp"

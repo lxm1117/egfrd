@@ -6,10 +6,10 @@ AM_CXXFLAGS = -DNO_IMPORT -I.. @BOOST_CPPFLAGS@ @GSL_CFLAGS@ ${PYTHON_INCLUDES} 
 noinst_LTLIBRARIES = libbinding_utils.la
 
 noinst_HEADERS = \
-        bd_propagator_class.hpp \
+	bd_propagator_class.hpp \
 	new_bd_propagator_class.hpp \
 	BDPropagator.hpp \
-        newBDPropagator.hpp \
+	newBDPropagator.hpp \
 	binding_common.hpp \
 	box_class.hpp \
 	Box.hpp \
@@ -94,9 +94,9 @@ noinst_HEADERS = \
 
 libbinding_utils_la_SOURCES = \
 	bd_propagator_class.cpp \
-        new_bd_propagator_class.cpp \
+	new_bd_propagator_class.cpp \
 	box_class.cpp \
-	ConsoleAppender.cpp \
+	bind_console_appender.cpp \
 	cylinder_class.cpp \
 	disk_class.cpp \
 	domain_classes.cpp \
@@ -106,7 +106,7 @@ libbinding_utils_la_SOURCES = \
 	event_classes.cpp \
 	exception_classes.cpp \
 	LogAppender.cpp \
-	Logger.cpp \
+	bind_logger.cpp \
 	LoggerManager.cpp \
 	matrix_space_classes.cpp \
 	model_class.cpp \

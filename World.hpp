@@ -65,18 +65,20 @@ struct WorldTraitsBase
     typedef typename particle_type::shape_type::position_type   position_type;
     typedef GSLRandomNumberGenerator                            rng_type;
 
-    static const Real TOLERANCE = 1e-7;         // tolerance of what?
+    static const Real TOLERANCE;         // tolerance of what?
 };
 
+template<typename Tderived_, typename Tlen_, typename TD_>
+const Real WorldTraitsBase<typename Tderived_, typename Tlen_, typename TD_>::TOLERANCE = 1e-7;
 
 
 template<typename Tlen_, typename TD_>
 struct WorldTraits: public WorldTraitsBase<WorldTraits<Tlen_, TD_>, Tlen_, TD_>
 {
-// This defines a structure (like a class) with some rudimentairy properties of the world
+// This defines a structure (like a class) with some rudimentary properties of the world
 // It inherits from WorldTraitsBase which is parameterized with the fully defined WorldTraits class/structure.
 //
-// Implements mostly boundaryconditions related stuff (distance, apply_boundary, cyclic_transpose)
+// Implements mostly boundary conditions related stuff (distance, apply_boundary, cyclic_transpose)
 
 public:
     // This is the normal world (without periodic/cyclic boundary conditions)

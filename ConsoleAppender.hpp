@@ -7,6 +7,9 @@
 class ConsoleAppender : public LogAppender
 {
 public:
+    typedef LogAppender base_type;              // GNU need this, but it's not used anywhere, weird? (VS doesn't)
+
+public:
     virtual ~ConsoleAppender() {};
 
     virtual void flush();

@@ -139,7 +139,7 @@ public:
     ptr_generator(ptr_generator const& that)
         : impl_(const_cast<ptr_generator&>(that).impl_) {}
 
-    explicit ptr_generator(ptr_generator& that): impl_(that.impl_) {}
+    //explicit ptr_generator(ptr_generator& that): impl_(that.impl_) {}
 
     bool valid() const
     {
@@ -179,7 +179,7 @@ bool valid(ptr_generator<Tgen, Tpointer> const& gen)
 }
 
 template<typename Tgen, typename Tpointer>
-bool count(ptr_generator<Tgen, Tpointer> const& gen)
+std::size_t count(ptr_generator<Tgen, Tpointer> const& gen)
 {
     return gen.count();
 }

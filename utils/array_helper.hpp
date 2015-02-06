@@ -21,7 +21,7 @@ inline ::boost::array<T_, __n__> array_gen(\
     return retval; \
 }
 
-BOOST_PP_REPEAT_FROM_TO(0, BOOST_PP_LIMIT_REPEAT, ARRAY_HELPER_TPL, )
+BOOST_PP_REPEAT_FROM_TO(0, 10, ARRAY_HELPER_TPL, 0)
 
 #undef ARRAY_HELPER_TPL
 #undef ARRAY_HELPER_INNER_TPL

@@ -11,9 +11,17 @@ typedef std::vector<Real> RealVector;
 typedef std::pair<Real, Real> real_pair;
 typedef std::vector<Real> RealVector;
 
-#define cMAX_ORDER			50
+const uint GF_MAX_ORDER = 50;
 
 #define THROW_UNLESS( CLASS, EXPRESSION )\
     if (!(EXPRESSION)) throw CLASS ("Check ["+std::string(#EXPRESSION) + "] failed.");
+
+const Real SEPARATION_TOLERANCE(1e-07);
+const Real MINIMAL_SEPARATION_FACTOR(1.0 + SEPARATION_TOLERANCE);
+
+
+#ifndef M_PI
+const Real M_PI = 3.1415926535897932384626433832795;
+#endif
 
 #endif // DEFS_HPP

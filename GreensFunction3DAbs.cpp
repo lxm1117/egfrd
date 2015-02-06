@@ -24,7 +24,7 @@
 const Real GreensFunction3DAbs::TOLERANCE = 1e-8;
 const Real GreensFunction3DAbs::THETA_TOLERANCE = 1e-5;
 const Real GreensFunction3DAbs::MIN_T = 1e-18;
-const uint GreensFunction3DAbs::MAX_ORDER = cMAX_ORDER;
+const uint GreensFunction3DAbs::MAX_ORDER = GF_MAX_ORDER;
 const uint GreensFunction3DAbs::MAX_ALPHA_SEQ = 1005;
 
 Logger& GreensFunction3DAbs::log_(Logger::get_logger("GreensFunction3DAbs"));
