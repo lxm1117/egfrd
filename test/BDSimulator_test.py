@@ -35,7 +35,7 @@ class BDSimulatorTestCase(unittest.TestCase):
     def test_instantiation(self):
         self.failIf(self.s == None)
 
-'''    
+    
     def test_one_particle(self):
         gfrdbase.place_particle(self.w, self.S, [0.0,0.0,0.0])
 
@@ -44,6 +44,7 @@ class BDSimulatorTestCase(unittest.TestCase):
             self.s.step()
         self.failIf(t == self.s.t)
 
+'''
     def test_two_particles(self):
         gfrdbase.place_particle(self.w, self.S, [0.0,0.0,0.0])
         gfrdbase.place_particle(self.w, self.S, [5e-6,5e-6,5e-6])

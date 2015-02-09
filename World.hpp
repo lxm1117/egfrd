@@ -69,7 +69,7 @@ struct WorldTraitsBase
 };
 
 template<typename Tderived_, typename Tlen_, typename TD_>
-const Real WorldTraitsBase<typename Tderived_, typename Tlen_, typename TD_>::TOLERANCE = 1e-7;
+const Real WorldTraitsBase<Tderived_, Tlen_, TD_>::TOLERANCE = 1e-7;
 
 
 template<typename Tlen_, typename TD_>

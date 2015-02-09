@@ -86,7 +86,7 @@ class VTKLogger:
         # Step counter.
         self.i = 0
 
-	#OLD COMMENTS?
+        #OLD COMMENTS?
         # Needed for ParaView time hack.
         #
         # The result should be that with extra_particle_step=True, the number 

@@ -80,7 +80,7 @@ struct MatrixSpaceExtrasBase
         {
             static PyObject* convert(const result_type& val)
             {
-	      const npy_intp dims[1] = { static_cast<const npy_intp>(val.size()) };
+          const npy_intp dims[1] = { static_cast<const npy_intp>(val.size()) };
                 boost::python::incref(reinterpret_cast<PyObject*>(result_type_descr_));
                 PyObject* retval = PyArray_NewFromDescr(&PyArray_Type,
                         result_type_descr_,
@@ -111,22 +111,16 @@ struct MatrixSpaceExtrasBase
             namespace py = boost::python;
             py::dict fields;
             py::str _pair("pair");
-            py::str _distance("distance");
             fields[_pair] = py::make_tuple(
-                py::object(
-                    py::detail::new_reference(
-                        reinterpret_cast<PyObject*>(PyArray_DescrFromType(
-                        peer::util::get_numpy_typecode<
-                            typename result_element::first_type>::value)))),
+                py::object( py::detail::new_reference(reinterpret_cast<PyObject*>(PyArray_DescrFromType( peer::util::get_numpy_typecode<typename result_element::first_type>::value)))),
                 offsetof(result_element, first));
+            py::str _distance("distance");
             fields[_distance] = py::make_tuple(
-                py::object(
-                    py::detail::new_reference(
-                        reinterpret_cast<PyObject*>(PyArray_DescrFromType(
-                            peer::util::get_numpy_typecode<
-                                typename result_element::second_type>::value)))),
+                py::object( py::detail::new_reference(reinterpret_cast<PyObject*>(PyArray_DescrFromType( peer::util::get_numpy_typecode<typename result_element::second_type>::value)))),
                 offsetof(result_element, second));
+
             result_type_descr_ = PyArray_DescrNewFromType(PyArray_VOID);
+
 #ifdef PYARRAY_DESCR_HAS_HASOBJECT
             result_type_descr_->hasobject = NPY_ITEM_HASOBJECT; 
 #else

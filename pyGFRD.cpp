@@ -95,8 +95,7 @@ BOOST_PYTHON_MODULE(_gfrd)
     gsl_set_error_handler(&gsl_error_handler);
 
     peer::util::register_std_exception_translator();
-    peer::util::register_exception_translator<PyExc_IndexError, 
-        std::out_of_range>();
+    peer::util::register_exception_translator<PyExc_IndexError, std::out_of_range>();
 
     b::register_model_class();
     b::register_bd_propagator_class();

@@ -47,7 +47,7 @@ struct ParticleSimulatorTraitsBase
 };
 
 template<typename Tworld_>
-const Real ParticleSimulatorTraitsBase<typename Tworld_>::MINIMAL_SEPARATION_FACTOR = MINIMAL_SEPARATION_FACTOR;
+const Real ParticleSimulatorTraitsBase<Tworld_>::MINIMAL_SEPARATION_FACTOR = MINIMAL_SEPARATION_FACTOR;
 
 template<typename Ttraits_>
 class ParticleSimulator;
