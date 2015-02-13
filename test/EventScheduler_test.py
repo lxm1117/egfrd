@@ -1,20 +1,17 @@
-#!/usr/bin/env python
-
 import unittest
-
 import weakref
-
 import _gfrd as mod
+from gfrdbase import DomainEvent
 
 
-class Delegate(object):
+#class Delegate(object):
 
-    def __init__(self, obj, method):
-        self.obj = weakref.proxy(obj)
-        self.method = method
+#    def __init__(self, obj, method):
+#        self.obj = weakref.proxy(obj)
+#        self.method = method
 
-    def __call__(self, arg):
-        return self.method(self.obj, arg)
+#    def __call__(self, arg):
+#        return self.method(self.obj, arg)
 
 
 
@@ -28,37 +25,38 @@ class EventSchedulerTestCase(unittest.TestCase):
     
     def test_instantiation(self):
         scheduler = mod.EventScheduler()
-        self.failIf(scheduler == None)
+        self.assertFalse(scheduler == None)
 
     def test_empty_state(self):
         scheduler = mod.EventScheduler()
-        self.failIf(scheduler.size != 0)
-        self.failIf(scheduler.time != 0.0)
+        self.assertFalse(scheduler.size != 0)
+        self.assertFalse(scheduler.time != 0.0)
         # what if getTopEvent() are called here?
 
     def test_one_event(self):
         scheduler = mod.EventScheduler()
 
-        event = mod.PythonEvent(1.0, 1)
+        event = mod.PythonEvent(1.0, "TestEvent")
         id = scheduler.add(event)
-        self.failIf(scheduler.time != 0.0)
-        self.failIf(scheduler.top[1].time != 1.0)
-        self.failIf(scheduler.top[0] != id)
+
+        self.assertEqual(scheduler.time , 0.0)
+        self.assertEqual(scheduler.top[1].time ,  1.0)
+        self.assertEqual(scheduler.top[1].data , "TestEvent")
+        self.assertEqual(scheduler.top[0] , id)
 
         self.assertEqual((id, event), scheduler.pop())
-        self.failIf(scheduler.size != 0)
-        self.failIf(scheduler.time != 1.0)
+        self.assertEqual(scheduler.size , 0)
+        self.assertEqual(scheduler.time , 1.0)
 
 
     def test_peek_second_event(self):
 
         scheduler = mod.EventScheduler()
 
-        event1 = mod.PythonEvent(1.0, 1)
-        event2 = mod.PythonEvent(0.5, 2)
+        event1 = mod.PythonEvent(1.0, "Ev1")
+        event2 = mod.PythonEvent(0.5, "Ev2")
 
-        event1_id = scheduler.add(event1)
-
+        id1 = scheduler.add(event1)
         id2 = scheduler.add(event2)
 
         self.assertEqual(2, scheduler.size)
@@ -66,7 +64,7 @@ class EventSchedulerTestCase(unittest.TestCase):
         second = scheduler.second
 
         self.assertEqual(1.0, second[1].time)
-        self.assertEqual(event1_id, second[0])
+        self.assertEqual(id1, second[0])
 
 
 

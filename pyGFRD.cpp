@@ -72,7 +72,7 @@
 // This is the masterfile that takes care of the binding of the C++ classes to Python
 /////////////////
 
-// Every 'register_...' line executes some code that makes the class/datastructure avaiable to python
+// Every 'register_...' line executes some code that makes the class/datastructure available to python
 // The 'register_...classes' methods are defined in the 'binding/....class(es).cpp' files, but usually directly
 // call another (parameterized) 'register' method that is defined in the corresponding binding/....hpp file.
 // For example:

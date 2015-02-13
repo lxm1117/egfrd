@@ -405,7 +405,7 @@ public:
         }
 
         // The structure was not yet in the world.
-        BOOST_ASSERT(base_type::update_structure(structid_pair));
+        BOOST_VERIFY(base_type::update_structure(structid_pair));
         // update the mapping 'structure_type_id -> set of structure ids'
         structure_pool_[structid_pair.second->sid()].insert(structid_pair.first);
         // create a new mapping from structure id -> set of particles
