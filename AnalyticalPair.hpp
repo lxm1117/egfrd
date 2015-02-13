@@ -7,7 +7,7 @@
 #include "AnalyticalSingle.hpp"
 
 template<typename Ttraits_, typename Tshell_>
-class AnalyticalPair: public Pair<Ttraits_>
+class AnalyticalPair : public Pair < Ttraits_ >
 {
 public:
     typedef Pair<Ttraits_> base_type;
@@ -28,10 +28,10 @@ public:
     virtual ~AnalyticalPair() {}
 
     AnalyticalPair(identifier_type const& id,
-                   particle_id_pair const& p0, particle_id_pair const& p1,
-                   shell_id_pair const& shell,
-                   position_type const& iv,
-                   reaction_rule_vector const& reactions)
+        particle_id_pair const& p0, particle_id_pair const& p1,
+        shell_id_pair const& shell,
+        position_type const& iv,
+        reaction_rule_vector const& reactions)
         : base_type(id, p0, p1), shell_(shell), iv_(iv), reactions_(reactions)
     {
         // determine a_r and a_R
@@ -46,23 +46,18 @@ public:
             const length_type shell_size(shape(shell.second).radius() / traits_type::SAFETY);
             const length_type r0(this->r0());
             BOOST_ASSERT(r0 >= sigma);
-            if (((D_geom - D0) * r0) / D_tot + shell_size
-                + std::sqrt(D0 / D1) * (R1 - shell_size) - R0 < 0)
+            if (((D_geom - D0) * r0) / D_tot + shell_size + std::sqrt(D0 / D1) * (R1 - shell_size) - R0 < 0)
             {
                 std::swap(D0, D1);
                 std::swap(R0, R1);
             }
-            a_R_ = D_geom * (D0 * (shell_size - R1)
-                              + D1 * (shell_size - r0 - R1)) /
-                   (D1 * D1 + D1 * D0 + D_geom * D_tot);
+            a_R_ = D_geom * (D0 * (shell_size - R1) + D1 * (shell_size - r0 - R1)) / (D1 * D1 + D1 * D0 + D_geom * D_tot);
             a_r_ = (D_geom * r0 + D_tot * (shell_size - R1)) / (D1 + D_geom);
             BOOST_ASSERT(a_r_ > 0);
             BOOST_ASSERT(a_r_ > r0);
             BOOST_ASSERT(a_R_ > 0 || (a_R_ == 0. && (D1 == 0. || D0 == 0.)));
-            BOOST_ASSERT(a_R_ + a_r_ * D1 / D_tot + R1 >=
-                         a_R_ + a_r_ * D0 / D_tot + R0);
-            BOOST_ASSERT(std::abs(a_R_ + a_r_ * D1 / D_tot + R1 - shell_size) <
-                         1e-12 * shell_size);
+            BOOST_ASSERT(a_R_ + a_r_ * D1 / D_tot + R1 >= a_R_ + a_r_ * D0 / D_tot + R0);
+            BOOST_ASSERT(std::abs(a_R_ + a_r_ * D1 / D_tot + R1 - shell_size) < 1e-12 * shell_size);
         }
     }
 
@@ -99,13 +94,13 @@ public:
     length_type sigma() const
     {
         return base_type::particles_[0].second.radius()
-               + base_type::particles_[1].second.radius();
+            + base_type::particles_[1].second.radius();
     }
 
     D_type D_tot() const
     {
         return base_type::particles_[0].second.D()
-               + base_type::particles_[1].second.D();
+            + base_type::particles_[1].second.D();
     }
 
     D_type D_geom() const
@@ -118,7 +113,7 @@ public:
     D_type D_R() const
     {
         return base_type::particles_[0].second.D() *
-               base_type::particles_[1].second.D() / D_tot();
+            base_type::particles_[1].second.D() / D_tot();
     }
 
     virtual position_type const& position() const

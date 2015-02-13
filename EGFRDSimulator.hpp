@@ -164,9 +164,9 @@ struct MutativeDomainVisitor
 
 #define CHECK(expr) \
     do \
-        { \
+            { \
         if (!(expr)) { retval = false; LOG_DEBUG(("checking [%s] failed", #expr)); } \
-        } while (0)
+            } while (0)
 
 template<typename Ttraits_>
 class EGFRDSimulator : public ParticleSimulator < Ttraits_ >
@@ -1907,12 +1907,8 @@ protected:
         {
             BOOST_ASSERT(distance(domain, new_particles[0].second.position()) <= -new_particles[0].second.radius());
             BOOST_ASSERT(distance(domain, new_particles[1].second.position()) <= -new_particles[1].second.radius());
-            BOOST_ASSERT(check_overlap(
-                shape(new_particles[0].second),
-                new_particles[0].first, new_particles[1].first));
-            BOOST_ASSERT(check_overlap(
-                shape(new_particles[1].second),
-                new_particles[0].first, new_particles[1].first));
+            BOOST_ASSERT(check_overlap(shape(new_particles[0].second), new_particles[0].first, new_particles[1].first));
+            BOOST_ASSERT(check_overlap(shape(new_particles[1].second), new_particles[0].first, new_particles[1].first));
             BOOST_ASSERT(check_pair_pos(domain, new_particles));
         }
 
@@ -2500,9 +2496,7 @@ protected:
             closest.second));
         if (base_type::paranoiac_)
         {
-            BOOST_ASSERT(check_overlap(
-                sphere_type(domain.position(), new_shell_size),
-                domain.particle().first));
+            BOOST_ASSERT(check_overlap(sphere_type(domain.position(), new_shell_size), domain.particle().first));
         }
         domain.size() = new_shell_size;
         update_shell_matrix(domain);
@@ -2641,11 +2635,8 @@ protected:
         };
         D_type const D01(D[0] + D[1]);
 
-        BOOST_ASSERT(domain.particle().second.position() ==
-            domain.position());
-
-        BOOST_ASSERT(possible_partner.particle().second.position() ==
-            possible_partner.position());
+        BOOST_ASSERT(domain.particle().second.position() == domain.position());
+        BOOST_ASSERT(possible_partner.particle().second.position() == possible_partner.position());
 
         position_type iv(
             subtract(domain.position(),
@@ -2842,10 +2833,7 @@ protected:
         remove_domain(domain);
         remove_domain(possible_partner);
 
-        BOOST_ASSERT(
-            (closest_domain && closest_shell_distance ==
-            std::numeric_limits<length_type>::infinity())
-            || new_shell_size < closest_shell_distance);
+        BOOST_ASSERT((closest_domain && closest_shell_distance == std::numeric_limits<length_type>::infinity()) || new_shell_size < closest_shell_distance);
         BOOST_ASSERT(new_shell_size >= min_shell_size_with_margin);
         BOOST_ASSERT(new_shell_size <= max_shell_size);
 
@@ -3072,11 +3060,7 @@ protected:
     void fire_event(single_event const& event)
     {
         single_type& domain(event.domain());
-#if 0
-        BOOST_ASSERT(
-            std::abs(domain.dt() + domain.last_time() - base_type::t_)
-            <= 1e-18 * base_type::t_);
-#endif
+        //BOOST_ASSERT(std::abs(domain.dt() + domain.last_time() - base_type::t_) <= 1e-18 * base_type::t_);
         ++single_step_count_[event.kind()];
         switch (event.kind())
         {
@@ -3295,11 +3279,7 @@ protected:
                     *base_type::world_).draw_com(
                     domain, domain.dt())));
 
-                BOOST_ASSERT(
-                    (*base_type::world_).distance(
-                    domain.shell().second.position(),
-                    new_com) + new_species.radius()
-                    < shape(domain.shell().second).radius());
+                BOOST_ASSERT((*base_type::world_).distance(domain.shell().second.position(),new_com) + new_species.radius() < shape(domain.shell().second).radius());
 
                 (*base_type::world_).remove_particle(domain.particles()[0].first);
                 (*base_type::world_).remove_particle(domain.particles()[1].first);

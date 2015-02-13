@@ -44,7 +44,6 @@ static PyObject* reduce(PyObject* self) try
 
     BOOST_ASSERT(self->ob_type);
     BOOST_ASSERT(self->ob_type->tp_base);
-
     BOOST_ASSERT(self != Py_None);
 
     object state(getattr(object(borrowed(self)), "__getstate__")());

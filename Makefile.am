@@ -140,9 +140,9 @@ noinst_HEADERS = \
 	peer/converters/tuple/to_python.hpp \
 	peer/converters/tuple/from_python.hpp \
 	peer/converters/iterator.hpp \
+        peer/converters/iterator/to_python.hpp \
 	peer/converters/generator/to_python.hpp \
 	peer/converters/generator/from_python.hpp \
-	peer/converters/iterator/to_python.hpp \
 	peer/converters/sequence/to_python.hpp \
 	peer/converters/sequence/from_python.hpp \
 	peer/wrappers/range/pyiterable_range.hpp \
@@ -150,9 +150,7 @@ noinst_HEADERS = \
 	peer/wrappers/exception/exception_wrapper.hpp \
 	peer/wrappers/generator/pyiterator_generator.hpp \
 	peer/wrappers/generator/generator_wrapper.hpp \
-	peer/wrappers/iterator/pyseq_iterator.hpp \
 	peer/wrappers/iterator/stl_iterator_wrapper.hpp \
-	peer/py_hash_support.hpp \
 	peer/utils.hpp \
 	utils/array_helper.hpp\
 	utils/array_traits.hpp\

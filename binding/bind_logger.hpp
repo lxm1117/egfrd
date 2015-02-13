@@ -1,5 +1,5 @@
-#ifndef LOGGER_HPP
-#define LOGGER_HPP
+#ifndef BIND_LOGGER_HPP
+#define BIND_LOGGER_HPP
 
 #include <boost/python.hpp>
 
@@ -10,4 +10,4 @@ register_logger_class(char const* name);
 
 } // namespace binding
 
-#endif /* LOGGER_HPP */
+#endif /* BIND_LOGGER_HPP */

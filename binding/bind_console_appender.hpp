@@ -1,5 +1,5 @@
-#ifndef CONSOLE_APPENDER_HPP
-#define CONSOLE_APPENDER_HPP
+#ifndef BIND_CONSOLE_APPENDER_HPP
+#define BIND_CONSOLE_APPENDER_HPP
 
 #include <boost/python.hpp>
 
@@ -10,4 +10,4 @@ register_console_appender_class(char const* name);
 
 } // namespace binding
 
-#endif /* CONSOLE_APPENDER_HPP */
+#endif /* BIND_CONSOLE_APPENDER_HPP */

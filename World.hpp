@@ -308,7 +308,7 @@ public:
         }
 
         // The particle didn't exist yet
-        BOOST_ASSERT(base_type::update_particle(pi_pair));                              // update particle
+        BOOST_VERIFY(base_type::update_particle(pi_pair));                              // update particle
         particle_pool_[pi_pair.second.sid()].insert(pi_pair.first);                     // update species->particles map
         particleonstruct_pool_[pi_pair.second.structure_id()].insert(pi_pair.first);    // update structure->particles map
         return true;

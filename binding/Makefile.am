@@ -13,7 +13,7 @@ noinst_HEADERS = \
 	binding_common.hpp \
 	box_class.hpp \
 	Box.hpp \
-	ConsoleAppender.hpp \
+	bind_console_appender.hpp \
 	CuboidalRegion.hpp \
 	cylinder_class.hpp \
 	Cylinder.hpp \
@@ -33,7 +33,7 @@ noinst_HEADERS = \
 	exception_classes.hpp \
 	Identifier.hpp \
 	LogAppender.hpp \
-	Logger.hpp \
+	bind_logger.hpp \
 	LoggerManager.hpp \
 	matrix_space_classes.hpp \
 	MatrixSpace.hpp \

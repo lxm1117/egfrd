@@ -3,10 +3,10 @@
 #endif /* HAVE_CONFIG_H */
 
 #include "PythonAppender.hpp"
-#include "Logger.hpp"
+#include "bind_logger.hpp"
 #include "LoggerManager.hpp"
 #include "LogAppender.hpp"
-#include "ConsoleAppender.hpp"
+#include "bind_console_appender.hpp"
 
 namespace binding {
 
