@@ -1,9 +1,9 @@
-#ifndef FIRST_PASSAGE_PAIR_GREENS_FUNCTION_BASE_HPP
-#define FIRST_PASSAGE_PAIR_GREENS_FUNCTION_BASE_HPP
+#ifndef GREENSFUNCTION3DRADABSBASE_HPP
+#define GREENSFUNCTION3DRADABSBASE_HPP
 
 #include "PairGreensFunction.hpp"
 
-class GreensFunction3DRadAbsBase : public PairGreensFunction
+class GF_CLASS GreensFunction3DRadAbsBase : public PairGreensFunction
 {
 public:
     GreensFunction3DRadAbsBase(Real D, Real kf, Real r0, Real Sigma) : PairGreensFunction(D, kf, r0, Sigma) {}
@@ -17,4 +17,4 @@ public:
     virtual Real drawTheta(const Real rnd, const Real r, const Real t) const = 0;
 };
 
-#endif /* FIRST_PASSAGE_PAIR_GREENS_FUNCTION_BASE_HPP */
+#endif /* GREENSFUNCTION3DRADABSBASE_HPP */

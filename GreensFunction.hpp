@@ -3,7 +3,7 @@
 
 #include "Defs.hpp"
 
-class GreensFunction
+class GF_CLASS GreensFunction
 {
 public:
     enum EventKind

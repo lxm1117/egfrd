@@ -69,20 +69,20 @@ Real ip_theta_free(Real theta, Real r, Real r0, Real t, Real D);
 
 /* Functions used in old Brownian Dynamic scheme. */
 
-Real g_bd_3D(Real r0, Real sigma, Real t, Real D);
+Real GF_CLASS g_bd_3D(Real r0, Real sigma, Real t, Real D);
 
-Real I_bd_3D(Real sigma, Real t, Real D);
+Real GF_CLASS I_bd_3D(Real sigma, Real t, Real D);
 
-Real I_bd_r_3D(Real r, Real sigma, Real t, Real D);
+Real GF_CLASS I_bd_r_3D(Real r, Real sigma, Real t, Real D);
 
-Real drawR_gbd_3D(Real rnd, Real sigma, Real t, Real D);
+Real GF_CLASS drawR_gbd_3D(Real rnd, Real sigma, Real t, Real D);
 
-Real g_bd_1D(Real r0, Real sigma, Real t, Real D, Real v);
+Real GF_CLASS g_bd_1D(Real r0, Real sigma, Real t, Real D, Real v);
 
-Real I_bd_1D(Real sigma, Real t, Real D, Real v);
+Real GF_CLASS I_bd_1D(Real sigma, Real t, Real D, Real v);
 
-Real I_bd_r_1D(Real r, Real sigma, Real t, Real D, Real v);
+Real GF_CLASS I_bd_r_1D(Real r, Real sigma, Real t, Real D, Real v);
 
-Real drawR_gbd_1D(Real rnd, Real sigma, Real t, Real D, Real v);
+Real GF_CLASS drawR_gbd_1D(Real rnd, Real sigma, Real t, Real D, Real v);
 
 #endif /* FREE_FUNTIONS_HPP */

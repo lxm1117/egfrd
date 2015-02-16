@@ -45,12 +45,24 @@ Real GreensFunction1DAbsSinkAbs::root_f(Real x, void *p)
 
 }
 
+
+/* return the rootList size */
+uint GreensFunction1DAbsSinkAbs::rootList_size() const { return rootList.size(); }
+
+/* return the n + 1'th root */
+Real GreensFunction1DAbsSinkAbs::get_root(uint n) const
+{
+    if (n >= rootList.size())
+        calculate_n_roots(n + 1);
+    return rootList[n];
+}
+
+
 /* Calculates the first n roots of root_f */
-void GreensFunction1DAbsSinkAbs::calculate_n_roots(uint const& n) const
+void GreensFunction1DAbsSinkAbs::calculate_n_roots(uint n) const
 {
     uint i(rootList_size());
-    if (n <= i)
-        return;
+    if (n <= i) return;
 
     const Real Lr(getLr());
     const Real Ll(getLl());
@@ -93,7 +105,7 @@ void GreensFunction1DAbsSinkAbs::calculate_n_roots(uint const& n) const
 
         assert(root_i > std::max(lo_up_params.last_long_root, lo_up_params.last_short_root) - EPSILON);
 
-        ad_to_rootList(root_i / L);
+        rootList.push_back(root_i / L);
 
         if (lo_up_params.last_was_long)
             lo_up_params.last_long_root = root_i;
@@ -121,25 +133,19 @@ std::pair<Real, Real> GreensFunction1DAbsSinkAbs::get_lower_and_upper() const
     }
     else
     {
-        const Real next_root_long(lo_up_params.last_long_root
-            + lo_up_params.long_period);
-        const Real next_root_short(lo_up_params.last_short_root
-            + lo_up_params.short_period);
+        const Real next_root_long(lo_up_params.last_long_root + lo_up_params.long_period);
+        const Real next_root_short(lo_up_params.last_short_root + lo_up_params.short_period);
 
         if (next_root_long < next_root_short)
         {
             next_root_est = next_root_long;
-
             right_offset = std::min(next_root_short - next_root_est, lo_up_params.long_period);
-
             lo_up_params.last_was_long = true;
         }
         else
         {
             next_root_est = next_root_short;
-
             right_offset = std::min(next_root_long - next_root_est, lo_up_params.short_period);
-
             lo_up_params.last_was_long = false;
         }
     }
@@ -163,7 +169,6 @@ std::pair<Real, Real> GreensFunction1DAbsSinkAbs::get_lower_and_upper() const
     if (f_lower * parity_op > 0)
     {
         log_.warn("f(lower) has wrong sign at root# %6u, for h = %.5g, Lm/L = %.5g.", rootList_size() + 1, lo_up_params.h, lo_up_params.Lm_L);
-
         log_.warn("f_low( %.16g ) =  %.16g , f_high( %.16g ) = %.16g", lower, f_lower, upper, f_upper);
     }
 

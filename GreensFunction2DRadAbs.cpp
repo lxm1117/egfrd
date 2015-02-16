@@ -353,7 +353,7 @@ const void GreensFunction2DRadAbs::GiveRootInterval(
     Real& high,            // Variable to return right boundary interval
     const Integer n) const // Order of Bessel functions
 {
-    THROW_UNLESS(std::invalid_argument, n < alpha_x_scan_table_.size());
+    THROW_UNLESS(std::invalid_argument, (unsigned)n < alpha_x_scan_table_.size());
 
     // Variables for function values @ resp. left and right boundary interval.
     Real f_low, f_high;

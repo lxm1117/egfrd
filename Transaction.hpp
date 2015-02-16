@@ -7,10 +7,11 @@
 #include <boost/lexical_cast.hpp>
 #include "utils.hpp"
 #include "ParticleContainer.hpp"
-#include "sorted_list.hpp"
-#include "generator.hpp"
+#include "utils/fun_composition.hpp"
+#include "utils/sorted_list.hpp"
 #include "utils/unassignable_adapter.hpp"
 #include "utils/stringizer.hpp"
+#include "generator.hpp"
 
 template<typename Ttraits_>
 class Transaction: public ParticleContainer<Ttraits_>

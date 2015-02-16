@@ -41,7 +41,6 @@ noinst_PYTHON = \
 lib_LTLIBRARIES = _gfrd.la _greens_functions.la
 
 noinst_HEADERS = \
-	abstract_set.hpp\
 	BasicNetworkRulesImpl.hpp\
 	GreensFunction3DRadInf.hpp\
 	BDPropagator.hpp\
@@ -140,7 +139,7 @@ noinst_HEADERS = \
 	peer/converters/tuple/to_python.hpp \
 	peer/converters/tuple/from_python.hpp \
 	peer/converters/iterator.hpp \
-        peer/converters/iterator/to_python.hpp \
+	peer/converters/iterator/to_python.hpp \
 	peer/converters/generator/to_python.hpp \
 	peer/converters/generator/from_python.hpp \
 	peer/converters/sequence/to_python.hpp \
@@ -152,35 +151,27 @@ noinst_HEADERS = \
 	peer/wrappers/generator/generator_wrapper.hpp \
 	peer/wrappers/iterator/stl_iterator_wrapper.hpp \
 	peer/utils.hpp \
-	utils/array_helper.hpp\
-	utils/array_traits.hpp\
-	utils/fun_composition.hpp\
-	utils/fun_wrappers.hpp\
-	utils/get_default_impl.hpp\
-	utils/get_mapper_mf.hpp\
-	utils.hpp\
-	utils/memberwise_compare.hpp\
-	utils/pair.hpp\
-	utils/pointer_preds.hpp\
-	utils/range.hpp\
-	utils/range_support.hpp\
-	utils/reference_or_instance.hpp\
-	utils/unassignable_adapter.hpp
+	utils/array_helper.hpp \
+	utils/array_traits.hpp \
+	utils/fun_composition.hpp \
+	utils/fun_wrappers.hpp \
+	utils/get_default_impl.hpp \
+	utils/get_mapper_mf.hpp \
+	utils.hpp \
+	utils/memberwise_compare.hpp \
+	utils/pair.hpp \
+	utils/pointer_preds.hpp \
+	utils/range.hpp \
+	utils/range_support.hpp \
+	utils/reference_or_instance.hpp \
+	utils/unassignable_adapter.hpp \
+	utils/abstract_set.hpp
+
 
 _gfrd_la_CPPFLAGS = -DPY_ARRAY_UNIQUE_SYMBOL=PyArray_API
 
 _gfrd_la_SOURCES=\
 	BasicNetworkRulesImpl.cpp\
-	findRoot.cpp\
-	freeFunctions.cpp\
-	funcSum.cpp\
-	GreensFunction3DAbs.cpp\
-	GreensFunction3DAbsSym.cpp\
-	GreensFunction3D.cpp\
-	GreensFunction3DRadAbsBase.cpp\
-	GreensFunction3DRadAbs.cpp\
-	GreensFunction3DRadInf.cpp\
-	GreensFunction3DSym.cpp\
 	Logger.cpp\
 	ConsoleAppender.cpp\
 	Model.cpp\
@@ -188,7 +179,6 @@ _gfrd_la_SOURCES=\
 	ParticleModel.cpp\
 	pyGFRD.cpp\
 	SpeciesType.cpp\
-	SphericalBesselGenerator.cpp\
 	StructureType.cpp\
 	utils.cpp
 
@@ -200,7 +190,7 @@ _greens_functions_la_SOURCES=\
 	freeFunctions.cpp\
 	GreensFunction1DAbsAbs.cpp\
 	GreensFunction1DRadAbs.cpp\
-	GreensFunction1DAbsSinkAbs.cpp \
+	GreensFunction1DAbsSinkAbs.cpp\
 	GreensFunction2DAbsSym.cpp\
 	GreensFunction2DRadAbs.cpp\
 	GreensFunction3DSym.cpp\
@@ -214,7 +204,7 @@ _greens_functions_la_SOURCES=\
 	ConsoleAppender.cpp
 
 _gfrd_la_LDFLAGS = -module -export-dynamic -avoid-version -Wl,--no-undefined
-_gfrd_la_LIBADD = binding/libbinding_utils.la $(LIBBOOSTPYTHON) $(LIBPYTHON) $(GSL_LIBS)
+_gfrd_la_LIBADD = binding/libbinding_utils.la _greens_functions.so $(LIBBOOSTPYTHON) $(LIBPYTHON) $(GSL_LIBS)
 
 _greens_functions_la_LDFLAGS = -module -export-dynamic -avoid-version 
 _greens_functions_la_LIBADD = $(LIBBOOSTPYTHON) $(LIBPYTHON) $(GSL_LIBS)

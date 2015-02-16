@@ -52,12 +52,23 @@ double GreensFunction1DRadAbs::tan_f(double x, void *p)
 
 }
 
+/* return the rootList size */
+uint GreensFunction1DRadAbs::rootList_size() const { return rootList.size(); }
+
+/* return the n + 1'th root */
+Real GreensFunction1DRadAbs::get_root(uint n) const
+{
+    if (n >= rootList.size())
+        calculate_n_roots(n + 1);
+    return rootList[n];
+}
+
+
 /* Fills the rootList with all the roots of tan(x*a)=-x/h up to n */
-void GreensFunction1DRadAbs::calculate_n_roots(uint const& n) const
+void GreensFunction1DRadAbs::calculate_n_roots(uint n) const
 {
     uint i(rootList_size());
-    if (n <= i)
-        return;
+    if (n <= i) return;
 
     const Real L(this->geta() - this->getsigma());
     const Real h((this->getk() + this->getv() / 2.0) / this->getD());
@@ -69,7 +80,7 @@ void GreensFunction1DRadAbs::calculate_n_roots(uint const& n) const
     {
         while (i < n)
         {
-            ad_to_rootList(M_PI * (i + 1.0 / 2) / L);
+            rootList.push_back(M_PI * (i + 1.0 / 2) / L);
             i++;
         }
         return;
@@ -101,7 +112,7 @@ void GreensFunction1DRadAbs::calculate_n_roots(uint const& n) const
     {
         root_i = findRoot(F, solver, lower, upper, 1.0*EPSILON, EPSILON, "GreensFunction1DRadAbs::root_tan");
 
-        ad_to_rootList(root_i / L);
+        rootList.push_back(root_i / L);
 
         lower += M_PI;
         upper += M_PI;

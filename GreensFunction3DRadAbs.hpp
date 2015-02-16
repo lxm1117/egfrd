@@ -8,7 +8,7 @@
 #include "Logger.hpp"
 #include "GreensFunction3DRadAbsBase.hpp"
 
-class GreensFunction3DRadAbs : public GreensFunction3DRadAbsBase
+class GF_CLASS GreensFunction3DRadAbs : public GreensFunction3DRadAbsBase
 {
 private:
     // Error tolerance used by default.

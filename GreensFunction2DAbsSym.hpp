@@ -7,7 +7,7 @@
 #include "Logger.hpp"
 #include "GreensFunction.hpp"
 
-class GreensFunction2DAbsSym : public GreensFunction
+class GF_CLASS GreensFunction2DAbsSym : public GreensFunction
 {
     static const Real CUTOFF;
 

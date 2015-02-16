@@ -22,7 +22,7 @@
 #include "GreensFunction.hpp"
 #include "Logger.hpp"
 
-class GreensFunction1DRadAbs : public GreensFunction
+class GF_CLASS GreensFunction1DRadAbs : public GreensFunction
 {
 private:
     // This is a typical length scale of the system, may not be true!
@@ -126,7 +126,7 @@ public:
     // domain.
     Real calcpcum(Real r, Real t) const;
 
-    // Determine which event has occured, an escape or a reaction. Based 
+    // Determine which event has occurred, an escape or a reaction. Based 
     // on the fluxes through the boundaries at the given time. Beware: if 
     // t is not a first passage time you still get an answer!
     EventKind drawEventType(Real rnd, Real t) const;
@@ -204,40 +204,13 @@ private:
     /* Functions managing the rootList */
 
     /* return the rootList size */
-    uint rootList_size() const
-    {
-        return rootList.size();
-    }
-
-    /* returns the last root. */
-    Real get_last_root() const
-    {
-        return rootList.back();
-    }
-
-    /* ad a root to the rootList */
-    void ad_to_rootList(Real const& root_i) const
-    {
-        rootList.push_back(root_i);
-    }
-
-    /* remove n'th root from rootList */
-    void remove_from_rootList(uint const& n) const
-    {
-        rootList.erase(rootList.begin() + n);
-    }
+    uint rootList_size() const;
 
     /* return the n + 1'th root */
-    Real get_root(uint const& n) const
-    {
-        if (n >= rootList.size())
-            calculate_n_roots(n + 1);
-
-        return rootList[n];
-    }
+    Real get_root(uint n) const;
 
     /* Fills the rootList with the first n roots. */
-    void calculate_n_roots(uint const& n) const;
+    void calculate_n_roots(uint n) const;
 
     /* Guess the number of terms needed for convergence, given t. */
     uint guess_maxi(Real const& t) const;

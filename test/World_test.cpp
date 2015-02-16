@@ -8,10 +8,10 @@
 #include <boost/test/floating_point_comparison.hpp>
 #include <boost/scoped_ptr.hpp>
 #include "utils/range.hpp"
+#include "utils/abstract_set.hpp"
 #include "Defs.hpp"
 #include "World.hpp"
 #include "SerialIDGenerator.hpp"
-#include "abstract_set.hpp"
 
 BOOST_AUTO_TEST_CASE(add_species)
 {

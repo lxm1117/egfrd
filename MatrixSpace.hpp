@@ -9,18 +9,16 @@
 #include <boost/range/size.hpp>
 #include <boost/range/difference_type.hpp>
 #include "Vector3.hpp"
-#include "sorted_list.hpp"
+#include "utils/fun_composition.hpp"
+#include "utils/sorted_list.hpp"
 #include "utils/array_helper.hpp"
 #include "utils/get_default_impl.hpp"
-#include "utils/fun_composition.hpp"
 #include "utils/fun_wrappers.hpp"
 #include "utils/range.hpp"
 #include "utils/unassignable_adapter.hpp"
 #include "utils/get_default_impl.hpp"
 
-template<typename Tobj_, typename Tkey_,
-        template<typename, typename> class MFget_mapper_ =
-            get_default_impl::std::template map>
+template<typename Tobj_, typename Tkey_, template<typename, typename> class MFget_mapper_ = get_default_impl::std::template map>
 class MatrixSpace
 {
 public:
@@ -33,12 +31,9 @@ public:
     typedef sorted_list<std::vector<typename all_values_type::size_type> > cell_type;
     typedef boost::multi_array<cell_type, 3> matrix_type;
     typedef typename cell_type::size_type size_type;
-    typedef boost::array<typename matrix_type::size_type, 3>
-            cell_index_type;
-    typedef boost::array<typename matrix_type::difference_type, 3>
-            cell_offset_type;
-    typedef typename MFget_mapper_<key_type, typename all_values_type::size_type>::type
-            key_to_value_mapper_type;
+    typedef boost::array<typename matrix_type::size_type, 3> cell_index_type;
+    typedef boost::array<typename matrix_type::difference_type, 3> cell_offset_type;
+    typedef typename MFget_mapper_<key_type, typename all_values_type::size_type>::type key_to_value_mapper_type;
 
     typedef typename all_values_type::iterator iterator;
     typedef typename all_values_type::const_iterator const_iterator;
@@ -50,35 +45,29 @@ private:
 
 public:
     MatrixSpace(length_type world_size = 1.0,
-            typename matrix_type::size_type size = 1)
-        : world_size_(world_size),
-          cell_size_(world_size / size),
-          matrix_(boost::extents[size][size][size])
+        typename matrix_type::size_type size = 1) : world_size_(world_size), cell_size_(world_size / size), matrix_(boost::extents[size][size][size])
     {
     }
 
-    inline cell_index_type index(const position_type& pos,
-            double t = 1e-10) const
+    inline cell_index_type index(const position_type& pos, double t = 1e-10) const
     {
         return array_gen<typename matrix_type::size_type>(
             static_cast<typename matrix_type::size_type>(
-                pos[0] / cell_size_ ) % matrix_.shape()[0],
+            pos[0] / cell_size_) % matrix_.shape()[0],
             static_cast<typename matrix_type::size_type>(
-                pos[1] / cell_size_ ) % matrix_.shape()[1],
+            pos[1] / cell_size_) % matrix_.shape()[1],
             static_cast<typename matrix_type::size_type>(
-                pos[2] / cell_size_ ) % matrix_.shape()[2] );
+            pos[2] / cell_size_) % matrix_.shape()[2]);
     }
 
-    inline bool offset_index(
-            cell_index_type& i,
-            const cell_offset_type& o) const
+    inline bool offset_index(cell_index_type& i, const cell_offset_type& o) const
     {
         if ((o[0] < 0 && static_cast<size_type>(-o[0]) > i[0])
-                || (matrix_.shape()[0] - o[0] <= i[0])
-                || (o[1] < 0 && static_cast<size_type>(-o[1]) > i[1])
-                || (matrix_.shape()[1] - o[1] <= i[1])
-                || (o[2] < 0 && static_cast<size_type>(-o[2]) > i[2])
-                || (matrix_.shape()[2] - o[2] <= i[2]))
+            || (matrix_.shape()[0] - o[0] <= i[0])
+            || (o[1] < 0 && static_cast<size_type>(-o[1]) > i[1])
+            || (matrix_.shape()[1] - o[1] <= i[1])
+            || (o[2] < 0 && static_cast<size_type>(-o[2]) > i[2])
+            || (matrix_.shape()[2] - o[2] <= i[2]))
         {
             return false;
         }
@@ -88,8 +77,7 @@ public:
         return true;
     }
 
-    inline position_type offset_index_cyclic(cell_index_type& i,
-                                             const cell_offset_type& o) const
+    inline position_type offset_index_cyclic(cell_index_type& i, const cell_offset_type& o) const
     {
         position_type retval;
 
@@ -99,20 +87,20 @@ public:
             typename matrix_type::size_type t(
                 (i[0] + matrix_.shape()[0] - (-o[0] % matrix_.shape()[0])) %
                 matrix_.shape()[0]);
-            retval[0] 
-                = (o[0] - 
-                   static_cast<typename matrix_type::difference_type>
-                   (t - i[0])) * cell_size_;
+            retval[0]
+                = (o[0] -
+                static_cast<typename matrix_type::difference_type>
+                (t - i[0])) * cell_size_;
             i[0] = t;
         }
         else if (matrix_.shape()[0] - o[0] <= i[0])
         {
             typename matrix_type::size_type t(
-                    (i[0] + (o[0] % matrix_.shape()[0])) % matrix_.shape()[0]);
-            retval[0] 
-                = (o[0] - 
-                   static_cast<typename matrix_type::difference_type>
-                   (t - i[0])) * cell_size_;
+                (i[0] + (o[0] % matrix_.shape()[0])) % matrix_.shape()[0]);
+            retval[0]
+                = (o[0] -
+                static_cast<typename matrix_type::difference_type>
+                (t - i[0])) * cell_size_;
             i[0] = t;
         }
         else
@@ -121,18 +109,18 @@ public:
         }
 
         if (o[1] < 0 &&
-                static_cast<typename matrix_type::size_type>(-o[1]) > i[1])
+            static_cast<typename matrix_type::size_type>(-o[1]) > i[1])
         {
             typename matrix_type::size_type t(
-                    (i[1] + matrix_.shape()[1] - (-o[1] % matrix_.shape()[1])) %
-                        matrix_.shape()[1]);
+                (i[1] + matrix_.shape()[1] - (-o[1] % matrix_.shape()[1])) %
+                matrix_.shape()[1]);
             retval[1] = (o[1] - static_cast<typename matrix_type::difference_type>(t - i[1])) * cell_size_;
             i[1] = t;
         }
         else if (matrix_.shape()[1] - o[1] <= i[1])
         {
             typename matrix_type::size_type t(
-                    (i[1] + (o[1] % matrix_.shape()[1])) % matrix_.shape()[1]);
+                (i[1] + (o[1] % matrix_.shape()[1])) % matrix_.shape()[1]);
             retval[1] = (o[1] - static_cast<typename matrix_type::difference_type>(t - i[1])) * cell_size_;
             i[1] = t;
         }
@@ -142,18 +130,18 @@ public:
         }
 
         if (o[2] < 0 &&
-                static_cast<typename matrix_type::size_type>(-o[2]) > i[2])
+            static_cast<typename matrix_type::size_type>(-o[2]) > i[2])
         {
             typename matrix_type::size_type t(
-                    (i[2] + matrix_.shape()[2] - (-o[2] % matrix_.shape()[2])) %
-                        matrix_.shape()[2]);
+                (i[2] + matrix_.shape()[2] - (-o[2] % matrix_.shape()[2])) %
+                matrix_.shape()[2]);
             retval[2] = (o[2] - static_cast<typename matrix_type::difference_type>(t - i[2])) * cell_size_;
             i[2] = t;
         }
         else if (matrix_.shape()[2] - o[2] <= i[2])
         {
             typename matrix_type::size_type t(
-                    (i[2] + (o[2] % matrix_.shape()[2])) % matrix_.shape()[2]);
+                (i[2] + (o[2] % matrix_.shape()[2])) % matrix_.shape()[2]);
             retval[2] = (o[2] - static_cast<typename matrix_type::difference_type>(t - i[2])) * cell_size_;
             i[2] = t;
         }
@@ -217,7 +205,7 @@ public:
                 reinterpret_cast<nonconst_value_type&>(*old_value) = v;
 
                 typename cell_type::iterator i(
-                        old_cell->find(old_value - values_.begin()));
+                    old_cell->find(old_value - values_.begin()));
                 index = *i;
                 old_cell->erase(i);
                 new_cell->push(index);
@@ -262,7 +250,7 @@ public:
                 reinterpret_cast<nonconst_value_type&>(*old_value) = v;
 
                 typename cell_type::iterator i(
-                        old_cell->find(old_value - values_.begin()));
+                    old_cell->find(old_value - values_.begin()));
                 index = *i;
                 old_cell->erase(i);
                 new_cell->push(index);
@@ -300,7 +288,7 @@ public:
             BOOST_VERIFY(old_c.erase(last_index));
             old_c.push(old_index);
             rmap_[last.first] = old_index;
-            reinterpret_cast<nonconst_value_type&>(*i) = last; 
+            reinterpret_cast<nonconst_value_type&>(*i) = last;
         }
         values_.pop_back();
         return true;
@@ -319,9 +307,9 @@ public:
     inline void clear()
     {
         for (typename matrix_type::element *p(matrix_.data()),
-                                           *e(matrix_.data()
-                                              + matrix_.num_elements());
-             p != e; ++p)
+            *e(matrix_.data()
+            + matrix_.num_elements());
+        p != e; ++p)
         {
             (*p).clear();
         }
@@ -394,28 +382,28 @@ public:
 
     template<typename Tcollect_>
     inline void each_neighbor_cyclic(const cell_index_type& idx,
-            Tcollect_& collector)
+        Tcollect_& collector)
     {
         each_neighbor_cyclic_loops<Tcollect_>(idx, collector);
     }
 
     template<typename Tcollect_>
     inline void each_neighbor_cyclic(const cell_index_type& idx,
-            Tcollect_ const& collector)
+        Tcollect_ const& collector)
     {
         each_neighbor_cyclic_loops<Tcollect_ const>(idx, collector);
     }
 
     template<typename Tcollect_>
     inline void each_neighbor_cyclic(const cell_index_type& idx,
-            Tcollect_& collector) const
+        Tcollect_& collector) const
     {
         each_neighbor_cyclic_loops<Tcollect_>(idx, collector);
     }
 
     template<typename Tcollect_>
     inline void each_neighbor_cyclic(const cell_index_type& idx,
-            Tcollect_ const& collector) const
+        Tcollect_ const& collector) const
     {
         each_neighbor_cyclic_loops<Tcollect_ const>(idx, collector);
     }
@@ -435,7 +423,7 @@ private:
 
     template<typename Tcollect_>
     inline void each_neighbor_loops(const cell_index_type& idx,
-                                    Tcollect_& collector) const
+        Tcollect_& collector) const
     {
         cell_offset_type off;
 
@@ -450,7 +438,7 @@ private:
                         continue;
                     }
                     cell_type const& c(cell(_idx));
-                    for (typename cell_type::const_iterator i(c.begin()); i != c.end(); ++i) 
+                    for (typename cell_type::const_iterator i(c.begin()); i != c.end(); ++i)
                     {
                         collector(values_.begin() + *i, position_type());
                     }
@@ -461,7 +449,7 @@ private:
 
     template<typename Tcollect_>
     inline void each_neighbor_loops(const cell_index_type& idx,
-                                    Tcollect_& collector)
+        Tcollect_& collector)
     {
         cell_offset_type off;
 
@@ -476,7 +464,7 @@ private:
                         continue;
                     }
                     cell_type const& c(cell(_idx));
-                    for (typename cell_type::const_iterator i(c.begin()); i != c.end(); ++i) 
+                    for (typename cell_type::const_iterator i(c.begin()); i != c.end(); ++i)
                     {
                         collector(values_.begin() + *i, position_type());
                     }
@@ -487,7 +475,7 @@ private:
 
     template<typename Tcollect_>
     inline void each_neighbor_cyclic_loops(const cell_index_type& idx,
-                                           Tcollect_& collector) const
+        Tcollect_& collector) const
     {
         cell_offset_type off;
 
@@ -500,7 +488,7 @@ private:
                     cell_index_type _idx(idx);
                     const position_type pos_off(offset_index_cyclic(_idx, off));
                     cell_type const& c(cell(_idx));
-                    for (typename cell_type::const_iterator i(c.begin()); i != c.end(); ++i) 
+                    for (typename cell_type::const_iterator i(c.begin()); i != c.end(); ++i)
                     {
                         collector(values_.begin() + *i, pos_off);
                     }
@@ -511,7 +499,7 @@ private:
 
     template<typename Tcollect_>
     inline void each_neighbor_cyclic_loops(const cell_index_type& idx,
-                                           Tcollect_& collector)
+        Tcollect_& collector)
     {
         cell_offset_type off;
 
@@ -524,7 +512,7 @@ private:
                     cell_index_type _idx(idx);
                     const position_type pos_off(offset_index_cyclic(_idx, off));
                     cell_type const& c(cell(_idx));
-                    for (typename cell_type::const_iterator i(c.begin()); i != c.end(); ++i) 
+                    for (typename cell_type::const_iterator i(c.begin()); i != c.end(); ++i)
                     {
                         collector(values_.begin() + *i, pos_off);
                     }
@@ -541,14 +529,9 @@ private:
     all_values_type values_;
 };
 
-template<typename T_, typename Tkey_,
-        template<typename, typename> class MFget_mapper_>
+template<typename T_, typename Tkey_, template<typename, typename> class MFget_mapper_>
 static inline typename MatrixSpace<T_, Tkey_, MFget_mapper_>::cell_index_type&
-operator+=(
-       typename MatrixSpace<T_,
-                Tkey_, MFget_mapper_>::cell_index_type& lhs,
-       const typename MatrixSpace<T_,
-                Tkey_, MFget_mapper_>::cell_offset_type& rhs)
+operator+=(typename MatrixSpace<T_, Tkey_, MFget_mapper_>::cell_index_type& lhs, const typename MatrixSpace < T_, Tkey_, MFget_mapper_ > ::cell_offset_type& rhs)
 {
     rhs[0] += lhs[0];
     rhs[1] += lhs[1];
@@ -556,20 +539,17 @@ operator+=(
     return rhs;
 }
 
-template<typename T_, typename Tkey_,
-        template<typename, typename> class MFget_mapper_>
-struct is_sized<MatrixSpace<T_, Tkey_, MFget_mapper_> >: boost::mpl::true_ {};
+template<typename T_, typename Tkey_, template<typename, typename> class MFget_mapper_>
+struct is_sized<MatrixSpace<T_, Tkey_, MFget_mapper_> > : boost::mpl::true_{};
 
-template<typename T_, typename Tkey_,
-        template<typename, typename> class MFget_mapper_>
-struct range_size<MatrixSpace<T_, Tkey_, MFget_mapper_> >
+template<typename T_, typename Tkey_, template<typename, typename> class MFget_mapper_>
+struct range_size < MatrixSpace<T_, Tkey_, MFget_mapper_> >
 {
     typedef typename MatrixSpace<T_, Tkey_, MFget_mapper_>::size_type type;
 };
 
-template<typename T_, typename Tkey_,
-        template<typename, typename> class MFget_mapper_>
-struct range_size_retriever<MatrixSpace<T_, Tkey_, MFget_mapper_> >
+template<typename T_, typename Tkey_, template<typename, typename> class MFget_mapper_>
+struct range_size_retriever < MatrixSpace<T_, Tkey_, MFget_mapper_> >
 {
     typedef MatrixSpace<T_, Tkey_, MFget_mapper_> argument_type;
     typedef typename range_size<argument_type>::type result_type;

@@ -6,7 +6,7 @@
 #include "GreensFunction.hpp"
 #include <ostream>
 
-class GreensFunction3DAbsSym : public GreensFunction
+class GF_CLASS GreensFunction3DAbsSym : public GreensFunction
 {
     static const Real CUTOFF;
 

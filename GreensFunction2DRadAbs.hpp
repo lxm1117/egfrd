@@ -18,7 +18,7 @@
 #include "Logger.hpp"
 #include "PairGreensFunction.hpp"
 
-class GreensFunction2DRadAbs : public PairGreensFunction
+class GF_CLASS GreensFunction2DRadAbs : public PairGreensFunction
 {
 private:
     // Error tolerance used by default.

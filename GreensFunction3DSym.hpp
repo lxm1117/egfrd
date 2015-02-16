@@ -11,7 +11,7 @@
   Green's Function for a free diffusion particle.
   */
 
-class GreensFunction3DSym : public GreensFunction
+class GF_CLASS GreensFunction3DSym : public GreensFunction
 {
 private:
 

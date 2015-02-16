@@ -23,7 +23,7 @@
 #include "GreensFunction.hpp"
 #include "PairGreensFunction.hpp"
 
-class GreensFunction1DAbsAbs : public GreensFunction
+class GF_CLASS GreensFunction1DAbsAbs : public GreensFunction
 {
 private:
     // This is a typical length scale of the system, may not be true!

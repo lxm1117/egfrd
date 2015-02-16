@@ -1,5 +1,5 @@
-#if !defined(__PLAINPAIRGREENSFUNCTION)
-#define __PLAINPAIRGREENSFUNCTION 
+#if !defined(GREENSFUNCTION3DRADINF_HPP)
+#define GREENSFUNCTION3DRADINF_HPP 
 
 #include <cmath>
 #include <vector>
@@ -7,7 +7,7 @@
 #include "Logger.hpp"
 #include "PairGreensFunction.hpp"
 
-class GreensFunction3DRadInf : public PairGreensFunction
+class GF_CLASS GreensFunction3DRadInf : public PairGreensFunction
 {
 private:
     struct p_corr_R_params;
@@ -101,4 +101,4 @@ private:
     static Logger& log_;
 };
 
-#endif // __PLAINPAIRGREENSFUNCTION 
+#endif // GREENSFUNCTION3DRADINF_HPP 

@@ -22,7 +22,7 @@
 #include "freeFunctions.hpp"
 #include "Logger.hpp"
 
-class GreensFunction1DAbsSinkAbs : public GreensFunction
+class GF_CLASS GreensFunction1DAbsSinkAbs : public GreensFunction
 {
 private:
     // This is a typical length scale of the system, may not be true!
@@ -202,42 +202,13 @@ private:
     /* Functions managing the rootList */
 
     /* return the rootList size */
-    uint rootList_size() const
-    {
-        return rootList.size();
-    }
-
-    /* returns the last root. */
-    Real get_last_root() const
-    {
-        return rootList.back();
-    }
-
-    /* ad a root to the rootList */
-    void ad_to_rootList(Real const& root_i) const
-    {
-        rootList.push_back(root_i);
-    }
-
-    /* remove n'th root from rootList */
-    void remove_from_rootList(uint const& n) const
-    {
-        rootList.erase(rootList.begin() + n);
-    }
+    uint rootList_size() const;
 
     /* return the n + 1'th root */
-    Real get_root(uint const& n) const
-    {
-        if (n >= rootList.size())
-            calculate_n_roots(n + 1);
-
-        return rootList[n];
-    }
-
-    /* Functions concerned with finding the roots. */
+    Real get_root(uint n) const;
 
     /* Fills the rootList with the first n roots */
-    void calculate_n_roots(uint const& n) const;
+    void calculate_n_roots(uint n) const;
 
     /* Function returns two positions on the x-axis which straddle the next root. */
     real_pair get_lower_and_upper() const;
@@ -292,7 +263,6 @@ private:
             calculate_n_roots(i + 1);
             create_p_int_r_Table(t, table);
         }
-
         return table[i];
     }
 

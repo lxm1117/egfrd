@@ -13,7 +13,7 @@
    kf == sigma == 0.
    */
 
-class GreensFunction3D : public PairGreensFunction
+class GF_CLASS GreensFunction3D : public PairGreensFunction
 {
 private:
     static const Real TOLERANCE;
