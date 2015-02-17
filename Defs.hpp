@@ -26,10 +26,14 @@ const Real M_PI = 3.1415926535897932384626433832795;
 
 
 
+#ifdef MSVC
 #ifdef GF_EXPORT
 #define GF_CLASS __declspec(dllexport)
 #else
 #define GF_CLASS __declspec(dllimport)
+#endif
+#else
+#define GF_CLASS
 #endif
 
 

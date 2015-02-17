@@ -21,6 +21,7 @@ AM_CXXFLAGS = @BOOST_CPPFLAGS@ @GSL_CFLAGS@ ${PYTHON_INCLUDES} -I${NUMPY_INCLUDE
 
 LIBBOOSTPYTHON = -l@BOOST_PYTHON_LIBNAME@
 LIBBOOSTREGEX = -l@BOOST_REGEX_LIBNAME@
+LIBGREENSFUNC = -L${TOPSRCDIR}
 
 PYCHECKER = @PYCHECKER@
 PYCHECKER_FLAGS = --limit 0 
@@ -46,7 +47,6 @@ noinst_HEADERS = \
 	BDPropagator.hpp\
 	newBDPropagator.hpp\
 	BDSimulator.hpp\
-	bessel.hpp\
 	Box.hpp\
 	ConnectivityContainer.hpp\
 	ConsoleAppender.hpp\
@@ -81,7 +81,6 @@ noinst_HEADERS = \
 	GreensFunction.hpp\
 	GSLRandomNumberGenerator.hpp\
 	gsl_rng_base.hpp\
-	HalfOrderBesselGenerator.hpp\
 	Identifier.hpp\
 	linear_algebra.hpp\
 	Logger.hpp\
@@ -98,7 +97,6 @@ noinst_HEADERS = \
 	ParticleID.hpp\
 	ParticleSimulator.hpp\
 	Point.hpp\
-	PyEventScheduler.hpp\
 	ReactionRule.hpp\
 	ReactionRuleInfo.hpp\
 	Region.hpp\
@@ -107,7 +105,7 @@ noinst_HEADERS = \
 	Shell.hpp\
 	ShellID.hpp\
 	Single.hpp\
-	sorted_list.hpp\
+	utils/sorted_list.hpp\
 	SpeciesInfo.hpp\
 	SpeciesType.cpp\
 	SpeciesType.hpp\
@@ -204,7 +202,7 @@ _greens_functions_la_SOURCES=\
 	ConsoleAppender.cpp
 
 _gfrd_la_LDFLAGS = -module -export-dynamic -avoid-version -Wl,--no-undefined
-_gfrd_la_LIBADD = binding/libbinding_utils.la _greens_functions.so $(LIBBOOSTPYTHON) $(LIBPYTHON) $(GSL_LIBS)
+_gfrd_la_LIBADD = binding/libbinding_utils.la $(LIBBOOSTPYTHON) $(LIBPYTHON) $(GSL_LIBS) $(LIBGREENSFUNC) -l_greens_functions
 
 _greens_functions_la_LDFLAGS = -module -export-dynamic -avoid-version 
 _greens_functions_la_LIBADD = $(LIBBOOSTPYTHON) $(LIBPYTHON) $(GSL_LIBS)
