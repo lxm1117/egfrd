@@ -27,7 +27,7 @@ class PlanarSurfaceTestCase(unittest.TestCase):
         
         # Connect to particle model
         self.particle_model = model.ParticleModel(self.L)
-        self.particle_model.add_stucture_type(self.structure_type)
+        self.particle_model.add_structure_type(self.structure_type)
 
         # Some const distance values.
         self.r1 = 1.6
@@ -38,7 +38,8 @@ class PlanarSurfaceTestCase(unittest.TestCase):
 
     def membrane_at_position(self, x, y):
         '''Creates a cylinderical surface.
-        Argument - x: '''
+        Argument - x: axis x origin of the plane.
+                 - y: axis y origin of the plane.'''
         return model.create_planar_surface(self.structure_type.id, 'm', [x, y, 5],
                                            [1, 0, 0], [0, 1, 0], self.L, self.L, self.parent_id)
 
@@ -68,12 +69,13 @@ class PlanarSurfaceTestCase(unittest.TestCase):
         assert (m.project_point([2, 2, 2])[0] == [2, 2, 5]).all()
         assert m.project_point([2, 2, 2])[1][0] == -3
 
+
     def test_distance_to_plane(self):
         '''Tests whether the world distance function returns the correct value
         for a given single planar surface.'''
         m = self.membrane_at_position(self.r1, self.r2)
-        assert self.world.distance(m1.shape, [self.r3, self.r4, 2]) == -3
-        assert self.world.distance(m1.shape, [self.r3, self.r4, 8]) == 3
+        assert self.world.distance(m.shape, [self.r3, self.r4, 2]) == 3
+        assert self.world.distance(m.shape, [self.r3, self.r4, 8]) == 3
 
 
 if __name__ == "__main__":
