@@ -9,13 +9,10 @@
 #include <boost/test/test_case_template.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-#include "SphericalBesselGenerator.hpp"
-
+#include "SphericalBesselGenerator.cpp"
 
 const unsigned int maxn( 51 );
-
-const SphericalBesselGenerator& 
-generator( SphericalBesselGenerator::instance() );
+const SphericalBesselGenerator& generator(SphericalBesselGenerator::instance());
 
 
 const Real rel_tol( 1e-5 );
@@ -23,7 +20,7 @@ const Real abs_tol( 1e-11 );
 
 
 
-#define CHECK_ERROR( n, z, a, b, abs_tol, rel_tol )      \
+#define CHECK_ERROR( n, z, a, b, abs_tol, rel_tol )\
 {\
     const Real abs_error( fabs( a - b ) );              \
     const Real rel_error( abs_error / fabs( a ) );\
@@ -47,13 +44,13 @@ BOOST_AUTO_TEST_CASE( testJ )
         
         for( UnsignedInteger n( 0 ); n <= maxn; ++n )
         {
-            const Real tj( generator.j( n, z ) );
-            const Real j( gsl_sf_bessel_jl( n, z ) );
+	  const Real tj(generator.j(n, z));
+          const Real j( gsl_sf_bessel_jl( n, z));
             
-            //BOOST_CHECK_CLOSE( j, tj, TOLERANCE );
-            CHECK_ERROR( n, z, j, tj, abs_tol, rel_tol );
+          //BOOST_CHECK_CLOSE( j, tj, TOLERANCE );
+          CHECK_ERROR( n, z, j, tj, abs_tol, rel_tol );
 
-            //printf("%d %g\n",n,z);
+          //printf("%d %g\n",n,z);
         }
     }
 
@@ -81,4 +78,4 @@ BOOST_AUTO_TEST_CASE( testY )
         }
     }
 
-}
+    }

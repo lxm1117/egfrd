@@ -9,7 +9,7 @@
 #include <boost/test/test_case_template.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-#include "CylindricalBesselGenerator.hpp"
+#include "CylindricalBesselGenerator.cpp"
 
 
 const unsigned int maxn(51);
