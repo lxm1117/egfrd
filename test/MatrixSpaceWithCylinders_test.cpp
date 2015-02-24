@@ -2,11 +2,13 @@
 #include <config.h>
 #endif /* HAVE_CONFIG_H */
 
+#ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE "MatrixSpaceWithCylinders_test"
+#include <boost/test/included/unit_test.hpp>
+#endif
 
 #include <functional>
 #include <iostream>
-#include <boost/test/included/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 #include "Cylinder.hpp"
 #include "MatrixSpace.hpp"
@@ -55,7 +57,7 @@ BOOST_AUTO_TEST_CASE(insert)
 }
 
 template<typename Toc_>
-struct collector
+struct collector_cylinder
 {
     void operator()(typename Toc_::iterator i,
             const typename Toc_::position_type& pos_off)
@@ -67,7 +69,7 @@ struct collector
 };
 
 template<typename Toc_>
-struct collector2
+struct collector2_cylinder
 {
     void operator()(typename Toc_::iterator i,
             const typename Toc_::position_type& pos_off)
@@ -77,7 +79,7 @@ struct collector2
     std::set<typename Toc_::key_type> result;
 };
 
-BOOST_AUTO_TEST_CASE(each_neighbor)
+BOOST_AUTO_TEST_CASE(each_neighbor_cylinder)
 {
     typedef double length_type;
     typedef int key_type;
@@ -93,7 +95,7 @@ BOOST_AUTO_TEST_CASE(each_neighbor)
     BOOST_CHECK(oc.end() == oc.find(1));
 
     {
-        collector<oc_type> col;
+        collector_cylinder<oc_type> col;
         // Should return value 0.
         oc.each_neighbor(oc.index(pos(500, 500, 100)), col);
         BOOST_CHECK_EQUAL(col.result.size(), 1);
@@ -101,7 +103,7 @@ BOOST_AUTO_TEST_CASE(each_neighbor)
     }
 
     {
-        collector<oc_type> col;
+        collector_cylinder<oc_type> col;
         // No periodic boundary condition. Should return no values.
         // Behaviour is unspecified for values at the boundary or out of the 
         // MatrixSpace (x,y,z >= 1000).
@@ -110,7 +112,7 @@ BOOST_AUTO_TEST_CASE(each_neighbor)
     }
 
     {
-        collector2<oc_type> col2;
+        collector2_cylinder<oc_type> col2;
         // Periodic boundary condition. Should return element 0 after applying 
         // periodic boundary condition in z (add 1000 to z coordinate of the 
         // origin of the cylinder to be in the same neighbourhood as reference 
@@ -129,7 +131,7 @@ BOOST_AUTO_TEST_CASE(each_neighbor)
     }
 
     {
-        collector2<oc_type> col2;
+        collector2_cylinder<oc_type> col2;
         // Periodic boundary condition. Should return element 0 (0, 0, 0) and 
         // element 1 (0,0,-1000).
         oc.each_neighbor_cyclic(oc.index(pos(500, 500, 0)), col2);
