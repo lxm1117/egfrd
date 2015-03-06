@@ -21,7 +21,6 @@ AM_CXXFLAGS = @BOOST_CPPFLAGS@ @GSL_CFLAGS@ ${PYTHON_INCLUDES} -I${NUMPY_INCLUDE
 
 LIBBOOSTPYTHON = -l@BOOST_PYTHON_LIBNAME@
 LIBBOOSTREGEX = -l@BOOST_REGEX_LIBNAME@
-LIBGREENSFUNC = -L${TOPSRCDIR}
 
 PYCHECKER = @PYCHECKER@
 PYCHECKER_FLAGS = --limit 0 
@@ -202,7 +201,7 @@ _greens_functions_la_SOURCES=\
 	ConsoleAppender.cpp
 
 _gfrd_la_LDFLAGS = -module -export-dynamic -avoid-version -Wl,--no-undefined
-_gfrd_la_LIBADD = binding/libbinding_utils.la $(LIBBOOSTPYTHON) $(LIBPYTHON) $(GSL_LIBS) $(LIBGREENSFUNC) -l_greens_functions
+_gfrd_la_LIBADD = binding/libbinding_utils.la $(LIBBOOSTPYTHON) $(LIBPYTHON) $(GSL_LIBS) _greens_functions.la
 
 _greens_functions_la_LDFLAGS = -module -export-dynamic -avoid-version 
 _greens_functions_la_LIBADD = $(LIBBOOSTPYTHON) $(LIBPYTHON) $(GSL_LIBS)
