@@ -25,8 +25,10 @@ const Real M_PI = 3.1415926535897932384626433832795;
 #endif
 
 
+#define USE_SPHERICALBESSELGENERATOR
 
-#ifdef MSVC
+
+#ifdef _MSC_VER
 #ifdef GF_EXPORT
 #define GF_CLASS __declspec(dllexport)
 #else
