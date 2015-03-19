@@ -228,7 +228,7 @@ if __name__ == '__main__':
         end = numpy.searchsorted(z_table, maxz_j(n))
         z_start = z_table[start]
         j = j_table[n][start:end]
-        jdot = jdot_table[n][start:end]
+        jdot = delta_z * jdot_table[n][start:end]
         write_arrays(file, 'sj_table%d_f' % n, j, jdot)
         write_table(file, 'sj_table%d' % n, end-start, z_start, delta_z)
     print 'j', len(j)
@@ -240,7 +240,7 @@ if __name__ == '__main__':
         end = numpy.searchsorted(z_table, maxz_y(n))
         z_start = z_table[start]
         y = y_table[n][start:end]
-        ydot = ydot_table[n][start:end]
+        ydot = delta_z * ydot_table[n][start:end]
         write_arrays(file, 'sy_table%d_f' % n, y, ydot)
         write_table(file, 'sy_table%d' % n, end-start, z_start, delta_z)
 

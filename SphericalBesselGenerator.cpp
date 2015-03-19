@@ -12,15 +12,15 @@ static inline double hermite_interp(double x, double x0, double dx, double const
     const double hinv = 1.0 / dx;
     const size_t i = static_cast<size_t>((x - x0) * hinv);
     const size_t index = i * 2;
+
     const double x_lo = (x - x0) * hinv - i;
     const double x_hi = 1.0 - x_lo;
     const double y_lo = y_array[index];
-    const double ydot_lo = y_array[index + 1] * dx;
+    const double ydot_lo = y_array[index + 1];// *dx;
     const double y_hi = y_array[index + 2];
-    const double ydot_hi = y_array[index + 3] * dx;
+    const double ydot_hi = y_array[index + 3];// *dx; move to table
 
-    return x_hi * x_hi * (y_lo + x_lo * (2 * y_lo + ydot_lo))
-        + x_lo * x_lo * (y_hi + x_hi * (2 * y_hi - ydot_hi));
+    return x_hi * x_hi * (y_lo + x_lo * (2 * y_lo + ydot_lo)) + x_lo * x_lo * (y_hi + x_hi * (2 * y_hi - ydot_hi));
 }
 
 inline static Real interp(Real x_start, Real delta_x, Real const* yTable, Real x)
