@@ -506,12 +506,8 @@ class EGFRDSimulator(ParticleSimulatorBase):
         
         if __debug__:
             domain_counts = self.count_domains()
-            log.info('\n\n%d: t=%s dt=%e (next_time=%s)\t' %
-                     (self.step_counter, self.t,
-                      self.dt, self.scheduler.top[1].time) + 
-                     'Singles: %d, Pairs: %d, Multis: %d\n' % domain_counts + 
-                     'event=#%d reactions=%d rejectedmoves=%d' %
-                     (id, self.reaction_events, self.rejected_moves))
+            log.info('\n\n%d: t=%s dt=%e (next_time=%s)\t' % (self.step_counter, self.t, self.dt, self.scheduler.top[1].time if self.scheduler.size > 0 else 0) + 
+                     'Singles: %d, Pairs: %d, Multis: %d\n' % domain_counts + 'event=#%d reactions=%d rejectedmoves=%d' % (id, self.reaction_events, self.rejected_moves))
 
         # 2. Use the correct method to process (fire) the shell that produced the event
         #

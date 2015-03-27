@@ -4,7 +4,7 @@ import numpy
 import _gfrd
 
 from egfrd import *
-from visualization import vtklogger
+##from visualization import vtklogger
 
 import model
 import gfrdbase
@@ -231,12 +231,12 @@ class CytosoleTestCase(EGFRDSimulatorTestCaseBase):
             self.s.step()
 
     def test_vtklogger(self):
-        vtk_logger = vtklogger.VTKLogger(self.s, 'vtk_temp_data')
+        #vtk_logger = vtklogger.VTKLogger(self.s, 'vtk_temp_data')
         for i in range(10):
-            vtk_logger.log()
+            #vtk_logger.log()
             self.s.step()
-        vtk_logger.stop()
-        vtk_logger.cleanup()
+        #vtk_logger.stop()
+        #vtk_logger.cleanup()
 
 
 class PlanarSurfaceTestCase(EGFRDSimulatorTestCaseBase):
@@ -264,12 +264,12 @@ class PlanarSurfaceTestCase(EGFRDSimulatorTestCaseBase):
 
 
     def test_vtklogger(self):
-        vtk_logger = vtklogger.VTKLogger(self.s, 'vtk_temp_data')
+        #vtk_logger = vtklogger.VTKLogger(self.s, 'vtk_temp_data')
         for i in range(10):
-            vtk_logger.log()
+            #vtk_logger.log()
             self.s.step()
-        vtk_logger.stop()
-        vtk_logger.cleanup()
+        #vtk_logger.stop()
+        #vtk_logger.cleanup()
 
 
 class CylindricalSurfaceTestCase(EGFRDSimulatorTestCaseBase):
@@ -297,12 +297,12 @@ class CylindricalSurfaceTestCase(EGFRDSimulatorTestCaseBase):
 
 
     def test_vtklogger(self):
-        vtk_logger = vtklogger.VTKLogger(self.s, 'vtk_temp_data')
+        #vtk_logger = vtklogger.VTKLogger(self.s, 'vtk_temp_data')
         for i in range(10):
-            vtk_logger.log()
+            #vtk_logger.log()
             self.s.step()
-        vtk_logger.stop()
-        vtk_logger.cleanup()
+        #vtk_logger.stop()
+        #vtk_logger.cleanup()
 
 
 class PlanarSurfaceInteractionTestCase(EGFRDSimulatorTestCaseBase):
@@ -355,12 +355,12 @@ class CylindricalSurfaceInteractionTestCase(EGFRDSimulatorTestCaseBase):
         offset = 5.0*self.radius
         place_particle(self.w, self.A,[L/2, L/2+offset, L/2+offset])
 
-        vtk_logger = vtklogger.VTKLogger(self.s, 'vtk_temp_data')
+        #vtk_logger = vtklogger.VTKLogger(self.s, 'vtk_temp_data')
         for i in range(10):
             self.s.step()
-            vtk_logger.log()
-        vtk_logger.stop()
-        vtk_logger.cleanup()
+            #vtk_logger.log()
+        #vtk_logger.stop()
+        #vtk_logger.cleanup()
 
         self.failIf(self.s.t < 1.e-10)
    
@@ -375,17 +375,17 @@ class CylindricalSurfaceInteractionTestCase(EGFRDSimulatorTestCaseBase):
         offset = 5.0*self.radius
         place_particle(self.w, self.A,[L/2, L/2, L/2+offset])
 
-        vtk_logger = vtklogger.VTKLogger(self.s, 'vtk_temp_data')
+        #vtk_logger = vtklogger.VTKLogger(self.s, 'vtk_temp_data')
 
         # After 24 steps multi particle tries a move that would result 
         # in overlap with surface.
         #self.s.bd_dt_factor = 5
         for i in range(25):
             self.s.step()
-            vtk_logger.log()
+            #vtk_logger.log()
             self.s.check()
-        vtk_logger.stop()
-        vtk_logger.cleanup()
+        #vtk_logger.stop()
+        #vtk_logger.cleanup()
         #self.failIf(numpy.array(self.s.pair_steps.values()).sum() > 0)
 
 
@@ -399,13 +399,13 @@ class CylindricalSurfaceInteractionTestCase(EGFRDSimulatorTestCaseBase):
         offset = 5.0*self.radius
         place_particle(self.w, self.A, [L/2, L/2, L/2+offset])
 
-        vtk_logger = vtklogger.VTKLogger(self.s, 'vtk_temp_data')
+        #vtk_logger = vtklogger.VTKLogger(self.s, 'vtk_temp_data')
         for i in range(10):
             self.s.step()
-            vtk_logger.log()
+            #vtk_logger.log()
             self.s.check()
-        vtk_logger.stop()
-        vtk_logger.cleanup()
+        #vtk_logger.stop()
+        #vtk_logger.cleanup()
     
 
     def test_longer_run(self):
