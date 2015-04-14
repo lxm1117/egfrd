@@ -15,45 +15,25 @@
 #endif
 #include "Identifier.hpp"
 
-struct ShellID: public Identifier<ShellID, unsigned long long, int>
-{
-    typedef Identifier<ShellID, unsigned long long, int> base_type;
 
-    ShellID(value_type const& value = value_type(0, 0))
-        : base_type(value) {}
+struct ShellID : public Identifier < ShellID, unsigned int >
+{
+    typedef Identifier<ShellID, unsigned int> base_type;
+    ShellID(value_type const& value = value_type(0)) : base_type(value) {}
 };
 
-#if defined(HAVE_TR1_FUNCTIONAL)
-namespace std { namespace tr1 {
-#elif defined(HAVE_STD_HASH)
-namespace std {
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-namespace boost {
-#endif
-
-template<>
-struct hash<ShellID>
+template<> struct std::hash < ShellID >
 {
-    std::size_t operator()(ShellID const& val) const
+    std::size_t operator()(ShellID const& id) const
     {
-        return static_cast<std::size_t>(val().first ^ val().second);
+        return static_cast<std::size_t>(id());
     }
 };
 
-#if defined(HAVE_TR1_FUNCTIONAL)
-} } // namespace std::tr1
-#elif defined(HAVE_STD_HASH)
-} // namespace std
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-} // namespace boost
-#endif
-
-template<typename Tstrm_>
-inline std::basic_ostream<Tstrm_>& operator<<(std::basic_ostream<Tstrm_>& strm,
-        const ShellID& v)
+inline std::ostream& operator<<(std::ostream& stream, const ShellID& id)
 {
-    strm << "ShellID(" << v().first << ":" << v().second << ")";
-    return strm;
-}
+    stream << "ShellID(" << id() << ")";
+    return stream;
+};
 
 #endif /* SHELL_ID_HPP */

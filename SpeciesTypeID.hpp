@@ -15,55 +15,25 @@
 #endif
 #include "Identifier.hpp"
 
-struct SpeciesTypeID: public Identifier<SpeciesTypeID, unsigned long long, int>
-// The SpeciesTypeID is an identifier structure (same as class) for species types (species) but is also used for structure types
-// NOTE The super class is parameterized with the SpeciesTypeID class itself.
-{
-    // shorthand name for the super class
-    typedef Identifier<SpeciesTypeID, unsigned long long, int> base_type;
 
-    // The constructor
-    SpeciesTypeID(value_type const& value = value_type(0, 0))
-        : base_type(value) {}
+struct SpeciesTypeID : public Identifier < SpeciesTypeID, unsigned int >
+{
+    typedef Identifier<SpeciesTypeID, unsigned int> base_type;
+    SpeciesTypeID(value_type const& value = value_type(0)) : base_type(value) {}
 };
 
-
-
-
-#if defined(HAVE_TR1_FUNCTIONAL)
-namespace std { namespace tr1 {
-#elif defined(HAVE_STD_HASH)
-namespace std {
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-namespace boost {
-#endif
-
-template<>
-struct hash<SpeciesTypeID>
+template<> struct std::hash < SpeciesTypeID >
 {
-    std::size_t operator()(SpeciesTypeID const& val) const
+    std::size_t operator()(SpeciesTypeID const& id) const
     {
-        return static_cast<std::size_t>(val().first ^ val().second);
+        return static_cast<std::size_t>(id());
     }
 };
 
-#if defined(HAVE_TR1_FUNCTIONAL)
-} } // namespace std::tr1
-#elif defined(HAVE_STD_HASH)
-} // namespace std
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-} // namespace boost
-#endif
-
-
-
-///////// Inline functions
-template<typename Tstrm_, typename Ttraits_>
-inline std::basic_ostream<Tstrm_, Ttraits_>& operator<<(std::basic_ostream<Tstrm_, Ttraits_>& strm,
-        const SpeciesTypeID& v)
+inline std::ostream& operator<<(std::ostream& stream, const SpeciesTypeID& id)
 {
-    strm << "SID(" << v().first << ":" << v().second << ")";
-    return strm;
-}
+    stream << "SpeciesID(" << id() << ")";
+    return stream;
+};
 
 #endif /* SPECIES_TYPE_ID_HPP */

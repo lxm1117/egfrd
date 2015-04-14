@@ -15,48 +15,25 @@
 #endif
 #include "Identifier.hpp"
 
-struct ParticleID: public Identifier<ParticleID, unsigned long long, int>
-// The ParticleID is a class for the identification of particles
-{
-    typedef Identifier<ParticleID, unsigned long long, int> base_type;
 
-    ParticleID(value_type const& value = value_type(0, 0))
-        : base_type(value) {}
+struct ParticleID : public Identifier < ParticleID, unsigned int >
+{
+    typedef Identifier<ParticleID, unsigned int> base_type;
+    ParticleID(value_type const& value = value_type(0)) : base_type(value) {}
 };
 
-#if defined(HAVE_TR1_FUNCTIONAL)
-namespace std { namespace tr1 {
-#elif defined(HAVE_STD_HASH)
-namespace std {
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-namespace boost {
-#endif
-
-template<>
-struct hash<ParticleID>
-// Hashing function??
+template<> struct std::hash < ParticleID >
 {
-    std::size_t operator()(ParticleID const& val) const
+    std::size_t operator()(ParticleID const& id) const
     {
-        return static_cast<std::size_t>(val().first ^ val().second);
+        return static_cast<std::size_t>(id());
     }
 };
 
-#if defined(HAVE_TR1_FUNCTIONAL)
-} } // namespace std::tr1
-#elif defined(HAVE_STD_HASH)
-} // namespace std
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-} // namespace boost
-#endif
-
-template<typename Tstrm_, typename Ttraits_>
-inline std::basic_ostream<Tstrm_, Ttraits_>& operator<<(std::basic_ostream<Tstrm_, Ttraits_>& strm,
-        const ParticleID& v)
-// Provides a stream of characters (a string) of the 'particle id' that allows for printing.
+inline std::ostream& operator<<(std::ostream& stream, const ParticleID& id)
 {
-    strm << "PID(" << v().first << ":" << v().second << ")";
-    return strm;
-}
+    stream << "PID(" << id() << ")";
+    return stream;
+};
 
 #endif /* PARTICLE_ID_HPP */
