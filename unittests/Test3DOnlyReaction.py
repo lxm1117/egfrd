@@ -7,9 +7,6 @@
 from egfrd import *
 import model
 import gfrdbase
-import _gfrd
-import os
-import sys
 
 
 # Extra functions

@@ -22,7 +22,7 @@ size = 1e-6
 # Model
 m = model.ParticleModel(size)
 # Species
-P = model.Species('P', 1e-12, 3e-9)                                   
+P = model.Species('P', 1e-12, 3e-9)
 m.add_species_type(P) 
 
 # World

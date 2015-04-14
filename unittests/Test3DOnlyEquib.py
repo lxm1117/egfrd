@@ -5,7 +5,6 @@
 from egfrd import * 
 import model 
 import gfrdbase 
-import _gfrd 
 
 # Extra functions
 def check_existance( species_id ):

@@ -2,29 +2,14 @@
 
 import math
 import sys
-
 import numpy
 import scipy
-
-
 import _gfrd
-from _gfrd import (
-    CuboidalRegion,
-    SphericalSurface,
-    CylindricalSurface,
-    DiskSurface,
-    PlanarSurface,
-    Surface
-    )  # to perform instance checks
-
 from utils import *
-
 import os
 import logging
 import logging.handlers
-
 import myrandom
-
 import model
 
 __all__ = [
