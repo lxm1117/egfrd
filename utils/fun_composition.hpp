@@ -1,7 +1,7 @@
 #ifndef FUN_COMPOSITION_HPP
 #define FUN_COMPOSITION_HPP
 
-namespace detail
+namespace fcdetail
 {
     template < typename Tderived_, typename Tfun1_, typename Tfun2_, typename Tretval_ = typename Tfun1_::result_type >
     struct unary_compose_impl
@@ -137,12 +137,12 @@ namespace detail
         Tfun1_ f1_;
         Tfun2_ f2_;
     };
-} // namespace detail
+} // namespace fcdetail
 
 template < typename Tfun1_, typename Tfun2_ >
-struct unary_compose : public detail::unary_compose_impl < unary_compose< Tfun1_, Tfun2_ >, Tfun1_, Tfun2_ >
+struct unary_compose : public fcdetail::unary_compose_impl < unary_compose< Tfun1_, Tfun2_ >, Tfun1_, Tfun2_ >
 {
-    unary_compose(Tfun1_ const& f1, Tfun2_ const& f2) : detail::unary_compose_impl< unary_compose, Tfun1_, Tfun2_ >(f1, f2) {}
+    unary_compose(Tfun1_ const& f1, Tfun2_ const& f2) : fcdetail::unary_compose_impl< unary_compose, Tfun1_, Tfun2_ >(f1, f2) {}
 };
 
 template < typename Tfun1_, typename Tfun2_ >
@@ -152,9 +152,9 @@ inline unary_compose< Tfun1_, Tfun2_ > compose_unary(Tfun1_ const& f1, Tfun2_ co
 }
 
 template < typename Tfun1_, typename Tfun2_ >
-struct binary_compose : public detail::binary_compose_impl < binary_compose< Tfun1_, Tfun2_ >, Tfun1_, Tfun2_ >
+struct binary_compose : public fcdetail::binary_compose_impl < binary_compose< Tfun1_, Tfun2_ >, Tfun1_, Tfun2_ >
 {
-    binary_compose(Tfun1_ const& f1, Tfun2_ const& f2) : detail::binary_compose_impl< binary_compose, Tfun1_, Tfun2_ >(f1, f2) {}
+    binary_compose(Tfun1_ const& f1, Tfun2_ const& f2) : fcdetail::binary_compose_impl< binary_compose, Tfun1_, Tfun2_ >(f1, f2) {}
 };
 
 template < typename Tfun1_, typename Tfun2_ >

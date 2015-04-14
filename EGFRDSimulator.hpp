@@ -49,7 +49,8 @@ struct EGFRDSimulatorTraitsBase : public ParticleSimulatorTraitsBase < Tworld_ >
     typedef ShellID shell_id_type;
     typedef DomainID domain_id_type;
     typedef SerialIDGenerator<shell_id_type> shell_id_generator;
-    typedef SerialIDGenerator<domain_id_type> domain_id_generator; typedef Domain<EGFRDSimulatorTraitsBase> domain_type;
+    typedef SerialIDGenerator<domain_id_type> domain_id_generator; 
+    typedef Domain<EGFRDSimulatorTraitsBase> domain_type;
     typedef std::pair<const domain_id_type, boost::shared_ptr<domain_type> > domain_id_pair;
     typedef EventScheduler<typename base_type::time_type> event_scheduler_type;
     typedef typename event_scheduler_type::identifier_type event_id_type;
@@ -78,7 +79,7 @@ template<typename Tworld_> const Real EGFRDSimulatorTraitsBase<Tworld_>::CUTOFF_
 
 
 
-namespace detail {
+namespace gfdetail {
 
     template<typename T_>
     struct get_greens_function {};
@@ -112,7 +113,7 @@ namespace detail {
         typedef GreensFunction3DAbsSym com_type;
     };
 
-} // namespace detail
+} // namespace gfdetail
 
 template<typename Ttraits_>
 class EGFRDSimulator;
@@ -1756,7 +1757,7 @@ protected:
     {
         typedef Tshell shell_type;
         typedef typename shell_type::shape_type shape_type;
-        typedef typename detail::get_greens_function<shape_type>::type greens_function;
+        typedef typename gfdetail::get_greens_function<shape_type>::type greens_function;
         length_type const r(
             draw_r(
             base_type::rng_,
@@ -2283,7 +2284,7 @@ protected:
         {
             typedef Tshell shell_type;
             typedef typename shell_type::shape_type shape_type;
-            typedef typename detail::get_greens_function<shape_type>::type greens_function;
+            typedef typename gfdetail::get_greens_function<shape_type>::type greens_function;
             return greens_function(domain.particle().second.D(),
                 domain.mobility_radius())
                 .drawTime(base_type::rng_.uniform(0., 1.));
@@ -2296,7 +2297,7 @@ protected:
     {
         typedef Tshell shell_type;
         typedef typename shell_type::shape_type shape_type;
-        typedef typename detail::get_pair_greens_function<shape_type> pair_greens_functions;
+        typedef typename gfdetail::get_pair_greens_function<shape_type> pair_greens_functions;
         typedef typename pair_greens_functions::iv_type iv_greens_function;
         typedef typename pair_greens_functions::com_type com_greens_function;
         BOOST_ASSERT(::size(domain.reactions()) == 1);
@@ -3161,7 +3162,7 @@ protected:
     {
         typedef Tshell shell_type;
         typedef typename shell_type::shape_type shape_type;
-        typedef typename detail::get_pair_greens_function<shape_type>::iv_type iv_greens_function;
+        typedef typename gfdetail::get_pair_greens_function<shape_type>::iv_type iv_greens_function;
         // Draw actual pair event for iv at very last minute.
         BOOST_ASSERT(::size(domain.reactions()) == 1);
         reaction_rule_type const& r(domain.reactions()[0]);
