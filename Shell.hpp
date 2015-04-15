@@ -1,18 +1,8 @@
 #ifndef SHELL_HPP
 #define SHELL_HPP
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif /* HAVE_CONFIG_H */
-
 #include <ostream>
-#if defined(HAVE_TR1_FUNCTIONAL)
-#include <tr1/functional>
-#elif defined(HAVE_STD_HASH)
 #include <functional>
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-#include <boost/functional/hash.hpp>
-#endif
 
 template<typename Tshape_, typename Tdid_>
 struct Shell
@@ -79,14 +69,7 @@ inline std::basic_ostream<Tstrm_, Ttraits_>& operator<<(std::basic_ostream<Tstrm
     return strm;
 }
 
-#if defined(HAVE_TR1_FUNCTIONAL)
-namespace std { namespace tr1 {
-#elif defined(HAVE_STD_HASH)
 namespace std {
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-namespace boost {
-#endif
-
 template<typename Tshape_, typename Tdid_>
 struct hash<Shell<Tshape_, Tdid_> >
 {
@@ -98,13 +81,6 @@ struct hash<Shell<Tshape_, Tdid_> >
             hash<typename argument_type::domain_id_type>()(val.did());
     }
 };
-
-#if defined(HAVE_TR1_FUNCTIONAL)
-} } // namespace std::tr1
-#elif defined(HAVE_STD_HASH)
 } // namespace std
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-} // namespace boost
-#endif
 
 #endif /* SHELL_HPP */

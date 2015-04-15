@@ -2,15 +2,9 @@
 #define REGION_HPP
 
 #include <ostream>
-#if defined(HAVE_TR1_FUNCTIONAL)
-#include <tr1/functional>
-#elif defined(HAVE_STD_HASH)
 #include <functional>
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-#include <boost/functional/hash.hpp>
-#endif
-
 #include <sstream>
+
 #include "ParticleSimulationStructure.hpp"
 #include "Box.hpp"
 
@@ -75,16 +69,9 @@ public:
     {    // Displacements are not deflected on cylinders (yet),
     // but this function has to be defined for every shape to be used in structure
     // For now it just returns the new position
-#if defined(HAVE_TR1_FUNCTIONAL)
-        using std::tr1::hash;
-#elif defined(HAVE_STD_HASH)
-        using std::hash;
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-        using boost::hash;
-#endif
-        return hash<structure_name_type>()(base_type::name_) ^
-               hash<structure_type_id_type>()(base_type::sid_) ^
-               hash<shape_type>()(shape());
+        return std::hash<structure_name_type>()(base_type::name_) ^
+            std::hash<structure_type_id_type>()(base_type::sid_) ^
+            std::hash<shape_type>()(shape());
     }
 
     virtual std::string as_string() const

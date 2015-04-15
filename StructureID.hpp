@@ -1,20 +1,9 @@
 #ifndef STRUCTURE_ID_HPP
 #define STRUCTURE_ID_HPP
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif /* HAVE_CONFIG_H */
-
 #include <ostream>
-#if defined(HAVE_TR1_FUNCTIONAL)
-#include <tr1/functional>
-#elif defined(HAVE_STD_HASH)
 #include <functional>
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-#include <boost/functional/hash.hpp>
-#endif
 #include "Identifier.hpp"
-
 
 struct StructureID : public Identifier < StructureID, unsigned int >
 {
@@ -22,13 +11,17 @@ struct StructureID : public Identifier < StructureID, unsigned int >
     StructureID(value_type const& value = value_type(0)) : base_type(value) {}
 };
 
-template<> struct std::hash < StructureID >
+namespace std
 {
-    std::size_t operator()(StructureID const& id) const
+    template<>
+    struct hash < StructureID >
     {
-        return static_cast<std::size_t>(id());
-    }
-};
+        inline size_t  operator()(const StructureID & id) const
+        {
+            return hash<StructureID::value_type>()(id());
+        }
+    };
+}; // namespace std
 
 inline std::ostream& operator<<(std::ostream& stream, const StructureID& id)
 {

@@ -2,14 +2,7 @@
 #define STRUCTURE_HPP
 
 #include <ostream>
-#if defined(HAVE_TR1_FUNCTIONAL)
-#include <tr1/functional>
-#elif defined(HAVE_STD_HASH)
 #include <functional>
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-#include <boost/functional/hash.hpp>
-#endif
-
 #include <sstream>
 #include "Vector3.hpp"
 #include "exceptions.hpp"
@@ -279,15 +272,7 @@ public:
 
     virtual std::size_t hash() const
     {
-#if defined(HAVE_TR1_FUNCTIONAL)
-        using std::tr1::hash;
-#elif defined(HAVE_STD_HASH)
-        using std::hash;
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-        using boost::hash;
-#endif
-        return hash<structure_name_type>()(name_) ^
-               hash<structure_type_id_type>()(sid_);
+        return std::hash<structure_name_type>()(name_) ^ std::hash<structure_type_id_type>()(sid_);
     }
 
     virtual std::string as_string() const
@@ -318,14 +303,7 @@ inline std::basic_ostream<Tstrm, Ttraits>& operator<<(std::basic_ostream<Tstrm, 
     return strm;
 }
 
-#if defined(HAVE_TR1_FUNCTIONAL)
-namespace std { namespace tr1 {
-#elif defined(HAVE_STD_HASH)
 namespace std {
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-namespace boost {
-#endif
-
 template<typename Ttraits>
 struct hash<Structure<Ttraits> >
 {
@@ -336,13 +314,6 @@ struct hash<Structure<Ttraits> >
         return val.hash();
     }
 };
-
-#if defined(HAVE_TR1_FUNCTIONAL)
-} } // namespace std::tr1
-#elif defined(HAVE_STD_HASH)
 } // namespace std
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-} // namespace boost
-#endif
 
 #endif /* STRUCTURE_HPP */

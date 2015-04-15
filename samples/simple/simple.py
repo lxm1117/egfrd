@@ -39,5 +39,5 @@ interrupter = logger.FixedIntervalInterrupter(s, 3.33e-4, l.log)
 
 # Simulation
 l.start(s)
-while s.t < .1:
+while s.t < 2E-3:
     interrupter.step()

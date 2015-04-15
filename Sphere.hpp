@@ -2,6 +2,7 @@
 #define SPHERE_HPP
 
 #include <ostream>
+#include <functional>
 #include "Vector3.hpp"
 #include "Shape.hpp"
 #include "linear_algebra.hpp"
@@ -191,14 +192,7 @@ inline typename shape_length_type<Sphere<T> >::type& shape_size(Sphere<T>& shape
     return shape.radius();
 } 
 
-#if defined(HAVE_TR1_FUNCTIONAL)
-namespace std { namespace tr1 {
-#elif defined(HAVE_STD_HASH)
 namespace std {
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-namespace boost {
-#endif
-
 template<typename T_>
 struct hash<Sphere<T_> >
 {
@@ -210,13 +204,6 @@ struct hash<Sphere<T_> >
             hash<typename argument_type::length_type>()(val.radius());
     }
 };
-
-#if defined(HAVE_TR1_FUNCTIONAL)
-} } // namespace std::tr1
-#elif defined(HAVE_STD_HASH)
 } // namespace std
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-} // namespace boost
-#endif
 
 #endif /* SPHERE_HPP */

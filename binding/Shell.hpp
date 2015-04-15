@@ -1,19 +1,9 @@
 #ifndef PEER_SHELL_WRAPPER_HPP
 #define PEER_SHELL_WRAPPER_HPP
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif /* HAVE_CONFIG_H */
-
 #include <cstddef>
 #include <string>
-#if defined(HAVE_TR1_FUNCTIONAL)
-#include <tr1/functional>
-#elif defined(HAVE_STD_HASH)
 #include <functional>
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-#include <boost/functional/hash.hpp>
-#endif
 
 #include <boost/python.hpp>
 #include <boost/python/scope.hpp>
@@ -198,14 +188,7 @@ public:
 
     static long __hash__(ShellWrapper* self)
     {
-#if defined(HAVE_TR1_FUNCTIONAL)
-        using namespace std::tr1;
-#elif defined(HAVE_STD_HASH)
-        using namespace std;
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-        using namespace boost;
-#endif
-        return static_cast<long>(hash<Timpl_>()(self->impl_));
+        return static_cast<long>(std::hash<Timpl_>()(self->impl_));
     }
 
     // this method borrows a reference to "name" from the caller.

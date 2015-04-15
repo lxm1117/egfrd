@@ -2,6 +2,7 @@
 #define DISK_HPP
 
 #include <ostream>
+#include <functional>
 #include <cmath>
 #include "Vector3.hpp"
 #include "Shape.hpp"
@@ -267,14 +268,7 @@ inline typename shape_length_type<Disk<T> >::type& shape_size(Disk<T>& shape)
     return shape.radius();
 } 
 
-#if defined(HAVE_TR1_FUNCTIONAL)
-namespace std { namespace tr1 {
-#elif defined(HAVE_STD_HASH)
 namespace std {
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-namespace boost {
-#endif
-
 template<typename T_>
 struct hash<Disk<T_> >
 {
@@ -287,13 +281,6 @@ struct hash<Disk<T_> >
             hash<typename argument_type::position_type>()(val.unit_z());
     }
 };
-
-#if defined(HAVE_TR1_FUNCTIONAL)
-} } // namespace std::tr1
-#elif defined(HAVE_STD_HASH)
 } // namespace std
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-} // namespace boost
-#endif
 
 #endif /* DISK_HPP */

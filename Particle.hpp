@@ -1,15 +1,7 @@
 #ifndef PARTICLE_HPP
 #define PARTICLE_HPP
 
-#include <ostream>
-#if defined(HAVE_TR1_FUNCTIONAL)
-#include <tr1/functional>
-#elif defined(HAVE_STD_HASH)
 #include <functional>
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-#include <boost/functional/hash.hpp>
-#endif
-
 #include "Sphere.hpp"
 #include "Shape.hpp"
 
@@ -163,14 +155,7 @@ inline std::basic_ostream<Tstrm_, Ttraits_>& operator<<(std::basic_ostream<Tstrm
 
 
 
-#if defined(HAVE_TR1_FUNCTIONAL)
-namespace std { namespace tr1 {
-#elif defined(HAVE_STD_HASH)
 namespace std {
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-namespace boost {
-#endif
-
 template<typename T_, typename Td_, typename Tsid_, typename Tstructure_id_>
 struct hash<Particle<T_, Td_, Tsid_, Tstructure_id_> >
 {
@@ -185,13 +170,6 @@ struct hash<Particle<T_, Td_, Tsid_, Tstructure_id_> >
                hash<typename argument_type::structure_id_type>()(val.structure_id());
     }
 };
-
-#if defined(HAVE_TR1_FUNCTIONAL)
-} } // namespace std::tr1
-#elif defined(HAVE_STD_HASH)
 } // namespace std
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-} // namespace boost
-#endif
 
 #endif /* PARTICLE_HPP */

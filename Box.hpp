@@ -7,6 +7,7 @@
 #include <boost/multi_array.hpp>
 #include <utility>
 #include <algorithm>
+#include <functional>
 #include "utils/array_helper.hpp"
 #include "Shape.hpp"
 #include "linear_algebra.hpp"
@@ -376,14 +377,7 @@ inline std::basic_ostream<Tstrm_, Ttraits_>& operator<<(std::basic_ostream<Tstrm
 }
 
 
-#if defined(HAVE_TR1_FUNCTIONAL)
-namespace std { namespace tr1 {
-#elif defined(HAVE_STD_HASH)
 namespace std {
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-namespace boost {
-#endif
-
 template<typename T_>
 struct hash<Box<T_> >
 {
@@ -400,13 +394,6 @@ struct hash<Box<T_> >
             hash<typename argument_type::length_type>()(val.half_extent()[2]);
     }
 };
-
-#if defined(HAVE_TR1_FUNCTIONAL)
-} } // namespace std::tr1
-#elif defined(HAVE_STD_HASH)
 } // namespace std
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-} // namespace boost
-#endif
 
 #endif /* BOX_HPP */

@@ -7,6 +7,7 @@
 #include <boost/multi_array.hpp>
 #include <utility>
 #include <algorithm>
+#include <functional>
 #include "utils/array_helper.hpp"
 #include "Shape.hpp"
 #include "linear_algebra.hpp"
@@ -261,7 +262,7 @@ distance(Plane<T_> const& obj, typename Plane<T_>::position_type const& pos)
 
     if (dx < 0 && dy < 0) {
         // pos is positioned over the plane (projected point is in the plane,
-	// not next to it).
+    // not next to it).
         return abs(dz);
     }
 
@@ -274,7 +275,7 @@ distance(Plane<T_> const& obj, typename Plane<T_>::position_type const& pos)
         }
         else
         {
-	    // outside the plane in x, but inside in y direction
+        // outside the plane in x, but inside in y direction
             return std::sqrt(gsl_pow_2(dx) + gsl_pow_2(dz));
         }
     }
@@ -282,7 +283,7 @@ distance(Plane<T_> const& obj, typename Plane<T_>::position_type const& pos)
     {
         if (dy > 0)
         {
-	    // outside the plane in y, but inside in x direction
+        // outside the plane in y, but inside in x direction
             return std::sqrt(gsl_pow_2(dy) + gsl_pow_2(dz));
         }
         else
@@ -465,14 +466,7 @@ inline std::basic_ostream<Tstrm_, Ttraits_>& operator<<(std::basic_ostream<Tstrm
 }
 
 
-#if defined(HAVE_TR1_FUNCTIONAL)
-namespace std { namespace tr1 {
-#elif defined(HAVE_STD_HASH)
 namespace std {
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-namespace boost {
-#endif
-
 template<typename T_>
 struct hash<Plane<T_> >
 {
@@ -487,13 +481,6 @@ struct hash<Plane<T_> >
             hash<typename argument_type::length_type>()(val.half_extent()[1]);
     }
 };
-
-#if defined(HAVE_TR1_FUNCTIONAL)
-} } // namespace std::tr1
-#elif defined(HAVE_STD_HASH)
 } // namespace std
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-} // namespace boost
-#endif
 
 #endif /* PLANE_HPP */

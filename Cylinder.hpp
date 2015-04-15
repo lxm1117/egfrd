@@ -2,6 +2,7 @@
 #define CYLINDER_HPP
 
 #include <ostream>
+#include <functional>
 #include <cmath>
 #include "Vector3.hpp"
 #include "Shape.hpp"
@@ -289,14 +290,7 @@ inline typename shape_length_type<Cylinder<T> >::type& shape_size(Cylinder<T>& s
     return shape.radius();
 } 
 
-#if defined(HAVE_TR1_FUNCTIONAL)
-namespace std { namespace tr1 {
-#elif defined(HAVE_STD_HASH)
 namespace std {
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-namespace boost {
-#endif
-
 template<typename T_>
 struct hash<Cylinder<T_> >
 {
@@ -310,13 +304,6 @@ struct hash<Cylinder<T_> >
             hash<typename argument_type::length_type>()(val.half_length());
     }
 };
-
-#if defined(HAVE_TR1_FUNCTIONAL)
-} } // namespace std::tr1
-#elif defined(HAVE_STD_HASH)
 } // namespace std
-#elif defined(HAVE_BOOST_FUNCTIONAL_HASH_HPP)
-} // namespace boost
-#endif
 
 #endif /* CYLINDER_HPP */

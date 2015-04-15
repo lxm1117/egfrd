@@ -15,26 +15,9 @@
 #include <algorithm>
 #include <utility>
 #include <stdexcept>
-
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
-
-//#define HAVE_TR1_UNORDERED_MAP
-
-#if HAVE_UNORDERED_MAP
 #include <unordered_map>
-#elif HAVE_TR1_UNORDERED_MAP
-#include <tr1/unordered_map>
-#elif HAVE_BOOST_UNORDERED_MAP_HPP
-#include <boost/unordered_map.hpp>
-#else
-#include <map>
-#endif /* HAVE_UNORDERED_MAP */
-
-#ifdef DEBUG
-#include <iostream>
-#endif
-
 #include "utils/swap.hpp"
 
 template<typename Tid_>
@@ -77,15 +60,8 @@ protected:
                     value >> (sizeof(identifier_type) * 8 / 2));
         }
     };
-#if HAVE_UNORDERED_MAP
+    
     typedef std::unordered_map<identifier_type, index_type, hasher> index_map;
-#elif HAVE_TR1_UNORDERED_MAP
-    typedef std::tr1::unordered_map<identifier_type, index_type, hasher> index_map;
-#elif HAVE_BOOST_UNORDERED_MAP_HPP
-    typedef boost::unordered_map<identifier_type, index_type, hasher> index_map;
-#else 
-    typedef std::map<identifier_type, index_type> index_map;
-#endif
 
 public:
     index_type index(identifier_type const& id) const
