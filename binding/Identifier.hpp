@@ -15,7 +15,7 @@ namespace binding
         static void __register_class(char const* name)
         {
             class_<Timpl_>(name)
-                .def(init<Timpl_::value_type>())
+                .def(init<typename Timpl_::value_type>())
                 .add_property("serial", &Timpl_::serial)
                 .def(self_ns::repr(self))
                 .def(self_ns::str(self))
