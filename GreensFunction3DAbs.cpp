@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif /* HAVE_CONFIG_H */
-
 #include "compat.h"
 #include <stdexcept>
 #include <vector>
@@ -180,7 +176,7 @@ void GreensFunction3DAbs::makep_nTable(RealVector& p_nTable, Real r, Real t) con
     {
         Real p_n(this->p_n(n, r, t) * factor);
 
-        if (!isfinite(p_n))
+        if (!std::isfinite(p_n))
         {
             log_.error("makep_nTable: invalid value: %.16g (n=%d)", p_n, n);
             break;
@@ -403,7 +399,7 @@ void GreensFunction3DAbs::makedp_nTable(RealVector& p_nTable, Real t) const
     {
         Real p_n(dp_n(n, t) * factor);
 
-        if (!isfinite(p_n))
+        if (!std::isfinite(p_n))
         {
             log_.error("makedp_nTable: invalid value: %.16g (n=%d)", p_n, n);
             break;

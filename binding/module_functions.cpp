@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif /* HAVE_CONFIG_H */
-
 #include <boost/python.hpp>
 #include <boost/python/docstring_options.hpp>
 #include "binding_common.hpp"

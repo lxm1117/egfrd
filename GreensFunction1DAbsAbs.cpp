@@ -37,6 +37,10 @@ uint GreensFunction1DAbsAbs::guess_maxi(Real const& t) const
     {
         return safety;
     }
+    if (!std::isfinite(t))
+    {
+        return safety;
+    }
 
     const Real D(getD());
     const Real L(fabs(geta() - getsigma()));
@@ -215,14 +219,7 @@ Real GreensFunction1DAbsAbs::prob_r(Real r, Real t) const
     if (t == 0 || D == 0)
     {
         // the probability density function is a delta function
-        if (r == r0)
-        {
-            return INFINITY;
-        }
-        else
-        {
-            return 0.0;
-        }
+        return r == r0 ? INFINITY : 0.0;
     }
     else if (fabs(r - sigma) < L*EPSILON || fabs(a - r) < L*EPSILON || L < 0.0)
     {

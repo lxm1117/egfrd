@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif /* HAVE_CONFIG_H */
-
 #include <boost/lexical_cast.hpp>
 #include "utils/range.hpp"
 #include "utils/range_support.hpp"

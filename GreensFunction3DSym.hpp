@@ -21,10 +21,7 @@ public:
 
     GreensFunction3DSym(const Real D) : GreensFunction(D) { }
 
-    Real drawTime(const Real) const
-    {
-        return INFINITY;
-    }
+    Real drawTime(const Real) const { return INFINITY; }
 
     Real drawR(const Real rnd, const Real t) const;
 
@@ -34,10 +31,7 @@ public:
 
     std::string dump() const;
 
-    const char* getName() const
-    {
-        return "GreensFunction3DSym";
-    }
+    const char* getName() const { return "GreensFunction3DSym"; }
 
 private:
 

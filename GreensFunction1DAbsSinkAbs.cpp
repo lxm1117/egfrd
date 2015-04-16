@@ -225,10 +225,7 @@ uint GreensFunction1DAbsSinkAbs::guess_maxi(Real const& t) const
 {
     const uint safety(2);
 
-    if (t >= INFINITY)
-    {
-        return safety;
-    }
+    if (!std::isfinite(t)) return safety;
 
     const Real D(getD());
 
@@ -432,14 +429,7 @@ Real GreensFunction1DAbsSinkAbs::prob_r(Real r, Real t) const
     if (t == 0 || D == 0)
     {
         // the probability density function is a delta function
-        if (r == r0)
-        {
-            return INFINITY;
-        }
-        else
-        {
-            return 0.0;
-        }
+        return r == r0 ? INFINITY : 0.0;
     }
 
     // if r is at one of the the absorbing boundaries
@@ -685,15 +675,9 @@ Real GreensFunction1DAbsSinkAbs::drawTime(Real rnd) const
     const Real L0(getL0());
     const Real L(getLr() + getLl());
 
-    if (D == 0.0 || L == INFINITY)
-    {
-        return INFINITY;
-    }
+    if (D == 0.0 || L == INFINITY) return INFINITY;
 
-    if (rnd > (1 - EPSILON) || L < 0.0 || fabs(a - r0) < EPSILON * L)
-    {
-        return 0.0;
-    }
+    if (rnd > (1 - EPSILON) || L < 0.0 || fabs(a - r0) < EPSILON * L) return 0.0;
 
     /* the structure to store the numbers to calculate the numbers for 1-S */
     RealVector psurvTable;

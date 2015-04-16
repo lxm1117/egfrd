@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif /* HAVE_CONFIG_H */
-
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE "array_helper_test"
 #include <boost/test/included/unit_test.hpp>

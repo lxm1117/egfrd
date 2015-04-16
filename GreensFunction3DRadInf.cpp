@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif /* HAVE_CONFIG_H */
-
 #include <stdexcept>
 #include <vector>
 #include <sstream>
@@ -72,7 +68,7 @@ Real GreensFunction3DRadInf::p_corr_R(Real alpha, uint n, Real r, Real t) const
 
     const Real result(term1 * num / den);
 
-    assert(isfinite(result));
+    assert(std::isfinite(result));
 
     return result;
 }
@@ -222,11 +218,7 @@ Real GreensFunction3DRadInf::drawTime(Real rnd) const
 
     {
         const Real maxp(p_reaction(INFINITY));
-
-        if (rnd >= maxp)
-        {
-            return INFINITY;
-        }
+        if (rnd >= maxp) return INFINITY;
     }
 
     p_reaction_params params = { this, rnd };

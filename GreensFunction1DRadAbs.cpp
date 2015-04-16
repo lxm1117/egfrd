@@ -127,10 +127,7 @@ uint GreensFunction1DRadAbs::guess_maxi(Real const& t) const
 {
     const uint safety(2);
 
-    if (t >= INFINITY)
-    {
-        return safety;
-    }
+    if (!std::isfinite(t)) return safety;
 
     const Real D(getD());
     const Real L(fabs(geta() - getsigma()));
@@ -378,14 +375,7 @@ Real GreensFunction1DRadAbs::prob_r(Real r, Real t) const
     if (t == 0 || D == 0)
     {
         // the probability density function is a delta function
-        if (r == r0)
-        {
-            return INFINITY;
-        }
-        else
-        {
-            return 0.0;
-        }
+        return r == r0 ? INFINITY : 0.0;
     }
 
     // if r is at the absorbing boundary

@@ -671,10 +671,7 @@ const uint GreensFunction2DRadAbs::guess_maxi(const Real t) const
 {
     const uint safety(2);
 
-    if (t >= INFINITY)
-    {
-        return safety;
-    }
+    if (!std::isfinite(t)) return safety;
 
     const Real D(getD());
     const Real sigma(getSigma());

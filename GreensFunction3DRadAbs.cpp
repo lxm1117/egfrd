@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif /* HAVE_CONFIG_H */
-
 #include "compat.h"
 #include <stdexcept>
 #include <vector>
@@ -928,10 +924,7 @@ uint GreensFunction3DRadAbs::guess_maxi(Real t) const
 {
     const uint safety(2);
 
-    if (t >= INFINITY)
-    {
-        return safety;
-    }
+    if (!std::isfinite(t)) return safety;
 
     const Real D(this->getD());
     const Real sigma(this->getSigma());
