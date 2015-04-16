@@ -737,7 +737,7 @@ def get_dr_dzright_dzleft_to_SphericalShape(shape, testShell, r, z_right, z_left
 
     # calculate the angle 'shell_angle' of the vector from the 'scale_center' to the shell with the vector
     # from the 'reference_point' to the 'scale_center' (which is +- the orientation_vector).
-    shell_angle = math.atan(scale_center_to_shell_r/scale_center_to_shell_z)
+    shell_angle = math.atan(scale_center_to_shell_r/scale_center_to_shell_z) if scale_center_to_shell_z != 0 else Pi/2 
 
     if scale_center_to_shell_z < 0.0:
         shell_angle += Pi           # if the shell was too much to the side we correct the angle to be positive
