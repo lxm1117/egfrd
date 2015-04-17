@@ -26,20 +26,12 @@ struct py_exc_traits<&PyExc_##PTR> \
 \
 PyTypeObject* py_exc_traits<&PyExc_##PTR>::pytype_object = reinterpret_cast<PyTypeObject*>(PyExc_##PTR);
 
-#ifdef HAVE_PYBASEEXCEPTIONOBJECT
 #define PYEXC_DICT_MEMBER_NAME dict
 SPECIALIZE_PYEXC_TRAITS(BaseException, PyBaseExceptionObject)
 SPECIALIZE_PYEXC_TRAITS(Exception, PyBaseExceptionObject)
 SPECIALIZE_PYEXC_TRAITS(StandardError, PyBaseExceptionObject)
 SPECIALIZE_PYEXC_TRAITS(LookupError, PyBaseExceptionObject)
 SPECIALIZE_PYEXC_TRAITS(RuntimeError, PyBaseExceptionObject)
-#else
-#define PYEXC_DICT_MEMBER_NAME in_dict
-SPECIALIZE_PYEXC_TRAITS(Exception, PyInstanceObject)
-SPECIALIZE_PYEXC_TRAITS(StandardError, PyInstanceObject)
-SPECIALIZE_PYEXC_TRAITS(LookupError, PyInstanceObject)
-SPECIALIZE_PYEXC_TRAITS(RuntimeError, PyInstanceObject)
-#endif
 
 #undef SPECIALIZE_PYEXC_TRAITS
 
@@ -133,9 +125,6 @@ public:
     static PyGetSetDef __getsets__[];
     static std::string __name__;
     Texc_ impl_;
-#ifndef HAVE_PYBASEEXCEPTIONOBJECT
-    PyObject* message;
-#endif 
 };
 
 
@@ -160,35 +149,35 @@ PyGetSetDef exception_wrapper<Texc_, TbaseTraits_>::__getsets__[] = {
 
 template<typename Texc_, typename TbaseTraits_>
 PyTypeObject exception_wrapper<Texc_, TbaseTraits_>::__class__ = {
-	PyObject_HEAD_INIT(NULL)
-	0,					/* ob_size */
-	0,                  /* tp_name */
-	sizeof(exception_wrapper), /* tp_basicsize */
-	0,					/* tp_itemsize */
-	/* methods */
-	(destructor)&exception_wrapper::__dealloc__, /* tp_dealloc */
-	0,					/* tp_print */
-	0,					/* tp_getattr */
-	0,					/* tp_setattr */
-	0,					/* tp_compare */
-	0,					/* tp_repr */
-	0,					/* tp_as_number */
-	0,					/* tp_as_sequence */
-	0,					/* tp_as_mapping */
-	0,					/* tp_hash */
-	0,					/* tp_call */
-	0,					/* tp_str */
-	PyObject_GenericGetAttr,		/* tp_getattro */
-	0,					/* tp_setattro */
-	0,					/* tp_as_buffer */
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE, /* tp_flags */
-	0,					/* tp_doc */
-	(traverseproc)&exception_wrapper::__traverse__,              	/* tp_traverse */
-	0,					/* tp_clear */
-	0,                  /* tp_richcompare */
-	0,					/* tp_weaklistoffset */
-	0,                  /* tp_iter */
-	0,                  /* tp_iternext */
+    PyObject_HEAD_INIT(NULL)
+    0,					/* ob_size */
+    0,                  /* tp_name */
+    sizeof(exception_wrapper), /* tp_basicsize */
+    0,					/* tp_itemsize */
+    /* methods */
+    (destructor)&exception_wrapper::__dealloc__, /* tp_dealloc */
+    0,					/* tp_print */
+    0,					/* tp_getattr */
+    0,					/* tp_setattr */
+    0,					/* tp_compare */
+    0,					/* tp_repr */
+    0,					/* tp_as_number */
+    0,					/* tp_as_sequence */
+    0,					/* tp_as_mapping */
+    0,					/* tp_hash */
+    0,					/* tp_call */
+    0,					/* tp_str */
+    PyObject_GenericGetAttr,		/* tp_getattro */
+    0,					/* tp_setattro */
+    0,					/* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE, /* tp_flags */
+    0,					/* tp_doc */
+    (traverseproc)&exception_wrapper::__traverse__,              	/* tp_traverse */
+    0,					/* tp_clear */
+    0,                  /* tp_richcompare */
+    0,					/* tp_weaklistoffset */
+    0,                  /* tp_iter */
+    0,                  /* tp_iternext */
     0,                  /* tp_methods */
     0,                  /* tp_members */
     exception_wrapper::__getsets__,  /* tp_getset */

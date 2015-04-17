@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <iterator>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <boost/multi_array.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/range/size.hpp>
@@ -33,7 +33,7 @@ public:
     typedef typename cell_type::size_type size_type;
     typedef boost::array<typename matrix_type::size_type, 3> cell_index_type;
     typedef boost::array<typename matrix_type::difference_type, 3> cell_offset_type;
-    typedef std::map<key_type, typename all_values_type::size_type> key_to_value_mapper_type;
+    typedef std::unordered_map<key_type, typename all_values_type::size_type> key_to_value_mapper_type;
 
     typedef typename all_values_type::iterator iterator;
     typedef typename all_values_type::const_iterator const_iterator;

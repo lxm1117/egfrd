@@ -3,6 +3,7 @@
 
 #include <utility>
 #include <map>
+#include <unordered_map>
 
 #include <boost/python.hpp>
 #include <boost/python/tuple.hpp>
