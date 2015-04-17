@@ -10,10 +10,7 @@
 #include <boost/python/object/function.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
-#include <numpy/arrayobject.h>
-
 #include "peer/utils.hpp"
-#include "peer/numpy/type_mappings.hpp"
 #include "peer/pickle_support.hpp"
 
 namespace binding {

@@ -24,9 +24,8 @@
 #include <numpy/arrayobject.h>
 
 #include "peer/utils.hpp"
-#include "peer/numpy/type_mappings.hpp"
-
 #include "peer/converters/tuple.hpp"
+#include "peer/numpy/type_mappings.hpp"
 #include "peer/numpy/pyarray_backed_allocator.hpp"
 #include "peer/numpy/ndarray_converters.hpp"
 #include "peer/wrappers/iterator/stl_iterator_wrapper.hpp"
