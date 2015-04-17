@@ -152,15 +152,11 @@ noinst_HEADERS = \
 	utils/array_traits.hpp \
 	utils/fun_composition.hpp \
 	utils/fun_wrappers.hpp \
-	utils/get_default_impl.hpp \
-	utils/get_mapper_mf.hpp \
 	utils.hpp \
 	utils/memberwise_compare.hpp \
 	utils/pair.hpp \
 	utils/pointer_preds.hpp \
 	utils/range.hpp \
-	utils/range_support.hpp \
-	utils/reference_or_instance.hpp \
 	utils/unassignable_adapter.hpp \
 	utils/abstract_set.hpp
 

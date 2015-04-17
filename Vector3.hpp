@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <functional>
 #include <boost/array.hpp>
-#include "utils/array_traits.hpp"
 #include "linear_algebra.hpp"
 
 template<typename T_>

@@ -9,7 +9,6 @@
 
 #include <boost/range/size.hpp>
 
-#include "../utils/array_traits.hpp"
 #include "../utils.hpp"
 #include "../geometry.hpp"
 #include "../MatrixSpace.hpp"
