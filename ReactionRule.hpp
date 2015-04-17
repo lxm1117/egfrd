@@ -17,6 +17,7 @@
 
 #include "Defs.hpp"
 #include "utils/range.hpp"
+#include "utils/range_support.hpp"
 #include "utils/memberwise_compare.hpp"
 #include "exceptions.hpp"
 #include "utils.hpp"
