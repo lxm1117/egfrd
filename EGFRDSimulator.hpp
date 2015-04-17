@@ -16,7 +16,6 @@
 #include <boost/none_t.hpp>
 #include <boost/variant.hpp>
 #include "utils/array_helper.hpp"
-#include "utils/get_mapper_mf.hpp"
 #include "utils/fun_composition.hpp"
 #include "utils/fun_wrappers.hpp"
 #include "utils/pointer_as_ref.hpp"
@@ -260,23 +259,13 @@ public:
 
 protected:
     typedef boost::fusion::map <
-        boost::fusion::pair<spherical_shell_type,
-        MatrixSpace<spherical_shell_type,
-        shell_id_type, get_mapper_mf>&>,
-        boost::fusion::pair < cylindrical_shell_type, MatrixSpace < cylindrical_shell_type,
-        shell_id_type, get_mapper_mf > & > >
-        shell_matrix_map_type;
-    typedef typename boost::remove_reference<
-        typename boost::fusion::result_of::value_at_key <
-        shell_matrix_map_type,
-        spherical_shell_type > ::type>::type
-        spherical_shell_matrix_type;
-    typedef typename boost::remove_reference<
-        typename boost::fusion::result_of::value_at_key <
-        shell_matrix_map_type,
-        cylindrical_shell_type > ::type>::type
-        cylindrical_shell_matrix_type;
-    typedef typename get_mapper_mf<domain_id_type, boost::shared_ptr<domain_type> >::type domain_map;
+            boost::fusion::pair< spherical_shell_type, MatrixSpace < spherical_shell_type, shell_id_type > & >, 
+            boost::fusion::pair< cylindrical_shell_type, MatrixSpace < cylindrical_shell_type, shell_id_type > & > > shell_matrix_map_type;
+
+    typedef typename boost::remove_reference<typename boost::fusion::result_of::value_at_key < shell_matrix_map_type, spherical_shell_type > ::type>::type spherical_shell_matrix_type;
+    typedef typename boost::remove_reference<typename boost::fusion::result_of::value_at_key < shell_matrix_map_type, cylindrical_shell_type > ::type>::type cylindrical_shell_matrix_type;
+
+    typedef std::unordered_map<domain_id_type, boost::shared_ptr<domain_type> > domain_map;
     typedef typename network_rules_type::reaction_rules reaction_rules;
     typedef typename network_rules_type::reaction_rule_type reaction_rule_type;
     typedef typename traits_type::rate_type rate_type;
@@ -917,12 +906,12 @@ public:
         //                  select_second<typename domain_map::value_type>()));
     }
 
-    EGFRDSimulator(boost::shared_ptr<world_type> world,
+    EGFRDSimulator(
+        boost::shared_ptr<world_type> world,
         boost::shared_ptr<network_rules_type const> network_rules,
         rng_type& rng, int dissociation_retry_moves = 1,
         Real bd_dt_factor = 1e-5,
-        length_type user_max_shell_size =
-        std::numeric_limits<length_type>::infinity())
+        length_type user_max_shell_size = std::numeric_limits<length_type>::infinity())
         : base_type(world, network_rules, rng),
         num_retries_(dissociation_retry_moves),
         bd_dt_factor_(bd_dt_factor),
@@ -935,7 +924,9 @@ public:
         cylindrical_shell_matrix_type&>(csmat_)),
         single_shell_factor_(.1),
         multi_shell_factor_(.05),
-        rejected_moves_(0), zero_step_count_(0), dirty_(true)
+        rejected_moves_(0), 
+        zero_step_count_(0), 
+        dirty_(true)
     {
         std::fill(domain_count_per_type_.begin(), domain_count_per_type_.end(), 0);
         std::fill(single_step_count_.begin(), single_step_count_.end(), 0);

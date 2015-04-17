@@ -2,6 +2,7 @@
 #define UNASSIGNABLE_ADAPTER_HPP
 
 #include <algorithm>
+#include <vector>
 #include <boost/utility/enable_if.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/bool.hpp>
@@ -19,15 +20,13 @@
 #include <boost/range/const_reverse_iterator.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 
-template<typename T_, template<typename> class TT_, bool Bas_reference_ = false>
+template<typename T_>
 struct unassignable_adapter
 {
 public:
     struct placeholder { char _[sizeof(T_)]; };
 
-    typedef typename TT_<placeholder>::type container_type;
-    typedef typename boost::mpl::if_<boost::mpl::bool_<Bas_reference_>,
-        container_type&, container_type>::type container_holder_type;
+    typedef typename std::vector<placeholder> container_type;
     typedef T_ value_type;
 
     typedef value_type* pointer;
@@ -333,10 +332,10 @@ public:
 
     unassignable_adapter() {}
 
-    unassignable_adapter(container_holder_type cntnr): cntnr_(cntnr) {}
+    unassignable_adapter(container_type cntnr) : cntnr_(cntnr) {}
 
 private:
-    container_holder_type cntnr_;
+    container_type cntnr_;
 };
 
 #endif /* UNASSIGNABLE_ADAPTER_HPP */

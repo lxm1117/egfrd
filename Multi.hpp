@@ -63,8 +63,7 @@ public:
 
     typedef abstract_limited_generator<particle_id_pair>                    particle_id_pair_generator;
     typedef std::pair<particle_id_pair, length_type>                        particle_id_pair_and_distance;
-    //    typedef unassignable_adapter<particle_id_pair_and_distance,
-    //                                 get_default_impl::std::vector>             particle_id_pair_and_distance_list;
+    //    typedef unassignable_adapter<particle_id_pair_and_distance>             particle_id_pair_and_distance_list;
     typedef std::map<particle_id_type, particle_type>                       particle_map;
     typedef sized_iterator_range<typename particle_map::const_iterator>     particle_id_pair_range;
     typedef std::pair<const Real, const Real> real_pair;
@@ -611,7 +610,7 @@ public:
 
     typedef std::pair<const typename traits_type::shell_id_type, spherical_shell_type>  spherical_shell_id_pair;
     typedef std::pair<particle_id_pair, length_type>                                            particle_id_pair_and_distance;
-    typedef unassignable_adapter<particle_id_pair_and_distance, get_default_impl::std::vector>  particle_id_pair_and_distance_list;
+    typedef unassignable_adapter<particle_id_pair_and_distance>  particle_id_pair_and_distance_list;
     typedef typename traits_type::reaction_record_type reaction_record_type;
     typedef std::pair<const Real, const Real>                                                   real_pair;
 

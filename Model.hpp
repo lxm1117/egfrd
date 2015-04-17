@@ -1,17 +1,18 @@
 #ifndef MODEL_HPP
 #define MODEL_HPP
 
+#include <map>
+#include <unordered_map>
+
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/range/iterator_range.hpp>
-#include <map>
 
 #include "SerialIDGenerator.hpp"
 #include "SpeciesTypeID.hpp"
 #include "SpeciesType.hpp"
-#include "utils/get_mapper_mf.hpp"
 #include "utils/range.hpp"
 #include "utils/pair.hpp"
 
@@ -28,7 +29,7 @@ private:
     typedef std::map<species_id_type, boost::shared_ptr<species_type_type> >    species_type_map_type;
     typedef select_second<species_type_map_type::value_type>                    species_second_selector_type;
 
-    typedef get_mapper_mf<std::string, std::string>::type                       string_map_type;
+    typedef std::unordered_map<std::string, std::string>                        string_map_type;
 
 public:
     typedef boost::transform_iterator<species_second_selector_type,

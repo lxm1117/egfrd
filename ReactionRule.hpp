@@ -4,6 +4,7 @@
 #include <vector>
 #include <ostream>
 #include <algorithm>
+#include <unordered_map>
 
 #include <boost/format.hpp>
 #include <boost/bind.hpp>
@@ -16,8 +17,6 @@
 
 #include "Defs.hpp"
 #include "utils/range.hpp"
-#include "utils/get_mapper_mf.hpp"
-#include "utils/range_support.hpp"
 #include "utils/memberwise_compare.hpp"
 #include "exceptions.hpp"
 #include "utils.hpp"
@@ -33,7 +32,7 @@ public:
 
 private:
     typedef std::vector<species_type_id_type> species_type_id_vector;
-    typedef get_mapper_mf<std::string, std::string>::type string_map_type;
+    typedef std::unordered_map<std::string, std::string> string_map_type;
 
 public:
     typedef int identifier_type; 

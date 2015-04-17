@@ -2,10 +2,11 @@
 #define PARTICLE_CONTAINER_HPP
 
 #include <utility>
+#include <vector>
+#include <map>
 #include <boost/shared_ptr.hpp>
 #include "generator.hpp"
 #include "utils/fun_wrappers.hpp"
-#include "utils/get_default_impl.hpp"
 #include "utils/unassignable_adapter.hpp"
 #include "CuboidalRegion.hpp"
 #include "PlanarSurface.hpp"
@@ -56,14 +57,12 @@ public:
     typedef std::pair<const particle_id_type, particle_type>                        particle_id_pair;
     typedef abstract_limited_generator<particle_id_pair>                            particle_id_pair_generator;
     typedef std::pair<particle_id_pair, length_type>                                particle_id_pair_and_distance;
-    typedef unassignable_adapter<particle_id_pair_and_distance,
-                                 get_default_impl::std::vector>                     particle_id_pair_and_distance_list;
+    typedef unassignable_adapter<particle_id_pair_and_distance>                     particle_id_pair_and_distance_list;
     typedef std::set<structure_id_type>                                             structure_id_set;
     typedef std::pair<const structure_id_type, boost::shared_ptr<structure_type> >  structure_id_pair;
     typedef abstract_limited_generator<structure_id_pair>                           structure_id_pair_generator;
     typedef std::pair<structure_id_pair, length_type>                               structure_id_pair_and_distance;
-    typedef unassignable_adapter<structure_id_pair_and_distance,
-                                 get_default_impl::std::vector>                     structure_id_pair_and_distance_list;
+    typedef unassignable_adapter<structure_id_pair_and_distance>                    structure_id_pair_and_distance_list;
     typedef std::map<structure_id_type, boost::shared_ptr<structure_type> >         structure_map;
 
 private:

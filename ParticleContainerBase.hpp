@@ -2,7 +2,6 @@
 #define PARTICLE_CONTAINER_BASE_HPP
 
 #include "utils/range.hpp"
-#include "utils/get_mapper_mf.hpp"
 #include "utils/unassignable_adapter.hpp"
 #include "utils/abstract_set.hpp"
 #include "MatrixSpace.hpp"
@@ -115,7 +114,7 @@ public:
     typedef typename base_type::structures_range            structures_range;
     typedef Transaction<traits_type>                        transaction_type;
 
-    typedef MatrixSpace<particle_type, particle_id_type, get_mapper_mf> particle_matrix_type;
+    typedef MatrixSpace<particle_type, particle_id_type>                particle_matrix_type;
     typedef abstract_limited_generator<particle_id_pair>                particle_id_pair_generator;
     typedef std::pair<particle_id_pair, length_type>                    particle_id_pair_and_distance;
     typedef sized_iterator_range<typename particle_matrix_type::const_iterator> particle_id_pair_range;

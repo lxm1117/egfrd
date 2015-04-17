@@ -3,13 +3,14 @@
 
 #include <ostream>
 #include <string>
+#include <unordered_map>
+
 #include <boost/format.hpp>
 #include <boost/range/value_type.hpp>
 #include <boost/range/const_iterator.hpp>
 #include <boost/range/iterator_range.hpp>
 
 #include "exceptions.hpp"
-#include "utils/get_mapper_mf.hpp"
 #include "SpeciesTypeID.hpp"
 
 class ParticleModel;
@@ -18,7 +19,7 @@ class StructureType
 {
     friend class ParticleModel;
 private:
-    typedef get_mapper_mf<std::string, std::string>::type string_map_type;
+    typedef std::unordered_map<std::string, std::string> string_map_type;
 
 public:
     typedef SpeciesTypeID                               identifier_type;    // NOTE: we use the same identifier as for the species!

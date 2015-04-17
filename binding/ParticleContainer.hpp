@@ -15,7 +15,6 @@
 #include <boost/type_traits/is_same.hpp>
 
 #include "../exceptions.hpp"
-#include "../utils/get_default_impl.hpp"
 #include "../generator.hpp"
 #include "../utils/pair.hpp"
 
