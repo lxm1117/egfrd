@@ -2,7 +2,6 @@
 #define PARTICLE_CONTAINER_BASE_HPP
 
 #include "utils/range.hpp"
-#include "utils/unassignable_adapter.hpp"
 #include "utils/abstract_set.hpp"
 #include "MatrixSpace.hpp"
 #include "generator.hpp"
