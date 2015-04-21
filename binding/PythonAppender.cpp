@@ -6,7 +6,7 @@
 #include <cstdio>
 #include <boost/foreach.hpp>
 #include "PythonAppender.hpp"
-#include "binding_common.hpp"
+#include "../Logger.hpp"
 
 namespace binding {
 
@@ -482,37 +482,37 @@ PyGetSetDef CppLoggerHandler::__getsets__[] = {
 boost::python::handle<> CppLoggerHandler::__class__;
 #else
 PyTypeObject CppLoggerHandler::__class__ = {
-	PyObject_HEAD_INIT(&PyType_Type)
-	0,					/* ob_size */
-	0,                  /* tp_name */
-	sizeof(CppLoggerHandler), /* tp_basicsize */
-	0,					/* tp_itemsize */
-	/* methods */
-	(destructor)&CppLoggerHandler::__dealloc__, /* tp_dealloc */
-	0,					/* tp_print */
-	0,					/* tp_getattr */
-	0,					/* tp_setattr */
-	0,					/* tp_compare */
-	0,					/* tp_repr */
-	0,					/* tp_as_number */
-	0,                  /* tp_as_sequence */
-	0,					/* tp_as_mapping */
-	0,					/* tp_hash */
-	0,					/* tp_call */
-	0,					/* tp_str */
-	PyObject_GenericGetAttr,		/* tp_getattro */
-	0,					/* tp_setattro */
-	0,					/* tp_as_buffer */
-	Py_TPFLAGS_HAVE_CLASS | Py_TPFLAGS_HAVE_WEAKREFS | Py_TPFLAGS_BASETYPE, /* tp_flags */
-	0,					/* tp_doc */
-	CppLoggerHandler::__traverse__,              	/* tp_traverse */
-	0,					/* tp_clear */
-	0,                  /* tp_richcompare */
-	offsetof(CppLoggerHandler, __weakreflist__),    /* tp_weaklistoffset */
-	0,                  /* tp_iter */
-	0,                  /* tp_iternext */
-	CppLoggerHandler::__methods__,		        	/* tp_methods */
-	0,					/* tp_members */
+    PyObject_HEAD_INIT(&PyType_Type)
+    0,					/* ob_size */
+    0,                  /* tp_name */
+    sizeof(CppLoggerHandler), /* tp_basicsize */
+    0,					/* tp_itemsize */
+    /* methods */
+    (destructor)&CppLoggerHandler::__dealloc__, /* tp_dealloc */
+    0,					/* tp_print */
+    0,					/* tp_getattr */
+    0,					/* tp_setattr */
+    0,					/* tp_compare */
+    0,					/* tp_repr */
+    0,					/* tp_as_number */
+    0,                  /* tp_as_sequence */
+    0,					/* tp_as_mapping */
+    0,					/* tp_hash */
+    0,					/* tp_call */
+    0,					/* tp_str */
+    PyObject_GenericGetAttr,		/* tp_getattro */
+    0,					/* tp_setattro */
+    0,					/* tp_as_buffer */
+    Py_TPFLAGS_HAVE_CLASS | Py_TPFLAGS_HAVE_WEAKREFS | Py_TPFLAGS_BASETYPE, /* tp_flags */
+    0,					/* tp_doc */
+    CppLoggerHandler::__traverse__,              	/* tp_traverse */
+    0,					/* tp_clear */
+    0,                  /* tp_richcompare */
+    offsetof(CppLoggerHandler, __weakreflist__),    /* tp_weaklistoffset */
+    0,                  /* tp_iter */
+    0,                  /* tp_iternext */
+    CppLoggerHandler::__methods__,		        	/* tp_methods */
+    0,					/* tp_members */
     CppLoggerHandler::__getsets__, /* tp_getset */
     0,                  /* tp_base */
     0,                  /* tp_dict */
@@ -526,32 +526,26 @@ PyTypeObject CppLoggerHandler::__class__ = {
 };
 #endif
 
-boost::python::object
-register_logger_handler_class(char const* name)
+boost::python::object register_logger_handler_class(char const* name)
 {
     using namespace boost::python;
 
     import_logging_module();
 
-    PyObject* klass(
-        CppLoggerHandler::__class_init__(
-            name, reinterpret_cast<PyObject*>(scope().ptr())));
+    PyObject* klass(CppLoggerHandler::__class_init__(name, reinterpret_cast<PyObject*>(scope().ptr())));
     boost::python::object retval(borrowed(klass));
     scope().attr(name) = retval;
     return retval;
 }
 
-boost::python::objects::class_base
-register_python_appender_class(char const* name)
+boost::python::objects::class_base register_python_appender_class(char const* name)
 {
     using namespace boost::python;
     typedef PythonAppender impl_type;
 
     import_logging_module();
 
-    return class_<impl_type, bases<LogAppender>,
-                  boost::shared_ptr<impl_type>, boost::noncopyable>(
-                  name, init<boost::python::object>())
+    return class_<impl_type, bases<LogAppender>,boost::shared_ptr<impl_type>, boost::noncopyable>(name, init<boost::python::object>())
         ;
 }
 

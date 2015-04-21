@@ -1,11 +1,10 @@
 #include <boost/python.hpp>
-#include "binding_common.hpp"
+#include "../Logger.hpp"
 
 namespace binding {
 
 template<typename Timpl>
-static void log_appender_call(Timpl& self, enum Logger::level lv,
-                              char const* name, PyObject* _chunks)
+static void log_appender_call(Timpl& self, enum Logger::level lv, char const* name, PyObject* _chunks)
 {
     using namespace boost::python;
 
@@ -20,8 +19,7 @@ static void log_appender_call(Timpl& self, enum Logger::level lv,
     for (;;)
     {
         handle<> item(allow_null(PyIter_Next(iter.get())));
-        if (!item)
-            break;
+        if (!item) break;
         chunks.push_back(extract<char const*>(item.get()));
     }
 
@@ -31,8 +29,7 @@ static void log_appender_call(Timpl& self, enum Logger::level lv,
 
 
 ////// Registering master function
-boost::python::objects::class_base
-register_log_appender_class(char const* name)
+boost::python::objects::class_base register_log_appender_class(char const* name)
 {
     using namespace boost::python;
     typedef LogAppender impl_type;
