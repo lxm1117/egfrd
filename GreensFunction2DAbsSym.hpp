@@ -1,8 +1,6 @@
 #ifndef GREENSFUNCTION2DABSSYM_HPP
 #define GREENSFUNCTION2DABSSYM_HPP
 
-#include <vector>
-#include <boost/multi_array.hpp>
 #include "Defs.hpp"
 #include "Logger.hpp"
 #include "GreensFunction.hpp"
@@ -26,21 +24,21 @@ public:
         return "GreensFunction2DAbsSym";
     }
 
-    const Real geta() const
+    Real geta() const
     {
         return this->a;
     }
 
-    const Real p_survival(const Real t) const;
+    Real p_survival(const Real t) const;
 
-    const Real drawTime(const Real rnd) const;
+    Real drawTime(const Real rnd) const;
 
-    const Real drawR(const Real rnd, const Real t) const;
+    Real drawR(const Real rnd, const Real t) const;
 
-    const Real p_int_r(const Real r, const Real t) const;
-    const Real p_int_r_free(const Real r, const Real t) const;
+    Real p_int_r(const Real r, const Real t) const;
+    Real p_int_r_free(const Real r, const Real t) const;
 
-    const std::string dump() const;
+    std::string dump() const;
 
     // private methods
 private:
@@ -51,7 +49,7 @@ private:
         const Real rnd;
     };
 
-    static const Real p_survival_F(const Real t, const p_survival_params* params);
+    static Real p_survival_F(const Real t, const p_survival_params* params);
 
     struct p_r_params
     {
@@ -60,9 +58,9 @@ private:
         const Real target;
     };
 
-    static const Real p_r_free_F(const Real r, const p_r_params* params);
+    static Real p_r_free_F(const Real r, const p_r_params* params);
 
-    static const Real p_r_F(const Real r, const p_r_params* params);
+    static Real p_r_F(const Real r, const p_r_params* params);
 
     // private variables
 private:

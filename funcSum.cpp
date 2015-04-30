@@ -1,6 +1,5 @@
 #include <vector>
 #include <cmath>
-#include <boost/bind.hpp>
 #include <gsl/gsl_sum.h>
 #include "Logger.hpp"
 #include "funcSum.hpp"
@@ -9,7 +8,7 @@ static Logger& _log(Logger::get_logger("funcSum"));
 
 Real funcSum_all(boost::function<Real(uint i)> f, size_t max_i)
 {
-    Real sum(0.0);
+    Real sum;
 
     const Real p_0(f(0));
     if (p_0 == 0.0)
@@ -88,7 +87,7 @@ Real funcSum(boost::function<Real(uint i)> f, size_t max_i, Real tolerance)
     // DEFAULT = 4
     const uint CONVERGENCE_CHECK(4);
 
-    Real sum(0.0);
+    Real sum;
     RealVector pTable;
 
     const Real p_0(f(0));

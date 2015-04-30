@@ -9,9 +9,7 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_sf_legendre.h>
 #include <gsl/gsl_sf_bessel.h>
-#include <gsl/gsl_interp.h>
 #include <gsl/gsl_roots.h>
-#include <gsl/gsl_sf_lambert.h>
 #include "funcSum.hpp"
 #include "freeFunctions.hpp"
 #include "SphericalBesselGenerator.hpp"
@@ -25,7 +23,7 @@ const uint GreensFunction3DAbs::MAX_ALPHA_SEQ = 1005;
 
 Logger& GreensFunction3DAbs::log_(Logger::get_logger("GreensFunction3DAbs"));
 
-GreensFunction3DAbs::GreensFunction3DAbs(Real D, Real r0, Real a) : GreensFunction3DRadAbsBase(D, 0., r0, 0.), a(a)
+GreensFunction3DAbs::GreensFunction3DAbs(Real D, Real r0, Real a) : PairGreensFunction(D, 0., r0, 0.), a(a)
 {
     if (a < 0.0) throw std::invalid_argument((boost::format("GreensFunction3DAbs: a >= 0.0 : a=%.16g") % a).str());
 }

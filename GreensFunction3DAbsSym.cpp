@@ -1,16 +1,9 @@
 #include "compat.h"
 #include <sstream>
-#include <exception>
-#include <vector>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_sf_trig.h>
-#include <gsl/gsl_sum.h>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_interp.h>
-#include <gsl/gsl_sf_expint.h>
-#include <gsl/gsl_sf_elljac.h>
 #include <gsl/gsl_roots.h>
 #include "findRoot.hpp"
 #include "GreensFunction3DAbsSym.hpp"

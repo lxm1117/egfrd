@@ -1,11 +1,10 @@
 #if !defined(GREENSFUNCTION3DRADINF_HPP)
 #define GREENSFUNCTION3DRADINF_HPP 
 
-#include <cmath>
-#include <vector>
-#include <gsl/gsl_integration.h>
+#include "Defs.hpp"
 #include "Logger.hpp"
 #include "PairGreensFunction.hpp"
+#include <gsl/gsl_integration.h>
 
 class GF_CLASS GreensFunction3DRadInf : public PairGreensFunction
 {
@@ -13,7 +12,6 @@ private:
     struct p_corr_R_params;
     struct p_theta_params;
 
-private:
     // Error tolerance used by default.
     static const Real TOLERANCE;
 
@@ -31,11 +29,11 @@ public:
 
     GreensFunction3DRadInf(Real D, Real kf, Real r0, Real Sigma);
 
-    virtual Real drawTime(const Real rnd) const;
+    Real drawTime(const Real rnd) const;
 
-    virtual Real drawR(const Real rnd, const Real t) const;
+    Real drawR(const Real rnd, const Real t) const;
 
-    virtual Real drawTheta(const Real rnd, const Real r, const Real t) const;
+    Real drawTheta(const Real rnd, const Real r, const Real t) const;
 
     Real getkD() const
     {
@@ -65,10 +63,7 @@ public:
 
     std::string dump() const;
 
-    const char* getName() const
-    {
-        return "GreensFunction3DRadInf";
-    }
+    const char* getName() const { return "GreensFunction3DRadInf"; }
 
 private:
     Real p_corr_R(Real alpha, uint n, Real r, Real t) const;
@@ -84,8 +79,6 @@ private:
     Real p_theta_table(Real r, Real theta, Real time, RealVector const& RnTable) const;
 
     Real ip_theta_table(Real r, Real theta, Real time, RealVector const& RnTable) const;
-
-    Real p_corr_table(Real theta, Real r, Real t, RealVector const& RnTable);
 
     void makeRnTable(RealVector& RnTable, Real r, Real t) const;
 

@@ -1,8 +1,6 @@
 #ifndef GREENSFUNCTION3DSYM_HPP
 #define GREENSFUNCTION3DSYM_HPP
 
-#include "compat.h"
-#include <gsl/gsl_integration.h>
 #include "Defs.hpp"
 #include "Logger.hpp"
 #include "GreensFunction.hpp"

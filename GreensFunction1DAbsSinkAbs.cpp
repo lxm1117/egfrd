@@ -1,21 +1,15 @@
 #include <sstream>
-#include <iostream>
-#include <cstdlib>
 #include <exception>
 #include <vector>
 #include <math.h>
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
 #include <gsl/gsl_math.h>
-#include <gsl/gsl_sf_trig.h>
-#include <gsl/gsl_sum.h>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_interp.h>
-#include <gsl/gsl_sf_expint.h>
-#include <gsl/gsl_sf_elljac.h>
 #include <gsl/gsl_roots.h>
 #include "findRoot.hpp"
+#include "freeFunctions.hpp"
 #include "GreensFunction1DAbsSinkAbs.hpp"
+#include "funcSum.hpp"
 
 const Real GreensFunction1DAbsSinkAbs::L_TYPICAL = 1E-8;
 const Real GreensFunction1DAbsSinkAbs::T_TYPICAL = 1E-6;
@@ -32,7 +26,7 @@ Logger& GreensFunction1DAbsSinkAbs::log_(Logger::get_logger("GreensFunction1DAbs
    Later needed by the rootfinder. */
 Real GreensFunction1DAbsSinkAbs::root_f(Real x, void *p)
 {
-    struct root_f_params *params = (struct root_f_params *)p;
+    struct root_f_params *params = static_cast<struct root_f_params *>(p);
     const Real Lm_L = (params->Lm_L);
     const Real h = (params->h);
 
@@ -42,9 +36,7 @@ Real GreensFunction1DAbsSinkAbs::root_f(Real x, void *p)
     // x    = q * L
 
     return x * sin(x) + h * (cos(x * Lm_L) - cos(x));
-
 }
-
 
 /* return the rootList size */
 uint GreensFunction1DAbsSinkAbs::rootList_size() const { return rootList.size(); }
@@ -56,7 +48,6 @@ Real GreensFunction1DAbsSinkAbs::get_root(uint n) const
         calculate_n_roots(n + 1);
     return rootList[n];
 }
-
 
 /* Calculates the first n roots of root_f */
 void GreensFunction1DAbsSinkAbs::calculate_n_roots(uint n) const
@@ -655,7 +646,7 @@ GreensFunction::EventKind GreensFunction1DAbsSinkAbs::drawEventType(Real rnd, Re
    into the form needed by the GSL root solver. */
 Real GreensFunction1DAbsSinkAbs::drawT_f(Real t, void *p)
 {
-    struct drawT_params *params = (struct drawT_params *)p;
+    struct drawT_params *params = static_cast<struct drawT_params *>(p);
     return params->rnd - params->gf->p_survival_table(t, params->table);
 }
 
@@ -819,8 +810,7 @@ Real GreensFunction1DAbsSinkAbs::p_int_r_table(Real const& r, Real const& t, Rea
 
     /* Determine in which part of the domain rr lies, and
        thus which function to use. */
-    Real(GreensFunction1DAbsSinkAbs::*p_int_r_i)
-        (uint, Real const&, Real const&, RealVector& table) const = NULL;
+    Real(GreensFunction1DAbsSinkAbs::*p_int_r_i) (uint, Real const&, Real const&, RealVector&) const;
 
     if (rr <= 0)
         p_int_r_i = &GreensFunction1DAbsSinkAbs::p_int_r_leftdomain;
@@ -910,7 +900,7 @@ Real GreensFunction1DAbsSinkAbs::p_int_r_rightdomainB(uint i, Real const& rr, Re
 /* Function for GFL rootfinder of drawR. */
 Real GreensFunction1DAbsSinkAbs::drawR_f(Real r, void *p)
 {
-    struct drawR_params *params = (struct drawR_params *)p;
+    struct drawR_params *params = static_cast<struct drawR_params *>(p);
     return params->gf->p_int_r_table(r, params->t, params->table)
         - params->rnd;
 }

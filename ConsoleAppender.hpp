@@ -1,7 +1,6 @@
 #ifndef CONSOLEAPPENDER_HPP
 #define CONSOLEAPPENDER_HPP
 
-#include <string>
 #include "Logger.hpp"
 
 class ConsoleAppender : public LogAppender

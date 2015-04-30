@@ -10,13 +10,11 @@
 #if !defined(__FIRSTPASSAGEPAIRGREENSFUNCTION2D_HPP)
 #define __FIRSTPASSAGEPAIRGREENSFUNCTION2D_HPP 
 
-#include <vector>
-#include <boost/tuple/tuple.hpp>
-#include <boost/function.hpp>
+#include "Defs.hpp"
 #include <boost/array.hpp>
-#include <gsl/gsl_roots.h>
 #include "Logger.hpp"
 #include "PairGreensFunction.hpp"
+
 
 class GF_CLASS GreensFunction2DRadAbs : public PairGreensFunction
 {
@@ -67,80 +65,80 @@ public:
 
     GreensFunction2DRadAbs(const Real D, const Real kf, const Real r0, const Real Sigma, const Real a);
 
-    const Real geth() const
+    Real geth() const
     {
         return this->h;
     }
 
-    const Real geta() const
+    Real geta() const
     {
         return this->a;
     }
 
-    const Real getestimated_alpha_root_distance_() const
+    Real getestimated_alpha_root_distance_() const
     {
         return this->estimated_alpha_root_distance_;
     }
 
-    virtual Real drawTime(const Real rnd) const;
+    Real drawTime(const Real rnd) const;
 
-    virtual EventKind drawEventType(const Real rnd, const Real t) const;
+    EventKind drawEventType(const Real rnd, const Real t) const;
 
-    virtual Real drawR(const Real rnd, const Real t) const;
+    Real drawR(const Real rnd, const Real t) const;
 
-    virtual Real drawTheta(const Real rnd, const Real r, const Real t) const;
+    Real drawTheta(const Real rnd, const Real r, const Real t) const;
 
-    const Real f_alpha0(const Real alpha) const;
+    Real f_alpha0(const Real alpha) const;
 
-    const Real f_alpha(const Real alpha, const Integer n) const;
+    Real f_alpha(const Real alpha, const Integer n) const;
 
-    const Real p_survival(const Real t) const;
+    Real p_survival(const Real t) const;
 
-    const Real p_survival_table(const Real t, RealVector& table) const;
+    Real p_survival_table(const Real t, RealVector& table) const;
 
-    const Real leaves(const Real t) const;
+    Real leaves(const Real t) const;
 
-    const Real leavea(const Real t) const;
+    Real leavea(const Real t) const;
 
-    const Real p_m(const Integer n, const Real r, const Real t) const;
+    Real p_m(const Integer n, const Real r, const Real t) const;
 
-    const Real dp_m_at_a(const Integer m, const Real t) const;
+    Real dp_m_at_a(const Integer m, const Real t) const;
 
-    const Real p_m_alpha(const uint n, const uint m, const Real r, const Real t) const;
+    Real p_m_alpha(const uint n, const uint m, const Real r, const Real t) const;
 
-    const Real dp_m_alpha_at_a(const uint n, const uint m, const Real t) const;
+    Real dp_m_alpha_at_a(const uint n, const uint m, const Real t) const;
 
     // methods below are kept public for debugging purpose.
 
     std::string dump() const;
 
-    const void GiveRootInterval(Real& low, Real& high, const Integer n) const;
+    void GiveRootInterval(Real& low, Real& high, const Integer n) const;
 
-    const void GiveRootIntervalSimple(Real& low, Real& high, const Integer n, const uint i) const;
+    void GiveRootIntervalSimple(Real& low, Real& high, const Integer n, const uint i) const;
 
-    const Real getAlphaRoot0(const Real low, const Real high) const;
+    Real getAlphaRoot0(const Real low, const Real high) const;
 
-    const Real getAlphaRootN(const Real low, const Real high, const Integer n) const;
+    Real getAlphaRootN(const Real low, const Real high, const Integer n) const;
 
-    const Real getAlphaRoot(const Real high, const Real low, const Integer n) const;
+    Real getAlphaRoot(const Real high, const Real low, const Integer n) const;
 
-    const void decideOnMethod2(size_t n, RealVector::size_type i) const;
+    void decideOnMethod2(size_t n, RealVector::size_type i) const;
 
-    const void needToSwitchBackMethod1(size_t n, RealVector::size_type i) const;
+    void needToSwitchBackMethod1(size_t n, RealVector::size_type i) const;
 
-    const Real getAlpha(size_t n, RealVector::size_type i) const;
+    Real getAlpha(size_t n, RealVector::size_type i) const;
 
-    const Real p_survival_i(const Real alpha) const;
+    Real p_survival_i(const Real alpha) const;
 
-    const Real calc_A_i_0(const Real alpha) const;
+    Real calc_A_i_0(const Real alpha) const;
 
-    const Real leaves_i(const Real alpha) const;
+    Real leaves_i(const Real alpha) const;
 
-    const boost::tuple<Real, Real, Real> Y0J0J1_constants(const Real alpha, const Real t) const;
+    boost::tuple<Real, Real, Real> Y0J0J1_constants(const Real alpha, const Real t) const;
 
-    //    const Real getAlpha(const size_t n, const RealVector::size_type i) const;
+    //    Real getAlpha(const size_t n, const RealVector::size_type i) const;
 
-    //    const Real getAlpha0(const RealVector::size_type i) const;
+    //    Real getAlpha0(const RealVector::size_type i) const;
 
     Real givePDFTheta(const Real theta, const Real r, const Real t) const;
 
@@ -158,19 +156,19 @@ protected:
         return this->alphaTable[n];
     }
 
-    const Real p_int_r_table(const Real r, const RealVector& Y0_aAnTable, const RealVector& J0_aAnTable, const RealVector& Y0J1J0Y1Table) const;
+    Real p_int_r_table(const Real r, const RealVector& Y0_aAnTable, const RealVector& J0_aAnTable, const RealVector& Y0J1J0Y1Table) const;
 
-    const Real ip_theta_table(const Real theta, const RealVector& p_nTable) const;
+    Real ip_theta_table(const Real theta, const RealVector& p_nTable) const;
 
-    const Real p_survival_i_exp_table(const uint i, const Real t, const RealVector& table) const;
+    Real p_survival_i_exp_table(const uint i, const Real t, const RealVector& table) const;
 
-    const Real leavea_i_exp(const uint i, const Real alpha) const;
+    Real leavea_i_exp(const uint i, const Real alpha) const;
 
-    const Real leaves_i_exp(const uint i, const Real alpha) const;
+    Real leaves_i_exp(const uint i, const Real alpha) const;
 
-    const Real ip_theta_n(const uint m, const Real theta, const RealVector& p_nTable) const;
+    Real ip_theta_n(const uint m, const Real theta, const RealVector& p_nTable) const;
 
-    const Real p_int_r_i_exp_table(const uint i, const Real r, const RealVector& Y0_aAnTable, const RealVector& J0_aAnTable, const RealVector& Y0J1J0Y1Table) const;
+    Real p_int_r_i_exp_table(const uint i, const Real r, const RealVector& Y0_aAnTable, const RealVector& J0_aAnTable, const RealVector& Y0J1J0Y1Table) const;
 
     void createPsurvTable(RealVector& table) const;
 
@@ -180,7 +178,7 @@ protected:
 
     void makedp_m_at_aTable(RealVector& p_mTable, const Real t) const;
 
-    const uint guess_maxi(const Real t) const;
+    uint guess_maxi(const Real t) const;
 
     struct f_alpha0_aux_params
     {
@@ -188,7 +186,7 @@ protected:
         const Real value;
     };
 
-    static const Real         f_alpha0_aux_F(const Real alpha, const f_alpha0_aux_params* const params);
+    static Real f_alpha0_aux_F(const Real alpha, const f_alpha0_aux_params* const params);
 
     struct f_alpha_aux_params
     {
@@ -197,7 +195,7 @@ protected:
         Real value;
     };
 
-    static const Real         f_alpha_aux_F(const Real alpha, const f_alpha_aux_params* const params);
+    static Real f_alpha_aux_F(const Real alpha, const f_alpha_aux_params* const params);
 
     struct p_survival_table_params
     {
@@ -207,7 +205,7 @@ protected:
         const Real rnd;
     };
 
-    static const Real        p_survival_table_F(const Real t, const p_survival_table_params* const params);
+    static Real p_survival_table_F(const Real t, const p_survival_table_params* const params);
 
     struct p_int_r_params
     {
@@ -220,7 +218,7 @@ protected:
         const Real rnd;
     };
 
-    static const Real        p_int_r_F(const Real r, const p_int_r_params* const params);
+    static Real p_int_r_F(const Real r, const p_int_r_params* const params);
 
     struct ip_theta_params
     {
@@ -232,7 +230,7 @@ protected:
         const Real value;
     };
 
-    static const Real        ip_theta_F(const Real theta, const ip_theta_params* const params);
+    static Real ip_theta_F(const Real theta, const ip_theta_params* const params);
 
 private:
 

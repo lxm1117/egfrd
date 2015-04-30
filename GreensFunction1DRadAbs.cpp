@@ -1,20 +1,15 @@
 #include <sstream>
 #include <iostream>
-#include <cstdlib>
 #include <exception>
 #include <vector>
 #include <boost/bind.hpp>
 #include <gsl/gsl_math.h>
-#include <gsl/gsl_sf_trig.h>
-#include <gsl/gsl_sum.h>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_interp.h>
-#include <gsl/gsl_sf_expint.h>
-#include <gsl/gsl_sf_elljac.h>
 #include <gsl/gsl_roots.h>
 #include <math.h>
 #include "findRoot.hpp"
+#include "freeFunctions.hpp"
 #include "GreensFunction1DRadAbs.hpp"
+#include "funcSum.hpp"
 
 const Real GreensFunction1DRadAbs::L_TYPICAL = 1E-8;
 const Real GreensFunction1DRadAbs::T_TYPICAL = 1E-6;
@@ -31,10 +26,10 @@ Logger& GreensFunction1DRadAbs::log_(Logger::get_logger("GreensFunction1DRadAbs"
 // Later needed by the rootfinder.
 //
 // It expects a reaction rate h=k/D already divided by D.
-double GreensFunction1DRadAbs::tan_f(double x, void *p)
+Real GreensFunction1DRadAbs::tan_f(Real x, void *p)
 {
     // casts the void to the struct pointer
-    struct tan_f_params *params = (struct tan_f_params *)p;
+    struct tan_f_params *params = static_cast<struct tan_f_params *>(p);
     const Real a = (params->a);
     const Real h = (params->h);
     const Real h_a(h*a);
@@ -385,7 +380,7 @@ Real GreensFunction1DRadAbs::prob_r(Real r, Real t) const
     }
 
     Real root_n, root_n_r_s;
-    Real sum = 0, term = 0, prev_term = 0;
+    Real sum = 0, term = 0, prev_term;
 
     const uint maxi(guess_maxi(t));
     calculate_n_roots(maxi);
@@ -433,7 +428,7 @@ Real GreensFunction1DRadAbs::flux_tot(Real t) const
 
     const Real D2 = D*D;
     const Real v2Dv2D = v*v / 4.0 / D2;
-    double sum = 0, term = 0, prev_term = 0;
+    Real sum = 0, term = 0, prev_term;
 
     const uint maxi(guess_maxi(t));
     calculate_n_roots(maxi);
@@ -530,7 +525,7 @@ GreensFunction::EventKind GreensFunction1DRadAbs::drawEventType(Real rnd, Real t
    into the form needed by the GSL root solver. */
 Real GreensFunction1DRadAbs::drawT_f(double t, void *p)
 {
-    struct drawT_params *params = (struct drawT_params *)p;
+    struct drawT_params *params = static_cast<struct drawT_params *>(p);
     return params->rnd - params->gf->p_survival_table(t, params->psurvTable);
 }
 
@@ -583,7 +578,6 @@ Real GreensFunction1DRadAbs::drawTime(Real rnd) const
     //if( ( r0 < a/2.0 && v > 0.0) || ( r0 > a/2.0 && v < 0.0) )	t_guess = D/(v*v) - sqrt(D*D/(v*v*v*v)-dist*dist/(v*v));
 
     /* Set params structure. */
-    RealVector exponent_table;
     RealVector psurvTable;
     struct drawT_params parameters = { this, psurvTable, rnd };
 
@@ -775,7 +769,7 @@ void GreensFunction1DRadAbs::create_p_int_r_Table(Real const& t, RealVector& tab
 /* Function for GSL rootfinder of drawR. */
 Real GreensFunction1DRadAbs::drawR_f(Real r, void *p)
 {
-    struct drawR_params *params = (struct drawR_params *)p;
+    struct drawR_params *params = static_cast<struct drawR_params *>(p);
     return params->gf->p_int_r_table(r, params->t, params->table) - params->rnd;
 }
 

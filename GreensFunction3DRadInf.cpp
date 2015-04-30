@@ -8,9 +8,7 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_sf_legendre.h>
-#include <gsl/gsl_sf_bessel.h>
 #include <gsl/gsl_integration.h>
-#include <gsl/gsl_interp.h>
 #include <gsl/gsl_roots.h>
 #include "freeFunctions.hpp"
 #include "funcSum.hpp"
@@ -430,8 +428,6 @@ Real GreensFunction3DRadInf::p_corr_table(Real theta, Real r, Real t, RealVector
         return 0.0;
     }
 
-    Real result(0.0);
-
     Real sin_theta;
     Real cos_theta;
     sincos(theta, &sin_theta, &cos_theta);
@@ -441,7 +437,7 @@ Real GreensFunction3DRadInf::p_corr_table(Real theta, Real r, Real t, RealVector
 
     const Real p(funcSum_all(boost::bind(&GreensFunction3DRadInf::p_corr_n, this, _1, RnTable, lgndTable), tableSize));
 
-    result = -p * sin_theta;
+    Real result = -p * sin_theta;
 
     result /= 4.0 * M_PI * sqrt(r * r0);
 
@@ -508,7 +504,7 @@ Real GreensFunction3DRadInf::ip_theta_table(Real theta, Real r, Real t, RealVect
     return (p_free + p_corr);
 }
 
-static const Real p_free_max(Real r, Real r0, Real t, Real D)
+static Real p_free_max(Real r, Real r0, Real t, Real D)
 {
     const Real Dt4(4.0 * D * t);
     const Real Dt4Pi(Dt4 * M_PI);

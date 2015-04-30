@@ -1,8 +1,7 @@
 #ifndef GREENSFUNCTION3D_HPP
 #define GREENSFUNCTION3D_HPP
 
-#include "compat.h"
-#include <gsl/gsl_integration.h>
+#include "Defs.hpp"
 #include "Logger.hpp"
 #include "PairGreensFunction.hpp"
 
@@ -25,7 +24,7 @@ public:
     {
     }
 
-    virtual Real drawTime(const Real rnd) const;
+    Real drawTime(const Real rnd) const;
 
     Real drawR(const Real rnd, const Real t) const;
 

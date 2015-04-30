@@ -1,21 +1,16 @@
 #include <sstream>
 #include <iostream>
-#include <cstdlib>
 #include <exception>
 #include <vector>
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
 #include <gsl/gsl_math.h>
-#include <gsl/gsl_sf_trig.h>
-#include <gsl/gsl_sum.h>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_interp.h>
-#include <gsl/gsl_sf_expint.h>
-#include <gsl/gsl_sf_elljac.h>
 #include <gsl/gsl_roots.h>
 #include <math.h>
 #include "findRoot.hpp"
+#include "freeFunctions.hpp"
 #include "GreensFunction1DAbsAbs.hpp"
+#include "funcSum.hpp"
 
 const Real GreensFunction1DAbsAbs::L_TYPICAL = 1E-8;
 const Real GreensFunction1DAbsAbs::T_TYPICAL = 1E-6;
@@ -149,7 +144,7 @@ Real GreensFunction1DAbsAbs::p_survival_i(uint i, Real const& t, RealVector cons
 /* Calculates the part of the i'th term of p_surv not dependent on t, with drift */
 Real GreensFunction1DAbsAbs::p_survival_table_i_v(uint const& i) const
 {
-    Real nPI(((Real)(i + 1))*M_PI);
+    Real nPI(static_cast<Real>(i + 1)*M_PI);
 
     const Real sigma(this->getsigma());
     const Real L(this->geta() - this->getsigma());
@@ -169,7 +164,7 @@ Real GreensFunction1DAbsAbs::p_survival_table_i_v(uint const& i) const
 /* Calculates the part of the i'th term of p_surv not dependent on t, without drift */
 Real GreensFunction1DAbsAbs::p_survival_table_i_nov(uint const& i) const
 {
-    Real nPI(((Real)(i + 1))*M_PI);
+    Real nPI(static_cast<Real>(i + 1)*M_PI);
 
     const Real sigma(getsigma());
     const Real L(geta() - getsigma());
@@ -234,7 +229,7 @@ Real GreensFunction1DAbsAbs::prob_r(Real r, Real t) const
 
     // Initialize summation
     Real nPI;
-    Real sum = 0, term = 0, prev_term = 0;
+    Real sum = 0, term = 0, prev_term;
 
     // Sum
     uint n = 0;
@@ -290,7 +285,7 @@ Real GreensFunction1DAbsAbs::leaves(Real t) const
         return 0.0;
     }
 
-    Real sum = 0, term = 0, prev_term = 0;
+    Real sum = 0, term = 0, prev_term;
     Real nPI;
     const Real D_L_sq(D / (L*L));
     const Real expo(-D_L_sq*t);
@@ -342,7 +337,7 @@ Real GreensFunction1DAbsAbs::leavea(Real t) const
         return 0.0;
     }
 
-    Real sum = 0, term = 0, prev_term = 0;
+    Real sum = 0, term = 0, prev_term;
     Real nPI;
     const Real D_L_sq(D / (L*L));
     const Real expo(-D_L_sq*t);		// exponent -D n^2 PI^2 t / l^2
@@ -418,7 +413,7 @@ GreensFunction::EventKind GreensFunction1DAbsAbs::drawEventType(Real rnd, Real t
    survival probability using a rootfinder from GSL.*/
 Real GreensFunction1DAbsAbs::drawT_f(Real t, void *p)
 {
-    struct drawT_params *params = (struct drawT_params *)p;
+    struct drawT_params *params = static_cast<struct drawT_params *>(p);
     return params->rnd - params->gf->p_survival_table(t, params->psurvTable);
 }
 
@@ -598,7 +593,7 @@ Real GreensFunction1DAbsAbs::p_int_r_i(uint i, Real const& r, Real const& t, Rea
     const Real sigma(getsigma());
     const Real L(geta() - sigma);
     const Real v2D(getv() / (2 * D));
-    const Real n_L = ((Real)(i + 1.0)) * M_PI / L;
+    const Real n_L = static_cast<Real>(i + 1.0) * M_PI / L;
 
     Real term;
 
@@ -629,7 +624,7 @@ void GreensFunction1DAbsAbs::create_p_int_r_Table(Real const& t, uint const& max
 
     while (n < maxi)
     {
-        nPI = ((Real)(n + 1))*M_PI;
+        nPI = static_cast<Real>(n + 1)*M_PI;
 
         if (v == 0.0)
             term = exp(nPI*nPI*expo) * sin(nPI*r0s_L) / nPI;

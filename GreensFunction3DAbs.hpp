@@ -1,13 +1,11 @@
 #ifndef GREENSFUNCTION3DABS_HPP
 #define GREENSFUNCTION3DABS_HPP
 
-#include <vector>
-#include <boost/array.hpp>
-#include <gsl/gsl_roots.h>
+#include "Defs.hpp"
 #include "Logger.hpp"
-#include "GreensFunction3DRadAbsBase.hpp"
+#include "PairGreensFunction.hpp"
 
-class GF_CLASS GreensFunction3DAbs : public GreensFunction3DRadAbsBase
+class GF_CLASS GreensFunction3DAbs : public PairGreensFunction
 {
 private:
     // Error tolerance used by default.
@@ -29,13 +27,13 @@ public:
         return this->a;
     }
 
-    virtual Real drawTime(const Real rnd) const;
+    Real drawTime(const Real rnd) const;
 
-    virtual EventKind drawEventType(const Real rnd, const Real t) const;
+    EventKind drawEventType(const Real rnd, const Real t) const;
 
-    virtual Real drawR(const Real rnd, const Real t) const;
+    Real drawR(const Real rnd, const Real t) const;
 
-    virtual Real drawTheta(const Real rnd, const Real r, const Real t) const;
+    Real drawTheta(const Real rnd, const Real r, const Real t) const;
 
     Real p_survival(Real t) const;
 
@@ -63,10 +61,7 @@ public:
 
     std::string dump() const;
 
-    const char* getName() const
-    {
-        return "GreensFunction3DAbs";
-    }
+    const char* getName() const { return "GreensFunction3DAbs"; }
 
 protected:
 

@@ -7,9 +7,6 @@
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_sf_legendre.h>
-#include <gsl/gsl_sf_bessel.h>
-#include <gsl/gsl_sf_lambert.h>
-#include <gsl/gsl_integration.h>
 #include "factorial.hpp"
 #include "funcSum.hpp"
 #include "findRoot.hpp"
@@ -26,7 +23,7 @@ const uint GreensFunction3DRadAbs::MAX_ALPHA_SEQ = 2000;
 Logger& GreensFunction3DRadAbs::log_(Logger::get_logger("GreensFunction3DRadAbs"));
 
 GreensFunction3DRadAbs::GreensFunction3DRadAbs(Real D, Real kf, Real r0, Real Sigma, Real a)
-    : GreensFunction3DRadAbsBase(D, kf, r0, Sigma), h(kf / (4.0 * M_PI * Sigma * Sigma * D)), hsigma_p_1(1.0 + h * Sigma), a(a)
+    : PairGreensFunction(D, kf, r0, Sigma), h(kf / (4.0 * M_PI * Sigma * Sigma * D)), hsigma_p_1(1.0 + h * Sigma), a(a)
 {
     const Real sigma(this->getSigma());
 
@@ -209,7 +206,7 @@ Real GreensFunction3DRadAbs::f_alpha(Real alpha, Integer n) const
     return (term1 - term2) * factor;
 }
 
-static inline const Real G(const uint n, const uint k)
+static inline Real G(const uint n, const uint k)
 {
     return factorial(n + k) * (factorial_r(k) * factorial_r(n - k));
 }

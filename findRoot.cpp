@@ -6,7 +6,6 @@
 
 #include <stdexcept>
 #include <gsl/gsl_errno.h>
-#include "Logger.hpp"
 #include "findRoot.hpp"
 
 // Iterates the solver until desired precision has been reached or a maximum

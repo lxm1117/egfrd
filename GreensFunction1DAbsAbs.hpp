@@ -1,27 +1,9 @@
 #ifndef GREENSFUNCTION1DABSABS_HPP
 #define GREENSFUNCTION1DABSABS_HPP
 
-#include <sstream>
-#include <iostream>
-#include <cstdlib>
-#include <exception>
-#include <vector>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_sf_trig.h>
-#include <gsl/gsl_sum.h>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_interp.h>
-#include <gsl/gsl_sf_expint.h>
-#include <gsl/gsl_sf_elljac.h>
-#include <gsl/gsl_roots.h>
-#include <math.h>
-#include "findRoot.hpp"
 #include "Defs.hpp"
-#include "funcSum.hpp"
-#include "freeFunctions.hpp"
 #include "Logger.hpp"
 #include "GreensFunction.hpp"
-#include "PairGreensFunction.hpp"
 
 class GF_CLASS GreensFunction1DAbsAbs : public GreensFunction
 {

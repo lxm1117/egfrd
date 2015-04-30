@@ -2,13 +2,12 @@
 #define GREENSFUNCTION3DRADABS_HPP
 
 #include <vector>
-#include <cassert>
 #include <boost/array.hpp>
 #include <gsl/gsl_roots.h>
 #include "Logger.hpp"
-#include "GreensFunction3DRadAbsBase.hpp"
+#include "PairGreensFunction.hpp"
 
-class GF_CLASS GreensFunction3DRadAbs : public GreensFunction3DRadAbsBase
+class GF_CLASS GreensFunction3DRadAbs : public PairGreensFunction
 {
 private:
     // Error tolerance used by default.
@@ -42,16 +41,13 @@ public:
         return this->r0;
     }
 
-    virtual Real drawTime(const Real rnd) const;
+    Real drawTime(const Real rnd) const;
 
-    std::pair<Real, EventKind>
-        drawTime2(Real rnd1, Real rnd2) const;
+    EventKind drawEventType(const Real rnd, const Real t) const;
 
-    virtual EventKind drawEventType(const Real rnd, const Real t) const;
+    Real drawR(const Real rnd, const Real t) const;
 
-    virtual Real drawR(const Real rnd, const Real t) const;
-
-    virtual Real drawTheta(const Real rnd, const Real r, const Real t) const;
+    Real drawTheta(const Real rnd, const Real r, const Real t) const;
 
     Real f_alpha0(Real alpha) const;
     Real f_alpha0_aux(Real alpha) const;
@@ -99,10 +95,7 @@ public:
 
     std::string dump() const;
 
-    const char* getName() const
-    {
-        return "GreensFunction3DRadAbs";
-    }
+    const char* getName() const { return "GreensFunction3DRadAbs"; }
 
     uint alphaOffset(uint n) const;
 
@@ -185,8 +178,6 @@ protected:
 
     Real ip_theta_table(Real theta, Real r, Real t, RealVector const& p_nTable) const;
 
-    Real dp_theta_at_a(Real theta, Real t) const;
-
     Real p_theta_table(Real theta, Real r, Real t, RealVector const& p_nTable) const;
 
     void make_p_thetaTable(RealVector& pTable, Real r, Real t, uint n, RealVector const& p_nTable) const;
@@ -209,7 +200,6 @@ protected:
 
     Real p_int_r_i_exp_table(uint i, Real t, Real r, RealVector& num_r0Table) const;
 
-    void initializeAlphaTable(uint n) const;
     void updateAlphaTable0(Real t) const;
     void updateAlphaTable(uint n, Real t) const;
 

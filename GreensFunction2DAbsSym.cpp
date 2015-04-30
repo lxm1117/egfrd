@@ -1,14 +1,6 @@
 #include <sstream>
-#include <iostream>
 #include <exception>
-#include <vector>
 #include <gsl/gsl_math.h>
-#include <gsl/gsl_sf_trig.h>
-#include <gsl/gsl_sum.h>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_interp.h>
-#include <gsl/gsl_sf_expint.h>
-#include <gsl/gsl_sf_elljac.h>
 #include <gsl/gsl_roots.h>
 #include <gsl/gsl_sf_bessel.h>
 #include "findRoot.hpp"
@@ -20,7 +12,7 @@ const Real GreensFunction2DAbsSym::CUTOFF_H = 6.0;
 Logger& GreensFunction2DAbsSym::log_(Logger::get_logger("GreensFunction2DAbsSym"));
 
 // an alternative form, which is not very convergent.
-const Real GreensFunction2DAbsSym::p_survival(const Real t) const
+Real GreensFunction2DAbsSym::p_survival(const Real t) const
 {
     const Real D(getD());
     const Real a(geta());
@@ -57,7 +49,7 @@ const Real GreensFunction2DAbsSym::p_survival(const Real t) const
     return (2.0 / a) * sum;
 }
 
-const Real GreensFunction2DAbsSym::p_int_r_free(const Real r, const Real t) const
+Real GreensFunction2DAbsSym::p_int_r_free(const Real r, const Real t) const
 {
 
     const Real D(getD());
@@ -69,7 +61,7 @@ const Real GreensFunction2DAbsSym::p_int_r_free(const Real r, const Real t) cons
         - r * exp(-r * r / (4.0 * Dt)) / (sqrtPI * sqrtDt);
 }
 
-const Real GreensFunction2DAbsSym::p_int_r(const Real r, const Real t) const
+Real GreensFunction2DAbsSym::p_int_r(const Real r, const Real t) const
 {
     const Real a(geta());
     const Real D(getD());
@@ -103,7 +95,7 @@ const Real GreensFunction2DAbsSym::p_int_r(const Real r, const Real t) const
     return (2.0 / (a*a)) * sum;
 }
 
-const Real GreensFunction2DAbsSym::p_survival_F(const Real t, const p_survival_params* params)
+Real GreensFunction2DAbsSym::p_survival_F(const Real t, const p_survival_params* params)
 {
     const GreensFunction2DAbsSym* const gf(params->gf);
     const Real rnd(params->rnd);
@@ -111,7 +103,7 @@ const Real GreensFunction2DAbsSym::p_survival_F(const Real t, const p_survival_p
     return 1 - gf->p_survival(t) - rnd;
 }
 
-const Real GreensFunction2DAbsSym::drawTime(const Real rnd) const
+Real GreensFunction2DAbsSym::drawTime(const Real rnd) const
 {
     THROW_UNLESS(std::invalid_argument, rnd < 1.0 && rnd >= 0.0);
 
@@ -180,7 +172,7 @@ const Real GreensFunction2DAbsSym::drawTime(const Real rnd) const
     return t;
 }
 
-const Real GreensFunction2DAbsSym::p_r_free_F(const Real r, const p_r_params* params)
+Real GreensFunction2DAbsSym::p_r_free_F(const Real r, const p_r_params* params)
 {
     const GreensFunction2DAbsSym* const gf(params->gf);
     const Real t(params->t);
@@ -188,7 +180,7 @@ const Real GreensFunction2DAbsSym::p_r_free_F(const Real r, const p_r_params* pa
     return gf->p_int_r_free(r, t) - target;
 }
 
-const Real GreensFunction2DAbsSym::p_r_F(const Real r, const p_r_params* params)
+Real GreensFunction2DAbsSym::p_r_F(const Real r, const p_r_params* params)
 {
     const GreensFunction2DAbsSym* const gf(params->gf);
     const Real t(params->t);
@@ -196,7 +188,7 @@ const Real GreensFunction2DAbsSym::p_r_F(const Real r, const p_r_params* params)
     return gf->p_int_r(r, t) - target;
 }
 
-const Real GreensFunction2DAbsSym::drawR(const Real rnd, const Real t) const
+Real GreensFunction2DAbsSym::drawR(const Real rnd, const Real t) const
 {
     THROW_UNLESS(std::invalid_argument, rnd <= 1.0 && rnd >= 0.0);
     THROW_UNLESS(std::invalid_argument, t >= 0.0);
@@ -255,7 +247,7 @@ const Real GreensFunction2DAbsSym::drawR(const Real rnd, const Real t) const
     return r;
 }
 
-const std::string GreensFunction2DAbsSym::dump() const
+std::string GreensFunction2DAbsSym::dump() const
 {
     std::ostringstream ss;
     ss << "D = " << this->getD() << ", a = " << this->geta() << std::endl;
