@@ -7,22 +7,13 @@
 
 class GF_CLASS GreensFunction1DAbsSinkAbs : public GreensFunction
 {
-private:
-    // This is a typical length scale of the system, may not be true!
-    static const Real L_TYPICAL;
-    // The typical timescale of the system, may also not be true!!
-    static const Real T_TYPICAL;
-    // measure of 'sameness' when comparing floating points numbers
-    static const Real EPSILON;
-    // Is 1E3 a good measure for the probability density?!
-    static const Real PDENS_TYPICAL;
-    // The maximum number of terms used in calculating the sum
-    static const uint MAX_TERMS;
-    // The minimum number of terms
-    static const uint MIN_TERMS;
-    /* Cutoff distance: When H * sqrt(2Dt) < a - r0 OR ro - sigma
-       use free greensfunction instead of absorbing. */
-    static const Real CUTOFF_H;
+    static const Real L_TYPICAL;            // This is a typical length scale of the system, may not be true!
+    static const Real T_TYPICAL;            // The typical timescale of the system, may also not be true!!
+    static const Real EPSILON;              // measure of 'sameness' when comparing floating points numbers
+    static const Real PDENS_TYPICAL;        // Is 1E3 a good measure for the probability density?!
+    static const uint MAX_TERMS;            // The maximum number of terms used in calculating the sum
+    static const uint MIN_TERMS;            // The minimum number of terms
+    static const Real CUTOFF_H;             // Cutoff distance: When H * sqrt(2Dt) < a - r0 OR ro - sigma use free greensfunction instead of absorbing. 
 
 public:
     GreensFunction1DAbsSinkAbs(Real D, Real k, Real r0, Real rsink, Real sigma, Real a)
@@ -47,45 +38,27 @@ public:
         calculate_n_roots(1);
     }
 
-    Real geta() const
-    {
-        return a;
-    }
+    virtual ~GreensFunction1DAbsSinkAbs(){}
 
-    Real getLr() const
-    {
-        return Lr;
-    }
+    virtual std::string dump() const override;
 
-    Real getLl() const
-    {
-        return Ll;
-    }
+    virtual const char* getName() const override { return "GreensFunction1DAbsSinkAbs"; }
 
-    Real getL0() const
-    {
-        return L0;
-    }
+    Real geta() const     { return a; }
 
-    Real getrsink() const
-    {
-        return rsink;
-    }
+    Real getLr() const    { return Lr; }
 
-    Real getsigma() const
-    {
-        return sigma;
-    }
+    Real getLl() const    { return Ll; }
 
-    Real getr0() const
-    {
-        return r0;
-    }
+    Real getL0() const    { return L0; }
 
-    Real getk() const
-    {
-        return k;
-    }
+    Real getrsink() const { return rsink; }
+
+    Real getsigma() const { return sigma; }
+
+    Real getr0() const    { return r0; }
+
+    Real getk() const     { return k; }
 
     /* Calculates the probability density of finding the particle at
        location z at timepoint t, given that the particle is still in the
@@ -140,16 +113,7 @@ public:
        location r at time t. */
     Real prob_r(Real r, Real t) const;
 
-    std::string dump() const;
-
-    const char* getName() const
-    {
-        return "GreensFunction1DAbsSinkAbs";
-    }
-
 private:
-    /* used structures */
-
     struct drawR_params
     {
         GreensFunction1DAbsSinkAbs const* gf;
@@ -185,16 +149,19 @@ private:
     /* Functions managing the rootList */
 
     /* return the rootList size */
-    uint rootList_size() const;
+    uint rootList_size() const { return rootList.size(); };
 
     /* return the n + 1'th root */
     Real get_root(uint n) const;
 
-    /* Fills the rootList with the first n roots */
+    /* Check the rootList for the first n roots. */
     void calculate_n_roots(uint n) const;
 
+    /* Fills the rootList from i to n. */
+    void fill_table_to_n(uint i, uint n);
+
     /* Function returns two positions on the x-axis which straddle the next root. */
-    real_pair get_lower_and_upper() const;
+    RealPair get_lower_and_upper();
 
     /* Function of which we need the roots. */
     static Real root_f(Real x, void *p);
@@ -261,38 +228,25 @@ private:
     /* Function for drawTime */
     static Real drawR_f(Real r, void *p);
 
-    /* Class variables */
-
-    // The reaction constant
-    const Real k;
-    //starting position
-    const Real r0;
-    // The left and right boundary of the domain (sets the l_scale, see below)
-    const Real sigma;
+private:
+    const Real k;           // The reaction constant
+    const Real r0;          // starting position
+    const Real sigma;       // The left and right boundary of the domain (sets the l_scale, see below)
     const Real a;
-    //Position of the sink in the domain.
-    const Real rsink;
-    // This is the length scale of the system
-    Real l_scale;
-    // This is the time scale of the system.
-    Real t_scale;
+    const Real rsink;       // Position of the sink in the domain.
+    Real l_scale;           // This is the length scale of the system
+    Real t_scale;           // This is the time scale of the system.
 
     /* Greensfunction assumes that the sink is at the origin, and
        consists of two sub-domains: one between a boundary and the sink including
        r0, and one between boundary and sink not including r0. */
 
-    // Length of sub-domain which does not include r0.
-    Real Lr;
-    // Length of sub-domain which does include r0.
-    Real Ll;
-    // Distance between the sink and r0.
-    Real L0;
+    Real Lr;            // Length of sub-domain which does not include r0.
+    Real Ll;            // Length of sub-domain which does include r0.
+    Real L0;            // Distance between the sink and r0.
 
-    // Stores all the roots.
-    mutable RealVector rootList;
-
-    // Stores params for rootfinder.
-    mutable struct lower_upper_params lo_up_params;
+    RealVector rootList;                        // Stores all the roots.
+    struct lower_upper_params lo_up_params;     // Stores params for rootfinder.
 
     static Logger& log_;
 };

@@ -1,21 +1,16 @@
 #ifndef BD_PROPAGATOR_HPP
 #define BD_PROPAGATOR_HPP
 
-#include <algorithm>
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/range/size.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/const_iterator.hpp>
-#include <boost/utility/enable_if.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include "Defs.hpp"
-#include "generator.hpp"
 #include "exceptions.hpp"
-#include "freeFunctions.hpp"
-#include "utils.hpp"
 #include "utils/random.hpp"
 #include "Logger.hpp"
 

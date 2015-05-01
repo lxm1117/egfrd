@@ -9,16 +9,9 @@
 
 class GF_CLASS GreensFunction3DRadAbs : public PairGreensFunction
 {
-private:
-    // Error tolerance used by default.
-    static const Real TOLERANCE;
-
-    // SphericalBesselGenerator's accuracy, used by some
-    // theta-related calculations.
-    static const Real THETA_TOLERANCE;
-
+    static const Real TOLERANCE;            // Error tolerance used by default.
+    static const Real THETA_TOLERANCE;      // SphericalBesselGenerator's accuracy, used by some theta-related calculations.
     static const Real MIN_T_FACTOR;
-
     static const uint MAX_ORDER;
     static const uint MAX_ALPHA_SEQ;
 
@@ -26,28 +19,23 @@ public:
 
     GreensFunction3DRadAbs(Real D, Real kf, Real r0, Real Sigma, Real a);
 
-    Real geth() const
-    {
-        return this->h;
-    }
+    virtual ~GreensFunction3DRadAbs(){}
 
-    Real geta() const
-    {
-        return this->a;
-    }
+    virtual std::string dump() const override;
 
-    Real getr0() const
-    {
-        return this->r0;
-    }
+    virtual const char* getName() const override { return "GreensFunction3DRadAbs"; }
+
+    Real geth() const { return h; }
+
+    Real geta() const { return a; }
+
+    virtual Real drawR(const Real rnd, const Real t) const override;
+
+    virtual Real drawTheta(const Real rnd, const Real r, const Real t) const override;
 
     Real drawTime(const Real rnd) const;
 
     EventKind drawEventType(const Real rnd, const Real t) const;
-
-    Real drawR(const Real rnd, const Real t) const;
-
-    Real drawTheta(const Real rnd, const Real r, const Real t) const;
 
     Real f_alpha0(Real alpha) const;
     Real f_alpha0_aux(Real alpha) const;
@@ -93,10 +81,6 @@ public:
 
     // methods below are kept public for debugging purpose.
 
-    std::string dump() const;
-
-    const char* getName() const { return "GreensFunction3DRadAbs"; }
-
     uint alphaOffset(uint n) const;
 
     Real alpha0_i(Integer i) const;
@@ -135,15 +119,15 @@ protected:
 
     RealVector& getAlphaTable(size_t n) const
     {
-        assert(this->alphaTable.size() > n);
-        return this->alphaTable[n];
+        assert(alphaTable.size() > n);
+        return alphaTable[n];
     }
 
     Real getAlpha(size_t n, RealVector::size_type i) const
     {
-        assert(this->alphaTable.size() > n);
+        assert(alphaTable.size() > n);
 
-        RealVector& aTable(this->alphaTable[n]);
+        RealVector& aTable(alphaTable[n]);
         RealVector::size_type oldSize(aTable.size());
 
         if (oldSize <= i)
@@ -162,7 +146,7 @@ protected:
 
     Real getAlpha0(RealVector::size_type i) const
     {
-        RealVector& aTable(this->alphaTable[0]);
+        RealVector& aTable(alphaTable[0]);
         RealVector::size_type oldSize(aTable.size());
 
         if (oldSize <= i)
@@ -228,14 +212,12 @@ protected:
     static Real ip_theta_F(Real, ip_theta_params const*);
 
 private:
-
+    const Real a;
     const Real h;
     const Real hsigma_p_1;
 
     mutable boost::array<Integer, GF_MAX_ORDER> alphaOffsetTable;
     mutable boost::array<RealVector, GF_MAX_ORDER> alphaTable;
-
-    const Real a;
 
     static Logger& log_;
 };

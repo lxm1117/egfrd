@@ -70,7 +70,6 @@ noinst_HEADERS = \
 	GreensFunction3DAbsSym.hpp\
 	GreensFunction3DAbs.hpp\
 	GreensFunction3DRadAbs.hpp\
-	GreensFunction3DRadAbsBase.hpp\
 	freeFunctions.hpp\
 	GreensFunction3DSym.hpp\
 	GreensFunction3D.hpp\
@@ -190,7 +189,6 @@ _greens_functions_la_SOURCES=\
 	GreensFunction3DAbsSym.cpp\
 	GreensFunction3DRadInf.cpp\
 	GreensFunction3D.cpp\
-	GreensFunction3DRadAbsBase.cpp\
 	GreensFunction3DRadAbs.cpp\
 	GreensFunction3DAbs.cpp\
 	Logger.cpp\

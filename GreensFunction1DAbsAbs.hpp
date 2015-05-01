@@ -7,21 +7,13 @@
 
 class GF_CLASS GreensFunction1DAbsAbs : public GreensFunction
 {
-private:
-    // This is a typical length scale of the system, may not be true!
-    static const Real L_TYPICAL;
-    // The typical timescale of the system, may also not be true!!
-    static const Real T_TYPICAL;
-    // measure of 'sameness' when comparing floating points numbers
-    static const Real EPSILON;
-    //E3; Is 1E3 a good measure for the probability density?!
-    static const Real PDENS_TYPICAL;
-    // The maximum number of terms in the sum
-    static const uint MAX_TERMS;
-    // The minimum
-    static const uint MIN_TERMS;
-    // Cutoff distance: When H * sqrt(2Dt) < 1/2*L, use free greensfunction instead of absorbing.
-    static const Real CUTOFF_H;
+    static const Real L_TYPICAL;                // This is a typical length scale of the system, may not be true!
+    static const Real T_TYPICAL;                // The typical timescale of the system, may also not be true!!
+    static const Real EPSILON;                  // measure of 'sameness' when comparing floating points numbers
+    static const Real PDENS_TYPICAL;            //E3; Is 1E3 a good measure for the probability density?!
+    static const uint MAX_TERMS;                // The maximum number of terms in the sum
+    static const uint MIN_TERMS;                // The minimum
+    static const Real CUTOFF_H;                 // Cutoff distance: When H * sqrt(2Dt) < 1/2*L, use free greens function instead of absorbing.
 
 public:
     GreensFunction1DAbsAbs(Real D, Real r0, Real sigma, Real a)
@@ -35,12 +27,26 @@ public:
     {
     }
 
+    virtual ~GreensFunction1DAbsAbs(){}
+
+    virtual std::string dump() const override;
+
+    virtual const char* getName() const override { return "GreensFunction1DAbsAbs"; }
+
+    Real getsigma() const { return sigma; }
+
+    Real geta() const     { return a; }
+
+    Real getv() const     { return v; }
+
+    Real getr0() const    { return r0; }
+
     // This also sets the scale
     void seta(Real a)
     {
-        Real L(a - this->sigma);
+        Real L(a - sigma);
 
-        THROW_UNLESS(std::invalid_argument, L >= 0.0 && (this->r0 - sigma) <= L);
+        THROW_UNLESS(std::invalid_argument, L >= 0.0 && (r0 - sigma) <= L);
 
         // Use a typical domain size to determine if we are here
         // defining a domain of size 0.
@@ -53,30 +59,15 @@ public:
         {
             // set the typical time scale (msd = sqrt(2*d*D*t) )
             // this is needed by drawTime_f, do not get rid of it!
-            this->t_scale = (L*L) / this->getD();
+            t_scale = (L*L) / D;
             // set a
             this->a = a;
         }
     }
 
-    Real getsigma() const
-    {
-        return this->sigma;
-    }
-
-    Real geta() const
-    {
-        return this->a;
-    }
-
-    Real getv() const
-    {
-        return this->v;
-    }
-
     void setr0(Real r0)
     {
-        if (this->a - this->sigma < 0.0)
+        if (a - sigma < 0.0)
         {
             // if the domain had zero size
             THROW_UNLESS(std::invalid_argument, 0.0 <= (r0 - sigma) && (r0 - sigma) <= EPSILON * l_scale);
@@ -85,14 +76,9 @@ public:
         else
         {
             // The normal case
-            THROW_UNLESS(std::invalid_argument, 0.0 <= (r0 - sigma) && r0 <= this->a);
+            THROW_UNLESS(std::invalid_argument, 0.0 <= (r0 - sigma) && r0 <= a);
             this->r0 = r0;
         }
-    }
-
-    Real getr0() const
-    {
-        return this->r0;
     }
 
     // Draws the first passage time from the propensity function
@@ -125,13 +111,6 @@ public:
     // Calculates the probability density of finding the particle at 
     // location r at time t.
     Real prob_r(Real r, Real t) const;
-
-    std::string dump() const;
-
-    const char* getName() const
-    {
-        return "GreensFunction1DAbsAbs";
-    }
 
 private:
     struct drawT_params
@@ -182,17 +161,12 @@ private:
     }
 
 private:
-    // The diffusion constant and drift velocity
-    Real v;
-    // These are the dimensions of our domain; L is calculated as a-sigma
-    Real sigma;
+    const Real v;         // The diffusion constant and drift velocity
+    const Real sigma;     // These are the dimensions of our domain; L is calculated as a-sigma
     Real a;
     Real r0;
-    // This is the 'length scale' of your system (1e-14 or 1e6)
-    // Although rescaling is discontinued, we use it to check whether a is well-chosen
-    Real l_scale;
-    // This is the time scale of the system, used by drawTime_f
-    Real t_scale;
+    const Real l_scale;       // This is the 'length scale' of your system (1e-14 or 1e6), Although rescaling is discontinued, we use it to check whether a is well-chosen
+    Real t_scale;       // This is the time scale of the system, used by drawTime_f
 
     static Logger& log_;
 };

@@ -7,8 +7,8 @@
 // Written by Laurens Bossen. Adapted by Martijn Wehrens.
 // FOM Institute AMOLF.
 
-#if !defined(__FIRSTPASSAGEPAIRGREENSFUNCTION2D_HPP)
-#define __FIRSTPASSAGEPAIRGREENSFUNCTION2D_HPP 
+#ifndef GREENSFUNCTION2DRADABS_HPP
+#define GREENSFUNCTION2DRADABS_HPP
 
 #include "Defs.hpp"
 #include <boost/array.hpp>
@@ -18,34 +18,15 @@
 
 class GF_CLASS GreensFunction2DRadAbs : public PairGreensFunction
 {
-private:
-    // Error tolerance used by default.
-    static const Real TOLERANCE;
-
-    // SphericalBesselGenerator's accuracy, used by some
-    // theta-related calculations.
-
-    static const Real MIN_T_FACTOR;
-
-    static const Real L_TYPICAL; // typical length scale
-    static const Real T_TYPICAL; // typical time scale
-    static const Real EPSILON; // relative numeric error  // TESTING temporarily increased; was 1e-12
-
-    // DEFAULT = 30
-    static const uint MAX_ORDER;         // The maximum number of m 
-    // terms
-    static const uint MAX_ALPHA_SEQ;    // The maximum number of n 
-    // terms
-
-    // Parameters for alpha-root finding
-    // ======
-    // See getAlpha() in cpp file for more information. 
-    //
-    // Parameters for scanning method
-    // Left boundary of 1st search interval 1st root
-    static const Real SCAN_START;
-    // Length of the scanning interval relative to estimated interval
-    static const Real FRACTION_SCAN_INTERVAL; // TODO CHANGED THIS FROM .5 to .2
+    static const Real TOLERANCE;                // Error tolerance used by default.
+    static const Real MIN_T_FACTOR;             // SphericalBesselGenerator's accuracy, used by some theta-related calculations.
+    static const Real L_TYPICAL;                // typical length scale
+    static const Real T_TYPICAL;                // typical time scale
+    static const Real EPSILON;                  // relative numeric error  // TESTING temporarily increased; was 1e-12
+    static const uint MAX_ORDER;                // The maximum number of m , DEFAULT = 30
+    static const uint MAX_ALPHA_SEQ;            // The maximum number of n terms
+    static const Real SCAN_START;               // Left boundary of 1st search interval 1st root
+    static const Real FRACTION_SCAN_INTERVAL;   // Length of the scanning interval relative to estimated interval TODO CHANGED THIS FROM .5 to .2
 
     // Other parameters
     // After CONVERGENCE_ASSUMED subsequent roots that lay within +/- 
@@ -58,35 +39,27 @@ private:
 
 public:
 
-    const char* getName() const
-    {
-        return "GreensFunction2DRadAbs";
-    }
+    GreensFunction2DRadAbs(const Real D, const Real kf, const Real r0, const Real sigma, const Real a);
 
-    GreensFunction2DRadAbs(const Real D, const Real kf, const Real r0, const Real Sigma, const Real a);
+    virtual ~GreensFunction2DRadAbs(){}
 
-    Real geth() const
-    {
-        return this->h;
-    }
+    virtual std::string dump() const override;
 
-    Real geta() const
-    {
-        return this->a;
-    }
+    virtual const char* getName() const override { return "GreensFunction2DRadAbs"; }
 
-    Real getestimated_alpha_root_distance_() const
-    {
-        return this->estimated_alpha_root_distance_;
-    }
+    virtual Real drawR(const Real rnd, const Real t) const override;
+
+    virtual Real drawTheta(const Real rnd, const Real r, const Real t) const override;
+
+    Real geth() const { return h; }
+
+    Real geta() const { return a; }
+
+    Real getestimated_alpha_root_distance_() const { return estimated_alpha_root_distance_; }
 
     Real drawTime(const Real rnd) const;
 
     EventKind drawEventType(const Real rnd, const Real t) const;
-
-    Real drawR(const Real rnd, const Real t) const;
-
-    Real drawTheta(const Real rnd, const Real r, const Real t) const;
 
     Real f_alpha0(const Real alpha) const;
 
@@ -108,10 +81,6 @@ public:
 
     Real dp_m_alpha_at_a(const uint n, const uint m, const Real t) const;
 
-    // methods below are kept public for debugging purpose.
-
-    std::string dump() const;
-
     void GiveRootInterval(Real& low, Real& high, const Integer n) const;
 
     void GiveRootIntervalSimple(Real& low, Real& high, const Integer n, const uint i) const;
@@ -124,7 +93,7 @@ public:
 
     void decideOnMethod2(size_t n, RealVector::size_type i) const;
 
-    void needToSwitchBackMethod1(size_t n, RealVector::size_type i) const;
+    // void needToSwitchBackMethod1(size_t n, RealVector::size_type i) const;
 
     Real getAlpha(size_t n, RealVector::size_type i) const;
 
@@ -153,7 +122,7 @@ protected:
     RealVector& getAlphaTable(const size_t n) const
     {
         assert(alphaTable.size() > n);
-        return this->alphaTable[n];
+        return alphaTable[n];
     }
 
     Real p_int_r_table(const Real r, const RealVector& Y0_aAnTable, const RealVector& J0_aAnTable, const RealVector& Y0J1J0Y1Table) const;
@@ -268,4 +237,4 @@ private:
 
 };
 
-#endif // __FIRSTPASSAGEPAIRGREENSFUNCTION2D_HPP
+#endif // GREENSFUNCTION2DRADABS_HPP

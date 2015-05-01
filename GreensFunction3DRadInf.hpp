@@ -1,4 +1,4 @@
-#if !defined(GREENSFUNCTION3DRADINF_HPP)
+#ifndef GREENSFUNCTION3DRADINF_HPP
 #define GREENSFUNCTION3DRADINF_HPP 
 
 #include "Defs.hpp"
@@ -8,42 +8,33 @@
 
 class GF_CLASS GreensFunction3DRadInf : public PairGreensFunction
 {
-private:
     struct p_corr_R_params;
     struct p_theta_params;
-
-    // Error tolerance used by default.
-    static const Real TOLERANCE;
-
-    // SphericalBesselGenerator's accuracy, used by some
-    // theta-related calculations.
-    static const Real THETA_TOLERANCE;
-
+    static const Real TOLERANCE;        // Error tolerance used by default.
+    static const Real THETA_TOLERANCE;  // SphericalBesselGenerator's accuracy, used by some theta-related calculations.
     static const Real MIN_T;
-
     static const uint MAX_ORDER;
-
     static const Real H;
 
 public:
 
     GreensFunction3DRadInf(Real D, Real kf, Real r0, Real Sigma);
 
+    virtual ~GreensFunction3DRadInf(){}
+
+    virtual std::string dump() const override;
+
+    virtual const char* getName() const override { return "GreensFunction3DRadInf"; }
+
+    virtual Real drawR(const Real rnd, const Real t) const override;
+
+    virtual Real drawTheta(const Real rnd, const Real r, const Real t) const override;
+
+    Real getkD() const { return kD; }
+
+    Real getalpha() const { return alpha; }
+
     Real drawTime(const Real rnd) const;
-
-    Real drawR(const Real rnd, const Real t) const;
-
-    Real drawTheta(const Real rnd, const Real r, const Real t) const;
-
-    Real getkD() const
-    {
-        return this->kD;
-    }
-
-    Real getalpha() const
-    {
-        return this->alpha;
-    }
 
     Real p_reaction(Real t) const;
     Real p_survival(Real t) const;
@@ -60,10 +51,6 @@ public:
     Real p_corr(Real theta, Real r, Real t) const;
 
     Real ip_corr(Real theta, Real r, Real t) const;
-
-    std::string dump() const;
-
-    const char* getName() const { return "GreensFunction3DRadInf"; }
 
 private:
     Real p_corr_R(Real alpha, uint n, Real r, Real t) const;

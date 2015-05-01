@@ -8,8 +8,8 @@ typedef unsigned int uint;
 typedef long int Integer;
 typedef unsigned long int UnsignedInteger;
 typedef std::vector<Real> RealVector;
-typedef std::pair<Real, Real> real_pair;
-typedef std::vector<Real> RealVector;
+typedef std::pair<Real, Real> RealPair;
+
 
 const uint GF_MAX_ORDER = 50;
 

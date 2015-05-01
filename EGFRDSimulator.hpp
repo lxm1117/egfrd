@@ -21,7 +21,6 @@
 #include "utils/pointer_as_ref.hpp"
 #include "utils/range.hpp"
 #include "utils/pair.hpp"
-#include "utils/math.hpp"
 #include "utils/stringizer.hpp"
 #include "ShellID.hpp"
 #include "DomainID.hpp"
@@ -286,7 +285,7 @@ protected:
         typedef TeventKind_ event_kind_type;
 
     public:
-        virtual domain_type& domain() const { return domain_; }
+        virtual domain_type& domain() const override { return domain_; }
 
         virtual ~domain_event() {}
 
@@ -312,7 +311,7 @@ protected:
         typedef multi_type domain_type;
 
     public:
-        virtual domain_type& domain() const { return domain_; }
+        virtual domain_type& domain() const override { return domain_; }
 
         virtual ~multi_event() {}
 

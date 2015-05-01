@@ -2,7 +2,6 @@
 #define FUNCSUM_HPP
 
 #include <boost/function.hpp>
-#include <cstddef>
 #include "Defs.hpp"
 
 static const Real TOLERANCE(1e-8);

@@ -14,12 +14,13 @@ class BasicNetworkRulesImpl: public NetworkRules
     typedef ReactionRule::identifier_type identifier_type;
 
 public:
-    virtual identifier_type add_reaction_rule(ReactionRule const&);
-    virtual void remove_reaction_rule(ReactionRule const&);
+    virtual identifier_type add_reaction_rule(ReactionRule const&) override;
 
-    virtual reaction_rule_generator* query_reaction_rule(SpeciesTypeID const& r1) const;
+    virtual void remove_reaction_rule(ReactionRule const&) override;
 
-    virtual reaction_rule_generator* query_reaction_rule(SpeciesTypeID const& r1, SpeciesTypeID const& r2) const;
+    virtual reaction_rule_generator* query_reaction_rule(SpeciesTypeID const& r1) const override;
+
+    virtual reaction_rule_generator* query_reaction_rule(SpeciesTypeID const& r1, SpeciesTypeID const& r2) const override;
 
     virtual ~BasicNetworkRulesImpl();
 

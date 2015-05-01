@@ -2,9 +2,7 @@
 #define ANALYTICAL_PAIR_HPP
 
 #include <cmath>
-#include <boost/array.hpp>
 #include "Pair.hpp"
-#include "AnalyticalSingle.hpp"
 
 template<typename Ttraits_, typename Tshell_>
 class AnalyticalPair : public Pair < Ttraits_ >

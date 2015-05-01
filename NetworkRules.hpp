@@ -1,7 +1,6 @@
 #ifndef NETWORK_RULES_HPP
 #define NETWORK_RULES_HPP
 
-#include <map>
 #include "ReactionRule.hpp"
 #include "generator.hpp"
 
@@ -15,6 +14,7 @@ public:
 
 public:
     virtual identifier_type add_reaction_rule(ReactionRule const&) = 0;
+
     virtual void remove_reaction_rule(ReactionRule const&) = 0;
 
     virtual reaction_rule_generator* query_reaction_rule(species_id_type const& r1) const = 0;

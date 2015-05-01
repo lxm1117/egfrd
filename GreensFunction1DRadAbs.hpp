@@ -7,22 +7,13 @@
 
 class GF_CLASS GreensFunction1DRadAbs : public GreensFunction
 {
-private:
-    // This is a typical length scale of the system, may not be true!
-    static const Real L_TYPICAL;
-    // The typical timescale of the system, may also not be true!!
-    static const Real T_TYPICAL;
-    // measure of 'sameness' when comparing floating points numbers
-    static const Real EPSILON;
-    // Is 1E3 a good measure for the probability density?!
-    static const Real PDENS_TYPICAL;
-    // The maximum number of terms used in calculating the sum
-    static const uint MAX_TERMS;
-    // The minimum number of terms
-    static const uint MIN_TERMS;
-    /* Cutoff distance: When H * sqrt(2Dt) < a - r0 OR ro - sigma
-       use free greensfunction instead of absorbing. */
-    static const Real CUTOFF_H;
+    static const Real L_TYPICAL;        // This is a typical length scale of the system, may not be true!
+    static const Real T_TYPICAL;        // The typical timescale of the system, may also not be true!!
+    static const Real EPSILON;          // measure of 'sameness' when comparing floating points numbers
+    static const Real PDENS_TYPICAL;    // Is 1E3 a good measure for the probability density?!
+    static const uint MAX_TERMS;        // The maximum number of terms used in calculating the sum
+    static const uint MIN_TERMS;        // The minimum number of terms
+    static const Real CUTOFF_H;         // Cutoff distance: When H * sqrt(2Dt) < a - r0 OR ro - sigma  use free greens function instead of absorbing. 
 
 public:
     GreensFunction1DRadAbs(Real D, Real k, Real r0, Real sigma, Real a)
@@ -41,14 +32,24 @@ public:
         calculate_n_roots(1);
     }
 
+    virtual ~GreensFunction1DRadAbs(){}
+
+    virtual std::string dump() const override;
+
+    virtual const char* getName() const override { return "GreensFunction1DRadAbs"; }
+
+    Real geta() const     { return a; }
+
+    Real getsigma() const { return sigma; }
+
     // This also sets the scale
     void seta(Real a)
     {
-        THROW_UNLESS(std::invalid_argument, (a - this->sigma) >= 0.0 && this->r0 <= a);
+        THROW_UNLESS(std::invalid_argument, (a - sigma) >= 0.0 && r0 <= a);
 
         // Use a typical domain size to determine if we are here 
         // defining a domain of size 0.
-        if ((a - this->sigma) < EPSILON*this->l_scale)
+        if ((a - sigma) < EPSILON*l_scale)
         {
             // just some random value to show that the domain is zero
             this->a = -1.0;
@@ -56,26 +57,16 @@ public:
         else
         {
             // set the l_scale to the given one
-            this->l_scale = a - sigma;
+            l_scale = a - sigma;
             // set the typical time scale (MSD = sqrt(2*d*D*t) )
-            this->t_scale = (l_scale*l_scale) / this->getD();
+            t_scale = (l_scale*l_scale) / D;
             this->a = a;
         }
     }
 
-    Real geta() const
-    {
-        return this->a;
-    }
-
-    Real getsigma() const
-    {
-        return this->sigma;
-    }
-
     void setr0(Real r0)
     {
-        if (this->a - this->sigma < 0.0)
+        if (a - sigma < 0.0)
         {
             // if the domain had zero size
             THROW_UNLESS(std::invalid_argument, 0.0 <= (r0 - sigma) && (r0 - sigma) <= EPSILON * l_scale);
@@ -84,25 +75,16 @@ public:
         else
         {
             // The normal case
-            THROW_UNLESS(std::invalid_argument, 0.0 <= (r0 - sigma) && r0 <= this->a);
+            THROW_UNLESS(std::invalid_argument, 0.0 <= (r0 - sigma) && r0 <= a);
             this->r0 = r0;
         }
     }
 
-    Real getr0() const
-    {
-        return r0;
-    }
+    Real getr0() const    { return r0; }
 
-    Real getk() const
-    {
-        return this->k;
-    }
+    Real getk() const    { return k; }
 
-    Real getv() const
-    {
-        return this->v;
-    }
+    Real getv() const    { return v; }
 
     // Calculates the probability density of finding the particle at 
     // location z at timepoint t, given that the particle is still in the 
@@ -146,17 +128,6 @@ public:
     // location r at time t.
     Real prob_r(Real r, Real t) const;
 
-    // End of public/private mix methods
-
-    //private:	// method made public for testing
-
-    std::string dump() const;
-
-    const char* getName() const
-    {
-        return "GreensFunction1DRadAbs";
-    }
-
 private:
 
     Real An(Real a_n) const;
@@ -187,13 +158,16 @@ private:
     /* Functions managing the rootList */
 
     /* return the rootList size */
-    uint rootList_size() const;
+    uint rootList_size() const { return rootList.size(); }
 
     /* return the n + 1'th root */
     Real get_root(uint n) const;
 
-    /* Fills the rootList with the first n roots. */
+    /* Check the rootList for the first n roots. */
     void calculate_n_roots(uint n) const;
+
+    /* Fills the rootList from i to n. */
+    void fill_table_to_n(uint i, uint n);
 
     /* Guess the number of terms needed for convergence, given t. */
     uint guess_maxi(Real const& t) const;
@@ -236,24 +210,16 @@ private:
         return table[i];
     }
 
-    /* Member variables */
-
-    // The diffusion constant and drift velocity
-    Real v;
-    // The reaction constant
-    Real k;
+private:
+    Real v;         // The diffusion constant and drift velocity
+    Real k;         // The reaction constant
     Real r0;
-    // The left and right boundary of the domain (sets the l_scale, see below)
-    Real sigma;
+    Real sigma;     // The left and right boundary of the domain (sets the l_scale, see below)
     Real a;
-    // This is the length scale of the system
-    Real l_scale;
-    // This is the time scale of the system.
-    Real t_scale;
+    Real l_scale;   // This is the length scale of the system
+    Real t_scale;   // This is the time scale of the system.
 
-    /* vector containing the roots 0f tan_f. */
-    mutable RealVector rootList;
-
+    RealVector rootList;            /* vector containing the roots 0f tan_f. */
     static Logger& log_;
 };
 #endif // GREENSFUNCTION1DRADABS_HPP

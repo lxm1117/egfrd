@@ -40,8 +40,8 @@ const Real GreensFunction2DRadAbs::INTERVAL_MARGIN = .33;
 
 Logger& GreensFunction2DRadAbs::log_(Logger::get_logger("GreensFunction2DRadAbs"));
 
-GreensFunction2DRadAbs::GreensFunction2DRadAbs(const Real D, const Real kf, const Real r0, const Real Sigma, const Real a) :
-PairGreensFunction(D, kf, r0, Sigma), h(kf / (D * 2.0 * M_PI * Sigma)), a(a), estimated_alpha_root_distance_(M_PI / (a - Sigma))
+GreensFunction2DRadAbs::GreensFunction2DRadAbs(const Real D, const Real kf, const Real r0, const Real sigma, const Real a) :
+PairGreensFunction(D, kf, r0, sigma), h(kf / (D * 2.0 * M_PI * sigma)), a(a), estimated_alpha_root_distance_(M_PI / (a - sigma))
 // observed convergence of
 // distance roots f_alpha().
 // ^: Here parent "constructors" are specified that are executed 
@@ -49,8 +49,6 @@ PairGreensFunction(D, kf, r0, Sigma), h(kf / (D * 2.0 * M_PI * Sigma)), a(a), es
 // These variables will be set before the contents of the constructor are 
 // called.
 {
-    const Real sigma(this->getSigma());
-
     // Check whether input makes sense, outer boundary a should be > inner 
     // boundary sigma.
     if (a < sigma)
@@ -59,7 +57,7 @@ PairGreensFunction(D, kf, r0, Sigma), h(kf / (D * 2.0 * M_PI * Sigma)), a(a), es
     }
 
     // Clear AlphaTables
-    GreensFunction2DRadAbs::clearAlphaTable();
+    clearAlphaTable();
 }
 
 //
@@ -71,24 +69,21 @@ void GreensFunction2DRadAbs::clearAlphaTable() const
     const Real estimated_alpha_root_distance(getestimated_alpha_root_distance_());
 
     // Clears all vectors in the alphaTable
-    std::for_each(this->alphaTable.begin(), this->alphaTable.end(), boost::mem_fn(&RealVector::clear));
+    std::for_each(alphaTable.begin(), alphaTable.end(), boost::mem_fn(&RealVector::clear));
 
     // Sets all values of the alpha_x_scan_table_ to zero.
-    std::fill(this->alpha_x_scan_table_.begin(), this->alpha_x_scan_table_.end(), SCAN_START*estimated_alpha_root_distance);
+    std::fill(alpha_x_scan_table_.begin(), alpha_x_scan_table_.end(), SCAN_START*estimated_alpha_root_distance);
     // DEBUG TODO; actual number here might
     // be important for functioning of Bessel functions.
 
     // Sets all values of the alpha_correctly_estimated_ table to zero.
-    std::fill(this->alpha_correctly_estimated_.begin(), this->alpha_correctly_estimated_.end(), 0);
+    std::fill(alpha_correctly_estimated_.begin(), alpha_correctly_estimated_.end(), 0);
 }
 
 // The method evaluates the equation for finding the alphas for given alpha. This
 // is needed to find the alpha's at which the expression is zero -> alpha is the root.
 Real GreensFunction2DRadAbs::f_alpha0(const Real alpha) const
 {
-    const Real a(this->geta());
-    const Real sigma(getSigma());
-    const Real h(this->geth());
     const Real s_An(sigma * alpha);
     const Real a_An(a * alpha);
     // Needed? TODO
@@ -130,12 +125,8 @@ Real GreensFunction2DRadAbs::f_alpha0_aux_F(const Real alpha, const f_alpha0_aux
 // roots (y=0) of this function are constants in the Green's Functions.
 Real GreensFunction2DRadAbs::f_alpha(const Real alpha, const Integer n) const
 {
-    const Real a(this->geta());
-    const Real sigma(getSigma());
-    const Real h(this->geth());
     const Real s_An(sigma * alpha);
     const Real a_An(a * alpha);
-    const Real realn(static_cast<Real>(n));
     const Real h_sigma(h * sigma);
 
     const Real Jn_s_An(gsl_sf_bessel_Jn(n, s_An));
@@ -146,13 +137,13 @@ Real GreensFunction2DRadAbs::f_alpha(const Real alpha, const Integer n) const
     const Real Yn1_s_An(gsl_sf_bessel_Yn(n + 1, s_An));
     const Real Yn_a_An(gsl_sf_bessel_Yn(n, a_An));
 
-    const Real rho1(((h_sigma * Jn_s_An) + (s_An * Jn1_s_An) - realn*Jn_s_An) * Yn_a_An);
-    const Real rho2(((h_sigma * Yn_s_An) + (s_An * Yn1_s_An) - realn*Yn_s_An) * Jn_a_An);
+    const Real rho1(((h_sigma * Jn_s_An) + (s_An * Jn1_s_An) - n*Jn_s_An) * Yn_a_An);
+    const Real rho2(((h_sigma * Yn_s_An) + (s_An * Yn1_s_An) - n*Yn_s_An) * Jn_a_An);
     return (rho1 - rho2);
 
     //  Or..?
-    //  const double rho1 ( ( ((h*sigma-realn) * Jn_s_An) + (s_An * Jn1_s_An) ) * Yn_a_An );
-    //  const double rho2 ( ( ((h*sigma-realn) * Yn_s_An) + (s_An * Yn1_s_An) ) * Jn_a_An );
+    //  const double rho1 ( ( ((h*sigma-n) * Jn_s_An) + (s_An * Jn1_s_An) ) * Yn_a_An );
+    //  const double rho2 ( ( ((h*sigma-n) * Yn_s_An) + (s_An * Yn1_s_An) ) * Jn_a_An );
     //  return (rho1 - rho2);
 
 }
@@ -170,8 +161,8 @@ Real GreensFunction2DRadAbs::f_alpha_aux_F(const Real alpha, const f_alpha_aux_p
 // calculates the constant part of the i-th term for the survival probability
 Real GreensFunction2DRadAbs::p_survival_i(const Real alpha) const
 {
-    const Real a(geta());         // get the needed parameters
-    const Real sigma(getSigma());
+    // get the needed parameters
+
 
     const Real s_An(sigma*alpha);
     const Real a_An(a*alpha);
@@ -201,11 +192,6 @@ Real GreensFunction2DRadAbs::p_survival_i(const Real alpha) const
 // through the outer interface
 Real GreensFunction2DRadAbs::calc_A_i_0(const Real alpha) const
 {
-    // Get the required parameters
-    const Real a(geta());
-    const Real sigma(getSigma());
-    const Real h(this->geth());
-
     const Real s_An(sigma*alpha);
     const Real a_An(a*alpha);
     const Real r0An(r0*alpha);
@@ -236,8 +222,8 @@ Real GreensFunction2DRadAbs::calc_A_i_0(const Real alpha) const
 // the inner interface (reaction)
 Real GreensFunction2DRadAbs::leaves_i(const Real alpha) const
 {
-    const Real a(geta());         // get the needed parameters
-    const Real sigma(getSigma());
+    // get the needed parameters
+
 
     const Real s_An(sigma*alpha);
     const Real a_An(a*alpha);
@@ -263,7 +249,7 @@ Real GreensFunction2DRadAbs::leaves_i(const Real alpha) const
 // calculates a table with all the constant factors for the survival probability
 void GreensFunction2DRadAbs::createPsurvTable(RealVector& table) const
 {
-    const RealVector& alphaTable_0(this->getAlphaTable(0));	// get the roots for the survival probability
+    const RealVector& alphaTable_0(getAlphaTable(0));	// get the roots for the survival probability
 
     table.clear();                              // empty the table
     table.reserve(alphaTable_0.size());       // and get the necessary memory
@@ -277,7 +263,7 @@ void GreensFunction2DRadAbs::createPsurvTable(RealVector& table) const
 // Creates the tables with various Bessel functions used in drawR, the table is used to speed things up
 void GreensFunction2DRadAbs::createY0J0Tables(RealVector& Y0_Table, RealVector& J0_Table, RealVector& Y0J1J0Y1_Table, const Real t) const
 {
-    const RealVector& alphaTable_0(this->getAlphaTable(0));
+    const RealVector& alphaTable_0(getAlphaTable(0));
     // get the roots for the survival probability
     Y0_Table.clear();                           // empty the table
     J0_Table.clear();
@@ -302,10 +288,6 @@ void GreensFunction2DRadAbs::createY0J0Tables(RealVector& Y0_Table, RealVector& 
 // Creates the values for in the tables Y0, J0 and Y0J1J0Y1
 boost::tuple<Real, Real, Real> GreensFunction2DRadAbs::Y0J0J1_constants(const Real alpha, const Real t) const
 {
-    const Real D(this->getD());
-    const Real sigma(this->getSigma());
-    const Real a(this->geta());
-
     const Real s_An(sigma*alpha);
     const Real a_An(a*alpha);
     const Real alpha_sq(alpha*alpha);
@@ -348,14 +330,14 @@ void GreensFunction2DRadAbs::GiveRootInterval(
     Real& high,            // Variable to return right boundary interval
     const Integer n) const // Order of Bessel functions
 {
-    THROW_UNLESS(std::invalid_argument, static_cast<unsigned>(n) < alpha_x_scan_table_.size());
+    THROW_UNLESS(std::invalid_argument, static_cast<uint>(n) < alpha_x_scan_table_.size());
 
     // Variables for function values @ resp. left and right boundary interval.
     Real f_low, f_high;
 
     // # Get/calculate boundaries and determine width of interval to check for
     // sign change.
-    const Real estimated_alpha_root_distance_(this->getestimated_alpha_root_distance_());
+    const Real estimated_alpha_root_distance_(getestimated_alpha_root_distance_());
     const Real interval(FRACTION_SCAN_INTERVAL * estimated_alpha_root_distance_);
 
     // If order (n) is zero, the offset is zero, otherwise take n-1 offset
@@ -365,7 +347,7 @@ void GreensFunction2DRadAbs::GiveRootInterval(
     if (alpha_x_scan_table_[n] == 0) { // which implies i == 0
         if (n > 0)
         {
-            alpha_x_scan_table_[n] = (this->alphaTable[n - 1][0]);
+            alpha_x_scan_table_[n] = (alphaTable[n - 1][0]);
         }
     }
 
@@ -423,7 +405,7 @@ void GreensFunction2DRadAbs::GiveRootIntervalSimple(Real& low, Real& high, const
     const Real previous_root(getAlpha(n, i - 1));
 
     // get estimated interval
-    const Real estimated_alpha_root_distance_(this->getestimated_alpha_root_distance_());
+    const Real estimated_alpha_root_distance_(getestimated_alpha_root_distance_());
 
     // Calculates interval [low, high] where root is expected based on the 
     // assumption where in a converging regime, where the deviation from this
@@ -459,7 +441,7 @@ Real GreensFunction2DRadAbs::getAlphaRoot0(const Real low, const Real high) cons
     const Real alpha(findRoot(F, solver, low, high, EPSILON / L_TYPICAL, EPSILON, "GreensFunction2DRadAbs::getAlphaRoot0"));
     gsl_root_fsolver_free(solver);
 
-    //  const Real sigma(getSigma());
+    //  
     return alpha;
 }
 
@@ -519,7 +501,7 @@ void GreensFunction2DRadAbs::decideOnMethod2(size_t n, RealVector::size_type i) 
     if (i > 0)
     {
         const Real dx(getAlpha(n, i) - getAlpha(n, i - 1)); // note the recursiveness!
-        const Real estimated_alpha_root_distance_(this->getestimated_alpha_root_distance_());
+        const Real estimated_alpha_root_distance_(getestimated_alpha_root_distance_());
 
         // If the relative deviation from the expected difference is smaller 
         // than the expected margin, increase number of would-be correct 
@@ -550,12 +532,12 @@ Real GreensFunction2DRadAbs::getAlpha(size_t n, RealVector::size_type i) const
 {
     THROW_UNLESS(std::invalid_argument, n < alphaTable.size());
 
-    //  const Real sigma(this->getSigma());
+    //  
     Real current_root_, low, high;
 
     // # "Administration"
     // Equals reading/writing to/from alphaTable to reading/writing from/to to 
-    // this->alphaTable[n]; n being the order of the Bessel function. 
+    // alphaTable[n]; n being the order of the Bessel function. 
     // (Funky pointer operations.)
     RealVector& alphaTable(this->alphaTable[n]);
 
@@ -630,29 +612,29 @@ Real GreensFunction2DRadAbs::getAlpha(size_t n, RealVector::size_type i) const
 // calculates the ith term with exponent and time for the survival probability
 Real GreensFunction2DRadAbs::p_survival_i_exp_table(const uint i, const Real t, const RealVector& table) const
 {
-    const Real alpha(this->getAlpha(0, i));
-    return std::exp(-getD() * t * alpha * alpha) * table[i];
+    const Real alpha(getAlpha(0, i));
+    return std::exp(-D * t * alpha * alpha) * table[i];
 }
 
 // adds the exponential with the time to the sum. Needed for the calculation of the flux throught the outer
 // interface
 Real GreensFunction2DRadAbs::leavea_i_exp(const uint i, const Real t) const
 {
-    const Real alpha(this->getAlpha(0, i));
-    return std::exp(-getD() * t * alpha * alpha) * calc_A_i_0(alpha);
+    const Real alpha(getAlpha(0, i));
+    return std::exp(-D * t * alpha * alpha) * calc_A_i_0(alpha);
 }
 
 // adds the exponential with the time to the sum. Needed for the inner interface (reaction)
 Real GreensFunction2DRadAbs::leaves_i_exp(const uint i, const Real t) const
 {
-    const Real alpha(this->getAlpha(0, i));
-    return std::exp(-getD() * t * alpha * alpha) * leaves_i(alpha);
+    const Real alpha(getAlpha(0, i));
+    return std::exp(-D * t * alpha * alpha) * leaves_i(alpha);
 }
 
 // calculates the Bossen function for a given r
 Real GreensFunction2DRadAbs::p_int_r_i_exp_table(const uint i, const Real r, const RealVector& Y0_aAnTable, const RealVector& J0_aAnTable, const RealVector& Y0J1J0Y1Table) const
 {
-    const Real alpha(this->getAlpha(0, i));	// get the root An
+    const Real alpha(getAlpha(0, i));	// get the root An
     const Real r_An(r*alpha);
     const Real J1_rAn(gsl_sf_bessel_J1(r_An));
     const Real Y1_rAn(gsl_sf_bessel_Y1(r_An));
@@ -665,27 +647,18 @@ Real GreensFunction2DRadAbs::p_int_r_i_exp_table(const uint i, const Real r, con
 uint GreensFunction2DRadAbs::guess_maxi(const Real t) const
 {
     const uint safety(2);
-
     if (!std::isfinite(t)) return safety;
-
-    const Real D(getD());
-    const Real sigma(getSigma());
-    const Real a(geta());
 
     const Real alpha0(getAlpha(0, 0));
     const Real Dt(D * t);
-    const Real thr((exp(-Dt * alpha0 * alpha0) / alpha0) * this->EPSILON * 1e-1);
+    const Real thr((exp(-Dt * alpha0 * alpha0) / alpha0) * EPSILON * 1e-1);
     const Real thrsq(thr * thr);
 
-    if (thrsq <= 0.0)
-    {
-        return this->MAX_ALPHA_SEQ;
-    }
+    if (thrsq <= 0.0) return MAX_ALPHA_SEQ;
 
     const Real max_alpha(1.0 / (sqrt(exp(gsl_sf_lambert_W0(2 * Dt / thrsq)) * thrsq)));
     const uint maxi(safety + static_cast<uint>(max_alpha * (a - sigma) / M_PI));
-
-    return std::min(maxi, this->MAX_ALPHA_SEQ);
+    return std::min(maxi, MAX_ALPHA_SEQ);
 }
 
 // Calculates the survival probability at a given time.
@@ -709,13 +682,13 @@ Real GreensFunction2DRadAbs::p_survival_table(const Real t, RealVector& psurvTab
 
     // If the estimated # terms needed for convergence is bigger than number
     // of terms summed over (MAX_ALPHA_SEQ), give error.
-    if (maxi == this->MAX_ALPHA_SEQ)
+    if (maxi == MAX_ALPHA_SEQ)
         log_.warn("p_survival_table (used by drawTime) couldn't converge; max terms reached: %u", maxi);
 
     if (psurvTable.size() < maxi + 1)           // if the dimensions are good then this means
     {                                            // that the table is filled
         getAlpha(0, maxi);                      // this updates the table of roots
-        this->createPsurvTable(psurvTable);      // then the table is filled with data
+        createPsurvTable(psurvTable);      // then the table is filled with data
     }
     // A sum over terms is performed, where convergence is assumed. It is not 
     // clear if this is a just assumption.
@@ -729,9 +702,7 @@ Real GreensFunction2DRadAbs::p_survival_table(const Real t, RealVector& psurvTab
 // FIXME: This is inaccurate for small t's!!
 Real GreensFunction2DRadAbs::leaves(const Real t) const
 {
-    const Real sigma(this->getSigma());
-    const Real D(this->getD());
-    const Real p(funcSum(boost::bind(&GreensFunction2DRadAbs::leaves_i_exp, this, _1, t), this->MAX_ALPHA_SEQ));
+    const Real p(funcSum(boost::bind(&GreensFunction2DRadAbs::leaves_i_exp, this, _1, t), MAX_ALPHA_SEQ));
     return M_PI_2*M_PI*D*sigma*p; // The minus is not there because the flux is in the negative r
     // direction, and the direction is already accounted for in the derivative of B0,n(r)
     // See also leaves_i
@@ -740,8 +711,7 @@ Real GreensFunction2DRadAbs::leaves(const Real t) const
 // calculates the flux leaving through the outer interface at a given moment
 Real GreensFunction2DRadAbs::leavea(const Real t) const
 {
-    const Real D(this->getD());
-    const Real p(funcSum(boost::bind(&GreensFunction2DRadAbs::leavea_i_exp, this, _1, t), this->MAX_ALPHA_SEQ));
+    const Real p(funcSum(boost::bind(&GreensFunction2DRadAbs::leavea_i_exp, this, _1, t), MAX_ALPHA_SEQ));
     return M_PI*D*p;
 }
 
@@ -778,12 +748,6 @@ Real GreensFunction2DRadAbs::p_int_r_F(const Real r, const p_int_r_params* param
 // the inner boundary)
 Real GreensFunction2DRadAbs::drawTime(const Real rnd) const
 {
-    const Real D(this->getD());
-    const Real sigma(this->getSigma());
-    const Real a(this->geta());
-    const Real kf(this->getkf());
-    const Real r0(this->getr0());
-
     THROW_UNLESS(std::invalid_argument, 0.0 <= rnd && rnd < 1.0);
     THROW_UNLESS(std::invalid_argument, sigma <= r0 && r0 <= a);
 
@@ -809,7 +773,7 @@ Real GreensFunction2DRadAbs::drawTime(const Real rnd) const
 
     t_guess *= .1;
 
-    const Real minT(std::min(sigma * sigma / D * this->MIN_T_FACTOR, t_guess * 1e-7)); // something with determining the lowest possible t
+    const Real minT(std::min(sigma * sigma / D * MIN_T_FACTOR, t_guess * 1e-7)); // something with determining the lowest possible t
 
     RealVector psurvTable; // this is still empty as of now->not used
     p_survival_table_params params = { this, psurvTable, rnd };
@@ -845,7 +809,7 @@ Real GreensFunction2DRadAbs::drawTime(const Real rnd) const
             low *= .1;      // keep decreasing the lower boundary until the function straddles
             value = GSL_FN_EVAL(&F, low);     // get the accompanying value
 
-            if (fabs(low) <= minT || fabs(value - value_prev) < EPSILON*this->T_TYPICAL)
+            if (fabs(low) <= minT || fabs(value - value_prev) < EPSILON*T_TYPICAL)
             {
                 log_.warn("Couldn't adjust low. F(%.16g) = %.16g", low, value);
                 return low;
@@ -869,12 +833,6 @@ Real GreensFunction2DRadAbs::drawTime(const Real rnd) const
 // This determines based on the flux at a certain time, if the 'escape' was a reaction or a proper escape
 GreensFunction::EventKind GreensFunction2DRadAbs::drawEventType(const Real rnd, const Real t) const
 {
-    const Real D(this->getD());
-    const Real sigma(this->getSigma());
-    const Real kf(this->getkf());
-    const Real a(this->geta());
-    const Real r0(this->getr0());
-
     THROW_UNLESS(std::invalid_argument, 0 <= rnd && rnd < 1.0);
     THROW_UNLESS(std::invalid_argument, sigma <= r0 && r0 < a);
     THROW_UNLESS(std::invalid_argument, t > 0.0);
@@ -914,32 +872,16 @@ GreensFunction::EventKind GreensFunction2DRadAbs::drawEventType(const Real rnd, 
     const Real escape(leavea(t));	// flux through abs boundary
     const Real value(reaction / (reaction + escape));
 
-    if (rnd <= value)
-    {
-        return IV_REACTION;   // leaves -> return 0
-    }
-    else
-    {
-        return IV_ESCAPE;     // leavea -> return 1
-    }
+    return rnd <= value ? IV_REACTION : IV_ESCAPE;
 }
 
 // This draws a radius R at a given time, provided that the particle was at r0 at t=0
 Real GreensFunction2DRadAbs::drawR(const Real rnd, const Real t) const
 {
-    // Diffusion constant, inner boundary, outer boundary, starting r.
-    const Real D(this->getD());
-    const Real sigma(getSigma());
-    const Real a(this->geta());
-    const Real r0(this->getr0());
-
     THROW_UNLESS(std::invalid_argument, rnd < 1.0 && rnd >= 0.0);
     THROW_UNLESS(std::invalid_argument, r0 >= sigma && r0 < a);
 
-    if (t == 0.0) // if no time has passed
-    {
-        return r0;
-    }
+    if (t == 0.0) return r0;// if no time has passed
 
     const Real psurv(p_survival(t)); // calculate the survival probability at this time
     // this is used as the normalization factor
@@ -961,7 +903,7 @@ Real GreensFunction2DRadAbs::drawR(const Real rnd, const Real t) const
     // numerics can be unstable.
     Real low(r0);             // start with the initial position as the first guess
     Real high(r0);
-    Real value(0);
+    Real value;
     uint H(3);
 
     const Real msd(sqrt(4.0 * D * t));
@@ -1010,9 +952,8 @@ Real GreensFunction2DRadAbs::drawR(const Real rnd, const Real t) const
     // root finding by iteration.
     const gsl_root_fsolver_type* solverType(gsl_root_fsolver_brent);
     gsl_root_fsolver* solver(gsl_root_fsolver_alloc(solverType));
-    const Real r(findRoot(F, solver, low, high,               // find the intersection between the random
-        L_TYPICAL*EPSILON, EPSILON, "GreensFunction2DRadAbs::drawR"));
-    // number and the cumm probability
+    // find the intersection between the random number and the cumm probability
+    const Real r(findRoot(F, solver, low, high, L_TYPICAL*EPSILON, EPSILON, "GreensFunction2DRadAbs::drawR"));
     gsl_root_fsolver_free(solver);
 
     return r;
@@ -1021,17 +962,11 @@ Real GreensFunction2DRadAbs::drawR(const Real rnd, const Real t) const
 // The calculates constant factor m,n for the drawing of theta. These factors are summed later.
 Real GreensFunction2DRadAbs::p_m_alpha(const uint n, const uint m, const Real r, const Real t) const
 {
-    const Real sigma(this->getSigma());
-    const Real h(this->geth());
-    const Real a(this->geta());
-    const Real D(this->getD());
-    const Real alpha(this->getAlpha(m, n)); // Gets the n-th root using the 
+    const Real alpha(getAlpha(m, n)); // Gets the n-th root using the 
     // besselfunctions of order m.
-    const Real r0(this->getr0());
 
     const Real alpha_sq(alpha * alpha);
-    const Real realm(static_cast<Real>(m));
-    const Real msq(realm * realm);
+    const Real msq(m * m);
     const Real ssq(sigma * sigma);
 
     const Real s_Anm(sigma * alpha);
@@ -1063,7 +998,7 @@ Real GreensFunction2DRadAbs::p_m_alpha(const uint n, const uint m, const Real r,
     //  const Real Ym_rAnm   (s.Y(m, r_Anm));
 
     // calculating An,m
-    const Real h_ma(h - realm / sigma);
+    const Real h_ma(h - m / sigma);
     const Real rho(h_ma*Jm_sAnm + alpha*Jmp1_sAnm);
     const Real rho_sq(rho*rho);
     // calculating Bn,m(r')
@@ -1084,8 +1019,7 @@ Real GreensFunction2DRadAbs::p_m_alpha(const uint n, const uint m, const Real r,
 Real GreensFunction2DRadAbs::p_m(const Integer m, const Real r, const Real t) const
 {
     // The m-th factor is a summation over n
-    const Real p(funcSum(boost::bind(&GreensFunction2DRadAbs::p_m_alpha, this, _1, m, r, t), MAX_ALPHA_SEQ, EPSILON));
-    return p;
+    return funcSum(boost::bind(&GreensFunction2DRadAbs::p_m_alpha, this, _1, m, r, t), MAX_ALPHA_SEQ, EPSILON);
 }
 
 // this should make the table of constants used in the iteration for finding the root for drawTheta
@@ -1094,10 +1028,10 @@ void GreensFunction2DRadAbs::makep_mTable(RealVector& p_mTable, const Real r, co
 {
     p_mTable.clear();
 
-    const Real p_0(this->p_m(0, r, t)); // This is the p_m where m is 0, for the denominator
+    const Real p_0(p_m(0, r, t)); // This is the p_m where m is 0, for the denominator
     p_mTable.push_back(p_0);               // put it in the table
 
-    const Real p_1(this->p_m(1, r, t) / p_0);
+    const Real p_1(p_m(1, r, t) / p_0);
     p_mTable.push_back(p_1);               // put the first result in the table
 
     if (p_1 == 0)
@@ -1114,15 +1048,15 @@ void GreensFunction2DRadAbs::makep_mTable(RealVector& p_mTable, const Real r, co
     do
     {
         m++;
-        if (m >= this->MAX_ORDER) // If the number of terms is too large
+        if (m >= MAX_ORDER) // If the number of terms is too large
         {
-            log_.warn("p_m didn't converge (m=%u, t=%.16g, r0=%.16g, r=%.16g, t_est=%.16g, continuing...", m, t, getr0(), r, gsl_pow_2(r - getr0()) / getD());
+            log_.warn("p_m didn't converge (m=%u, t=%.16g, r0=%.16g, r=%.16g, t_est=%.16g, continuing...", m, t, r0, r, gsl_pow_2(r - r0) / D);
             std::cerr << dump() << std::endl;
             break;
         }
 
         p_m_prev_abs = p_m_abs;                             // store the previous term
-        const Real p_m(this->p_m(m, r, t) / p_0);       // get the next term
+        const Real p_m(p_m(m, r, t) / p_0);       // get the next term
 
         if (!std::isfinite(p_m))                        // if the calculated value is not valid->exit
         {
@@ -1143,17 +1077,10 @@ void GreensFunction2DRadAbs::makep_mTable(RealVector& p_mTable, const Real r, co
 // This method calculates the constants for the drawTheta method when the particle is at the boundary
 Real GreensFunction2DRadAbs::dp_m_alpha_at_a(const uint n, const uint m, const Real t) const
 {
-    const Real sigma(this->getSigma());
-    const Real h(this->geth());
-    const Real a(this->geta());
-    const Real D(this->getD());
-    const Real r0(this->getr0());
-
-    const Real alpha(this->getAlpha(m, n)); // get the n-th root using the besselfunctions of order m
+    const Real alpha(getAlpha(m, n)); // get the n-th root using the besselfunctions of order m
 
     const Real alpha_sq(alpha * alpha);
-    const Real realm(static_cast<Real>(m));
-    const Real msq(realm * realm);
+    const Real msq(m * m);
     const Real ssq(sigma * sigma);
 
     const Real s_Anm(sigma*alpha);
@@ -1169,7 +1096,7 @@ Real GreensFunction2DRadAbs::dp_m_alpha_at_a(const uint n, const uint m, const R
     const Real Ym_r0Anm(gsl_sf_bessel_Yn(m, r0Anm));
 
     // calculating An,m
-    const Real h_ma(h - realm / sigma);
+    const Real h_ma(h - m / sigma);
     const Real rho(h_ma*Jm_sAnm + alpha*Jmp1_sAnm);
     const Real rho_sq(rho*rho);
 
@@ -1206,16 +1133,14 @@ void GreensFunction2DRadAbs::makedp_m_at_aTable(RealVector& p_mTable, const Real
 {
     p_mTable.clear();
 
-    const Real p_0(this->dp_m_at_a(0, t)); // This is the p_m where m is 0, for the denominator
+    const Real p_0(dp_m_at_a(0, t)); // This is the p_m where m is 0, for the denominator
     p_mTable.push_back(p_0);                  // put it in the table
 
-    const Real p_1(this->dp_m_at_a(1, t) / p_0);
+    const Real p_1(dp_m_at_a(1, t) / p_0);
     p_mTable.push_back(p_1);                  // put the first result in the table
 
     if (p_1 == 0)
-    {
         return; // apparently all the terms are zero? We are finished
-    }
 
     const Real threshold(fabs(EPSILON * p_1)); // get a measure for the allowed error
 
@@ -1225,14 +1150,14 @@ void GreensFunction2DRadAbs::makedp_m_at_aTable(RealVector& p_mTable, const Real
     do
     {
         m++;
-        if (m >= this->MAX_ORDER) // If the number of terms is too large
+        if (m >= MAX_ORDER) // If the number of terms is too large
         {
             log_.warn("dp_m didn't converge (m=%u), continuing...", m);
             break;
         }
 
         p_m_prev_abs = p_m_abs;                             // store the previous term
-        const Real p_m(this->dp_m_at_a(m, t) / p_0);    // get the next term
+        const Real p_m(dp_m_at_a(m, t) / p_0);    // get the next term
 
         // DEBUG (something to check in the future?)
         // if (p_m_abs == 0) {
@@ -1290,12 +1215,6 @@ Real GreensFunction2DRadAbs::ip_theta_F(const Real theta, const ip_theta_params*
 // This method draws a theta given a certain r and time (and initial condition of course) 
 Real GreensFunction2DRadAbs::drawTheta(const Real rnd, const Real r, const Real t) const
 {
-    const Real sigma(this->getSigma());
-    const Real a(this->geta());
-    const Real D(this->getD());
-    const Real r0(this->getr0());
-
-    // input parameter range checks.
     THROW_UNLESS(std::invalid_argument, 0.0 <= rnd && rnd < 1.0);
     THROW_UNLESS(std::invalid_argument, sigma <= r0 && r0 <= a);
     THROW_UNLESS(std::invalid_argument, sigma <= r && r <= a);
@@ -1303,25 +1222,17 @@ Real GreensFunction2DRadAbs::drawTheta(const Real rnd, const Real r, const Real 
 
     // t == 0 means no move.
     if (t <= T_TYPICAL*EPSILON || D == 0 || fabs(r0 - a) <= EPSILON*L_TYPICAL || rnd <= EPSILON)
-    {
         return 0.0;
-    }
-    else if (r == sigma) // a reaction has occurred, the angle is irrelevant
-    {
+    if (r == sigma) // a reaction has occurred, the angle is irrelevant
         return 0.0;
-    }
 
     // making the tables with constants
 
     RealVector p_mTable;                        // a table with constants to make calculation draws much faster
     if (fabs(r - a) <= EPSILON*L_TYPICAL)      // If the r is at the outer boundary
-    {
         makedp_m_at_aTable(p_mTable, t);  // making the table if particle on the outer boundary
-    }
     else
-    {
         makep_mTable(p_mTable, r, t);     // making the table of constants for the regular case
-    }
 
     // preparing the function
 
@@ -1344,12 +1255,7 @@ Real GreensFunction2DRadAbs::drawTheta(const Real rnd, const Real r, const Real 
 std::string GreensFunction2DRadAbs::dump() const
 {
     std::ostringstream ss;
-    ss << "Parameters dump: ";
-    ss << "D = " << this->getD() << ", sigma = " << this->getSigma() <<
-        ", a = " << this->geta() <<
-        ", kf = " << this->getkf() <<
-        ", r0 = " << this->getr0() <<
-        ", h = " << this->geth() << std::endl;
+    ss << "D = " << D << ", sigma = " << sigma << ", a = " << a << ", kf = " << kf << ", r0 = " << r0 << ", h = " << h << std::endl;
     return ss.str();
 }
 
@@ -1358,11 +1264,6 @@ std::string GreensFunction2DRadAbs::dump() const
 // for given theta, r and t.
 Real GreensFunction2DRadAbs::givePDFTheta(const Real theta, const Real r, const Real t) const
 {
-    const Real sigma(this->getSigma());
-    const Real a(this->geta());
-    //  const Real D( this->getD() );
-    const Real r0(this->getr0());
-
     // input parameter range checks.
     THROW_UNLESS(std::invalid_argument, sigma <= r0 && r0 <= a);
     THROW_UNLESS(std::invalid_argument, sigma <= r && r <= a);
@@ -1389,15 +1290,7 @@ Real GreensFunction2DRadAbs::givePDFTheta(const Real theta, const Real r, const 
 // Output the PDF of r, given time t has passed.
 Real GreensFunction2DRadAbs::givePDFR(const Real r, const Real t) const
 {
-    //    const Real D( this->getD() );
-    //    const Real sigma( this->getSigma() );
-    //    const Real a( this->geta() );
-    const Real r0(this->getr0());
-
-    if (t == 0.0) // if no time has passed
-    {
-        return r0;
-    }
+    if (t == 0.0) return r0; // if no time has passed
 
     p_survival(t); // calculate the survival probability at this time
     // this is used as the normalization factor
@@ -1420,7 +1313,7 @@ Real GreensFunction2DRadAbs::givePDFR(const Real r, const Real t) const
 
 void GreensFunction2DRadAbs::dumpRoots(int n)
 {
-    //    return this->alphaTable[n];
+    //    return alphaTable[n];
     std::cout << "Roots are: {";
 
     const int size(alphaTable.size());

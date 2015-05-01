@@ -6,19 +6,16 @@
 class GF_CLASS GreensFunction
 {
 public:
-    enum EventKind
-    {
-        IV_ESCAPE,
-        IV_REACTION
-    };
+    enum EventKind { IV_ESCAPE, IV_REACTION };
 
-public:
     GreensFunction(const Real D) : D(D) {}
 
-    Real getD() const
-    {
-        return this->D;
-    }
+    virtual ~GreensFunction() { }
+
+    Real getD() const { return D; }
+
+    virtual std::string dump() const = 0;;
+    virtual const char* getName() const = 0;
 
 protected:
     const Real D;

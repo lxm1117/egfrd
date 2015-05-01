@@ -1,7 +1,6 @@
 #ifndef PARTICLE_SIMULATOR_HPP
 #define PARTICLE_SIMULATOR_HPP
 
-#include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include "Defs.hpp"
 #include "Sphere.hpp"

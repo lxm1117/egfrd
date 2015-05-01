@@ -4,12 +4,7 @@
 #include <map>
 #include <vector>
 #include <boost/scoped_ptr.hpp>
-#include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
-#include "twofold_container.hpp"
-#include "utils/range.hpp"
-#include "ReactionRuleInfo.hpp"
-#include "generator.hpp"
 
 template<typename T_, typename Trri_>
 class NetworkRulesWrapper

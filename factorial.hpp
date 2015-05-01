@@ -420,13 +420,13 @@ static const double factorials_r[FACTORIAL_NMAX + 1] =
       */
 };
 
-inline const double factorial(const unsigned int n)
+inline double factorial(const unsigned int n)
 {
     assert(n <= FACTORIAL_NMAX);
     return factorials[n];
 }
 
-inline const double factorial_r(const unsigned int n)
+inline double factorial_r(const unsigned int n)
 {
     assert(n <= FACTORIAL_NMAX);
     return factorials_r[n];

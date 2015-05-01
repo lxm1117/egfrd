@@ -3,7 +3,6 @@
 
 #include <boost/lexical_cast.hpp>
 #include "exceptions.hpp"
-#include <iostream>
 
 
 template<typename Tobj_, typename Tdata_, std::size_t num_neighbors>

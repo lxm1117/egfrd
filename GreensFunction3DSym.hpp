@@ -11,13 +11,17 @@
 
 class GF_CLASS GreensFunction3DSym : public GreensFunction
 {
-private:
-
     static const Real TOLERANCE;
 
 public:
 
     GreensFunction3DSym(const Real D) : GreensFunction(D) { }
+
+    virtual ~GreensFunction3DSym(){}
+
+    virtual std::string dump() const override;
+
+    virtual const char* getName() const override{ return "GreensFunction3DSym"; }
 
     Real drawTime(const Real) const { return INFINITY; }
 
@@ -26,10 +30,6 @@ public:
     Real p_r(const Real r, const Real t) const;
 
     Real ip_r(const Real r, const Real t) const;
-
-    std::string dump() const;
-
-    const char* getName() const { return "GreensFunction3DSym"; }
 
 private:
 

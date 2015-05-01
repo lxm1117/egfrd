@@ -7,27 +7,19 @@
 class GF_CLASS PairGreensFunction : public GreensFunction
 {
 public:
-    PairGreensFunction(Real D, Real kf, Real r0, Real Sigma) : GreensFunction(D), kf(kf), r0(r0), Sigma(Sigma) {}
+    PairGreensFunction(Real D, Real kf, Real r0, Real sigma) : GreensFunction(D), kf(kf), r0(r0), sigma(sigma) {}
 
-    Real getkf() const
-    {
-        return this->kf;
-    }
+    Real getkf() const { return kf; }
+    Real getSigma() const { return sigma; }
+    Real getr0() const { return r0; }
 
-    Real getSigma() const
-    {
-        return this->Sigma;
-    }
-
-    Real getr0() const
-    {
-        return this->r0;
-    }
+    virtual Real drawR(const Real rnd, const Real t) const = 0;
+    virtual Real drawTheta(const Real rnd, const Real r, const Real t) const = 0;
 
 protected:
     const Real kf;
     const Real r0;
-    const Real Sigma;
+    const Real sigma;
 };
 
 #endif /* PAIRGREENSFUNCTION_HPP */

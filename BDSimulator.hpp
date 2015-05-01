@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <limits>
 #include <boost/foreach.hpp>
-#include "NetworkRules.hpp"
 #include "newBDPropagator.hpp"
 #include "World.hpp"
 #include "ParticleSimulator.hpp"
@@ -12,12 +11,12 @@
 #include "utils/pair.hpp"
 
 template<typename Tworld_>
-struct BDSimulatorTraitsBase: public ParticleSimulatorTraitsBase<Tworld_>
+struct BDSimulatorTraitsBase : ParticleSimulatorTraitsBase<Tworld_>
 {
 };
 
 template<typename Ttraits_>
-class BDSimulator: public ParticleSimulator<Ttraits_>
+class BDSimulator : public ParticleSimulator<Ttraits_>
 {
 public:
     typedef Ttraits_ traits_type;
@@ -221,7 +220,7 @@ public:
     
     Real get_reaction_length() const
     {
-        return reaction_length_;    
+        return reaction_length_;
     }
     
     void set_reaction_length_factor(length_type new_reaction_length_factor, time_type new_dt_factor)
@@ -229,7 +228,7 @@ public:
         dt_factor_ = new_dt_factor;
         reaction_length_factor_ = new_reaction_length_factor;
         
-        calculate_dt_and_reaction_length();     
+        calculate_dt_and_reaction_length();
     }
 
 protected:

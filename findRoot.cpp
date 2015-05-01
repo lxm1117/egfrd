@@ -19,9 +19,7 @@ Real findRoot(gsl_function const& F, gsl_root_fsolver* solver, Real low, Real hi
     gsl_root_fsolver_set(solver, const_cast<gsl_function*>(&F), l, h);
 
     const uint maxIter(100);
-
-    uint i(0);
-    for (;;)
+    for (uint i(0);; ++i)
     {
         gsl_root_fsolver_iterate(solver);
 
@@ -42,13 +40,8 @@ Real findRoot(gsl_function const& F, gsl_root_fsolver* solver, Real low, Real hi
             }
         }
         else
-        {
             break;
-        }
-
-        ++i;
     }
 
-    const Real root(gsl_root_fsolver_root(solver));
-    return root;
+    return gsl_root_fsolver_root(solver);
 }

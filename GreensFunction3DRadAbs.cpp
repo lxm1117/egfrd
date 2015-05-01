@@ -23,10 +23,8 @@ const uint GreensFunction3DRadAbs::MAX_ALPHA_SEQ = 2000;
 Logger& GreensFunction3DRadAbs::log_(Logger::get_logger("GreensFunction3DRadAbs"));
 
 GreensFunction3DRadAbs::GreensFunction3DRadAbs(Real D, Real kf, Real r0, Real Sigma, Real a)
-    : PairGreensFunction(D, kf, r0, Sigma), h(kf / (4.0 * M_PI * Sigma * Sigma * D)), hsigma_p_1(1.0 + h * Sigma), a(a)
+    : PairGreensFunction(D, kf, r0, Sigma), a(a), h(kf / (4.0 * M_PI * Sigma * Sigma * D)), hsigma_p_1(1.0 + h * Sigma)
 {
-    const Real sigma(this->getSigma());
-
     if (a < sigma)
     {
         throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: a >= sigma : a=%.16g, sigma=%.16g") % a % sigma).str());
@@ -40,37 +38,27 @@ GreensFunction3DRadAbs::GreensFunction3DRadAbs(Real D, Real kf, Real r0, Real Si
 
 void GreensFunction3DRadAbs::clearAlphaTable() const
 {
-    std::for_each(this->alphaTable.begin(), this->alphaTable.end(), boost::mem_fn(&RealVector::clear));
-    this->alphaOffsetTable[0] = 0;
-    std::fill(this->alphaOffsetTable.begin() + 1, this->alphaOffsetTable.end(), -1);
+    std::for_each(alphaTable.begin(), alphaTable.end(), boost::mem_fn(&RealVector::clear));
+    alphaOffsetTable[0] = 0;
+    std::fill(alphaOffsetTable.begin() + 1, alphaOffsetTable.end(), -1);
 }
 
 Real GreensFunction3DRadAbs::f_alpha0(Real alpha) const
 {
-    const Real a(geta());
-    const Real sigma(getSigma());
-
     const Real alpha_a_m_sigma(alpha * (a - sigma));
-    const Real hsigma_p_1(this->hsigma_p_1);
-
     Real sin_alpha_a_m_sigma;
     Real cos_alpha_a_m_sigma;
     sincos(alpha_a_m_sigma, &sin_alpha_a_m_sigma, &cos_alpha_a_m_sigma);
-
     const Real term1(alpha * sigma * cos_alpha_a_m_sigma);
     const Real term2(hsigma_p_1 * sin_alpha_a_m_sigma);
-
     return term1 + term2;
 }
 
 Real GreensFunction3DRadAbs::f_alpha0_aux(Real alpha) const
 {
-    const Real a(this->geta());
-    const Real sigma(this->getSigma());
     const Real term1((a - sigma) * alpha);
-    const Real angle(this->hsigma_p_1 / (sigma * alpha));
+    const Real angle(hsigma_p_1 / (sigma * alpha));
     const Real term2(std::atan(angle));
-
     return term1 - term2;
 }
 
@@ -92,9 +80,6 @@ Real GreensFunction3DRadAbs::alpha0_i(Integer i) const
         throw std::out_of_range((boost::format("GreensFunction3DRadAbs: i >= 0 : i=%.16g") % i).str());
     }
 
-    const Real a(this->geta());
-    const Real sigma(this->getSigma());
-
     const Real target(i * M_PI + M_PI_2);
     f_alpha0_aux_params params = { this, target };
 
@@ -112,9 +97,7 @@ Real GreensFunction3DRadAbs::alpha0_i(Integer i) const
     gsl_root_fsolver_set(solver, &F, low, high);
 
     const uint maxIter(100);
-
-    uint j(0);
-    for (;;)
+    for (uint j(0);;)
     {
         gsl_root_fsolver_iterate(solver);
 
@@ -145,49 +128,39 @@ Real GreensFunction3DRadAbs::alpha0_i(Integer i) const
 
 void GreensFunction3DRadAbs::updateAlphaTable0(const Real t) const
 {
-    RealVector& alphaTable_0(this->getAlphaTable(0));
+    RealVector& alphaTable_0(getAlphaTable(0));
     alphaTable_0.clear();
     alphaTable_0.reserve(MAX_ALPHA_SEQ);
 
-    const Real alpha0_0(this->alpha0_i(0));
+    const Real alpha0_0(alpha0_i(0));
     alphaTable_0.push_back(alpha0_0);
 
-    const Real Dt(this->getD() * t);
+    const Real Dt(D * t);
 
     //    const Real alpha_cutoff(sqrt((- log(TOLERANCE * 1e-2) / Dt)
     //                                 + alpha0_0 * alpha0_0));
     const Real alpha_cutoff(sqrt((-log(TOLERANCE * 1e-3) / Dt)));
-
-    uint i(1);
-    for (;;)
+    for (uint i(1);;)
     {
-        const Real alpha0_i(this->alpha0_i(i));
+        const Real alpha0_i(alpha0_i(i));
         alphaTable_0.push_back(alpha0_i);
 
         if (alpha0_i > alpha_cutoff && i >= 10) // make at least 10 terms
-        {
             break;
-        }
 
         ++i;
 
         if (i >= MAX_ALPHA_SEQ)
-        {
             break;
-        }
     }
 }
 
 Real GreensFunction3DRadAbs::f_alpha(Real alpha, Integer n) const
 {
-    const Real a(this->geta());
-    const Real sigma(getSigma());
     const Real aAlpha(a * alpha);
-    const Real sigmaAlpha(getSigma() * alpha);
-    const Real hSigma(geth() * getSigma());
-    const Real realn(static_cast<Real>(n));
-
-    const Real hSigma_m_n(hSigma - realn);
+    const Real sigmaAlpha(sigma * alpha);
+    const Real hSigma(h * sigma);
+    const Real hSigma_m_n(hSigma - n);
 
     const SphericalBesselGenerator& s(SphericalBesselGenerator::instance());
 
@@ -224,7 +197,6 @@ static Real P(Integer n, Real x)
     {
         const Real value(term1 * sx2 * G(n, 2 * m));
         result += value;
-
         term1 = -term1;
         sx2 *= x2sq_r;
     }
@@ -321,17 +293,10 @@ static std::pair<Real, Real> Q2(Integer n, Real x)
 
 Real GreensFunction3DRadAbs::f_alpha_aux(Real alpha, Integer n) const
 {
-    if (alpha == 0.0)
-    {
-        return -1.0;
-    }
-
-    const Real a(geta());
-    const Real sigma(getSigma());
+    if (alpha == 0.0) return -1.0;
 
     const Real aAlpha(a * alpha);
     const Real sigmaAlpha(sigma * alpha);
-
     const Real n_m_hSigma(n - h * sigma);
 
     /*(a - s) u -
@@ -368,16 +333,13 @@ Real GreensFunction3DRadAbs::f_alpha_aux(Real alpha, Integer n) const
     const Real sigmaAlphaQsp(sigmaAlpha * Qsp);
 
     const Real Qa_Pa(Qa / Pa);
-
     const Real A(sigmaAlphaQsp - n_m_hSigmaPs);
     const Real B(sigmaAlphaPsp + n_m_hSigmaQs);
 
     // this form, dividing all terms by Pa, prevents overflow.
     const Real angle((A - Qa_Pa * B) / (Qa_Pa * A + B));
-
     const Real term1((a - sigma) * alpha);
     const Real term2(std::atan(angle));
-
     return term1 - term2;
 }
 
@@ -395,24 +357,17 @@ static Real f_alpha_aux_F(Real alpha, f_alpha_aux_params const* params)
 
 Real GreensFunction3DRadAbs::alpha_i(Integer i, Integer n, gsl_root_fsolver* solver) const
 {
-    const Real sigma(this->getSigma());
-    const Real a(this->geta());
-
     const Real target(M_PI * i + M_PI_2);
-
     const Real factor(1.0 / (a - sigma));
     Real low((target - M_PI_2) * factor);
     Real high((target + M_PI_2) * factor);
 
     f_alpha_aux_params params = { this, n, target };
-
     gsl_function F = { reinterpret_cast<double(*)(double, void*)>(&f_alpha_aux_F), &params };
-
     gsl_root_fsolver_set(solver, &F, low, high);
 
     const uint maxIter(100);
-    uint k(0);
-    for (;;)
+    for (uint k(0);;)
     {
         gsl_root_fsolver_iterate(solver);
 
@@ -435,22 +390,17 @@ Real GreensFunction3DRadAbs::alpha_i(Integer i, Integer n, gsl_root_fsolver* sol
 
         ++k;
     }
-
-    const Real alpha(gsl_root_fsolver_root(solver));
-    return alpha;
+    return gsl_root_fsolver_root(solver);
 }
 
 uint GreensFunction3DRadAbs::alphaOffset(uint n) const
 {
-    assert(this->alphaOffsetTable.size() > n);
+    assert(alphaOffsetTable.size() > n);
 
-    if (this->alphaOffsetTable[n] >= 0)
-        return this->alphaOffsetTable[n];
+    if (alphaOffsetTable[n] >= 0)
+        return alphaOffsetTable[n];
 
-    const Real sigma(this->getSigma());
-    const Real a(this->geta());
-
-    uint offset(this->alphaOffsetTable[n - 1]);
+    uint offset(alphaOffsetTable[n - 1]);
     const Real factor(1.0 / (a - sigma));
 
     Real target(offset * M_PI + M_PI_2);
@@ -473,9 +423,7 @@ uint GreensFunction3DRadAbs::alphaOffset(uint n) const
     for (;;) // this can be much faster if better initial guess is given.
     {
         if (lowvalue * highvalue < 0) // low and high straddle?
-        {
             break;
-        }
 
         ++offset;
         target = M_PI * offset + M_PI_2;
@@ -486,25 +434,24 @@ uint GreensFunction3DRadAbs::alphaOffset(uint n) const
         highvalue = f_alpha(high, n);
     }
 
-    this->alphaOffsetTable[n] = offset;
-
+    alphaOffsetTable[n] = offset;
     return offset;
 }
 
 void GreensFunction3DRadAbs::updateAlphaTable(const uint n, const Real t) const
 {
-    if (n >= this->MAX_ORDER)
-        throw std::range_error((boost::format("GreensFunction3DRadAbs: n >= 0 && n < MAX_ORDER : n=%d, this->MAX_ORDER=%d") % n % MAX_ORDER).str());
+    if (n >= MAX_ORDER)
+        throw std::range_error((boost::format("GreensFunction3DRadAbs: n >= 0 && n < MAX_ORDER : n=%d, MAX_ORDER=%d") % n % MAX_ORDER).str());
 
     if (n == 0)
     {
-        this->updateAlphaTable0(t);
+        updateAlphaTable0(t);
         return;
     }
 
     const uint offset(alphaOffset(n));
 
-    RealVector& alphaTable_n(this->getAlphaTable(n));
+    RealVector& alphaTable_n(getAlphaTable(n));
     alphaTable_n.clear();
     alphaTable_n.reserve(MAX_ALPHA_SEQ);
 
@@ -516,24 +463,20 @@ void GreensFunction3DRadAbs::updateAlphaTable(const uint n, const Real t) const
 
     alphaTable_n.push_back(alphan_0);
 
-    const Real Dt(this->getD() * t);
+    const Real Dt(D * t);
 
-    const Real threshold(this->TOLERANCE * 1e-2 * alphan_0_sq * exp(-Dt * alphan_0_sq));
+    const Real threshold(TOLERANCE * 1e-2 * alphan_0_sq * exp(-Dt * alphan_0_sq));
 
     const uint end(offset + MAX_ALPHA_SEQ);
-    uint i(offset + 1);
-    for (;;)
+    for (uint i(offset + 1);;)
     {
-        const Real alpha_i(this->alpha_i(i, n, solver));
-
+        const Real alpha_i(alpha_i(i, n, solver));
         alphaTable_n.push_back(alpha_i);
 
         // cutoff
         const Real alpha_i_sq(alpha_i * alpha_i);
         if (alpha_i_sq * exp(-Dt * alpha_i_sq) < threshold)
-        {
             break;
-        }
 
         ++i;
 
@@ -543,17 +486,11 @@ void GreensFunction3DRadAbs::updateAlphaTable(const uint n, const Real t) const
             break;
         }
     }
-
     gsl_root_fsolver_free(solver);
 }
 
 Real GreensFunction3DRadAbs::p_0_i(Real alpha, Real r) const
 {
-    const Real a(geta());
-    const Real sigma(getSigma());
-    const Real h(geth());
-    const Real hsigma_p_1(this->hsigma_p_1);
-
     const Real sigmasq(sigma * sigma);
     const Real alphasq(alpha * alpha);
 
@@ -569,160 +506,91 @@ Real GreensFunction3DRadAbs::p_0_i(Real alpha, Real r) const
     const Real num2(num_r0(alpha));
     const Real den(2 * M_PI * r * r0 * ((a - sigma) * sigmasq * alphasq + hsigma_p_1 * (a + a * h * sigma - h * sigmasq)));
     const Real result(num1 * num2 / den);
-
     return result;
 }
 
 Real GreensFunction3DRadAbs::p_survival_i(Real alpha) const
 {
-    const Real a(geta());
-    const Real sigma(getSigma());
-    const Real h(geth());
-    const Real hsigma_p_1(this->hsigma_p_1);
-
     const Real sigmasq(sigma * sigma);
     const Real alphasq(alpha * alpha);
-
     const Real angle_a(alpha * (a - sigma));
     const Real cos_a(cos(angle_a));
-
     const Real num1(h * sigmasq * hsigma_p_1 - a * (hsigma_p_1 * hsigma_p_1 + sigmasq * alphasq) * cos_a);
-
     const Real num2(num_r0(alpha));
-
     const Real den(r0 * hsigma_p_1 * alpha * (-hsigma_p_1 * (a + a * h * sigma - h * sigmasq) + (sigma - a) * sigmasq * alphasq));
-
     const Real result(-2.0 * num1 * num2 / den);
-
     return result;
 }
 
 Real GreensFunction3DRadAbs::dp_survival_i(Real alpha) const
 {
-    const Real a(geta());
-    const Real sigma(getSigma());
-    const Real h(geth());
-    const Real hsigma_p_1(this->hsigma_p_1);
-
     const Real sigmasq(sigma * sigma);
     const Real alphasq(alpha * alpha);
-
     const Real angle_a(alpha * (a - sigma));
     const Real cos_a(cos(angle_a));
-
     const Real num1(alpha * (h * sigmasq * hsigma_p_1 - (a * (hsigma_p_1 * hsigma_p_1 + sigmasq * alphasq)) * cos_a));
-
     const Real num2(num_r0(alpha));
-
     const Real den(r0 * hsigma_p_1 * (-hsigma_p_1 * (a + a * h * sigma - h * sigmasq)) + (sigma - a) * sigmasq * alphasq);
-
-    const Real result(2.0 * getD() * num1 * num2 / den);
-
+    const Real result(2.0 * D * num1 * num2 / den);
     return result;
 }
 
 Real GreensFunction3DRadAbs::leavea_i(Real alpha) const
 {
-    const Real a(geta());
-    const Real sigma(getSigma());
-    const Real h(geth());
-    const Real D(getD());
-    const Real hsigma_p_1(this->hsigma_p_1);
-
     const Real sigmasq(sigma * sigma);
     const Real alphasq(alpha * alpha);
-
     const Real angle_a(alpha * (a - sigma));
     const Real cos_a(cos(angle_a));
-
     const Real num1(alpha * (hsigma_p_1 * hsigma_p_1 + sigmasq * alphasq) * cos_a);
-
     const Real num2(num_r0(alpha));
-
     const Real den(2 * a * M_PI * r0 * hsigma_p_1 * (hsigma_p_1 * (a + a * h * sigma - h * sigmasq) + (a - sigma) * sigmasq * alphasq));
-
     const Real result(D * num1 * num2 / den);
-
     return result;
 }
 
 Real GreensFunction3DRadAbs::leaves_i(Real alpha) const
 {
-    const Real a(geta());
-    const Real sigma(getSigma());
-    const Real h(geth());
-    const Real D(getD());
-    const Real hsigma_p_1(this->hsigma_p_1);
-
     const Real sigmasq(sigma * sigma);
     const Real alphasq(alpha * alpha);
-
     const Real num(h * alpha * num_r0(alpha));
-
     const Real den(2 * M_PI * r0 * ((a - sigma) * sigmasq * alphasq + hsigma_p_1 * (a + a * h * sigma - h * sigmasq)));
-
     const Real result(-D * num / den);
-
     return result;
 }
 
 Real GreensFunction3DRadAbs::p_leavea_i(Real alpha, Real pleave_factor) const
 {
-    const Real a(geta());
-    const Real sigma(getSigma());
-
-    const Real hsigma_p_1(this->hsigma_p_1);
     const Real sigmasq(sigma * sigma);
     const Real alphasq(alpha * alpha);
-
     const Real angle_a(alpha * (a - sigma));
     const Real cos_a(cos(angle_a));
-
     const Real num1((hsigma_p_1 * hsigma_p_1 + sigmasq * alphasq) * cos_a);
-
     const Real result(-2.0 * a * num1 * pleave_factor / hsigma_p_1);
-
     return result;
 }
 
 Real GreensFunction3DRadAbs::p_leaves_i(Real alpha, Real pleave_factor) const
 {
-    const Real sigma(getSigma());
-    const Real h(geth());
-
     const Real num(h * sigma * sigma);
-
     const Real result(2.0 * num * pleave_factor);
-
     return result;
 }
 
 Real GreensFunction3DRadAbs::p_survival_den(Real alpha) const
 {
-    const Real a(geta());
-    const Real sigma(getSigma());
-    const Real h(geth());
-    const Real hsigma_p_1(this->hsigma_p_1);
     const Real sigmasq(sigma * sigma);
     const Real alphasq(alpha * alpha);
-
     const Real den(r0 * alpha * ((a - sigma) * sigmasq * alphasq + hsigma_p_1 * (a + a * h * sigma - h * sigmasq)));
-
     return den;
 }
 
 Real GreensFunction3DRadAbs::num_r0(Real alpha) const
 {
-    const Real sigma(getSigma());
     const Real angle_r0(alpha * (r0 - sigma));
-
     Real sin_r0;
     Real cos_r0;
     sincos(angle_r0, &sin_r0, &cos_r0);
-
-    const Real hsigma_p_1(this->hsigma_p_1);
     const Real result(alpha * sigma * cos_r0 + hsigma_p_1 * sin_r0);
-
     return result;
 }
 
@@ -733,70 +601,48 @@ Real GreensFunction3DRadAbs::pleaveFactor(Real alpha) const
 
 Real GreensFunction3DRadAbs::p_int_r_i(Real r, Real alpha, Real num_r0) const
 {
-    const Real sigma(getSigma());
-
     const Real angle_r(alpha * (r - sigma));
     Real sin_r;
     Real cos_r;
     sincos(angle_r, &sin_r, &cos_r);  // do sincos here; latency. 
-
-    const Real h(geth());
-    const Real hsigma_p_1(this->hsigma_p_1);
-
     const Real sigmasq(sigma * sigma);
     const Real alphasq(alpha * alpha);
-
     const Real hsigma(h * sigma);
-
-    const Real num1(alpha * (hsigma * sigma - hsigma * r * cos_r
-        - (r - sigma) * cos_r)
-        + (hsigma_p_1 + r * sigma * alphasq) * sin_r);
-
+    const Real num1(alpha * (hsigma * sigma - hsigma * r * cos_r - (r - sigma) * cos_r) + (hsigma_p_1 + r * sigma * alphasq) * sin_r);
     const Real num2(num_r0);
-
     const Real den(r0 * alphasq * ((a - sigma) * sigmasq * alphasq + hsigma_p_1 * (a + a * h * sigma - h * sigmasq)));
-
     const Real result(2 * num1 * num2 / den);
-
     return result;
 }
 
 void GreensFunction3DRadAbs::createPsurvTable(RealVector& table) const
 {
-    const RealVector& alphaTable_0(this->getAlphaTable(0));
-
+    const RealVector& alphaTable_0(getAlphaTable(0));
     table.clear();
     table.reserve(alphaTable_0.size());
-
     std::transform(alphaTable_0.begin(), alphaTable_0.end(), std::back_inserter(table), boost::bind(&GreensFunction3DRadAbs::p_survival_i, this, _1));
 }
 
 void GreensFunction3DRadAbs::createNum_r0Table(RealVector& table) const
 {
-    const RealVector& alphaTable_0(this->alphaTable[0]);
-
+    const RealVector& alphaTable_0(alphaTable[0]);
     table.clear();
     table.reserve(alphaTable_0.size());
-
     std::transform(alphaTable_0.begin(), alphaTable_0.end(), std::back_inserter(table), boost::bind(&GreensFunction3DRadAbs::num_r0, this, _1));
 }
 
 void GreensFunction3DRadAbs::createPleaveFactorTable(RealVector& table) const
 {
-    const RealVector& alphaTable_0(this->alphaTable[0]);
-
+    const RealVector& alphaTable_0(alphaTable[0]);
     table.clear();
     table.reserve(alphaTable_0.size());
-
     std::transform(alphaTable_0.begin(), alphaTable_0.end(), std::back_inserter(table), boost::bind(&GreensFunction3DRadAbs::pleaveFactor, this, _1));
 }
 
 void GreensFunction3DRadAbs::createPleavesTable(RealVector& table, RealVector const& pleaveFactorTable) const
 {
-    const RealVector& alphaTable_0(this->alphaTable[0]);
-
+    const RealVector& alphaTable_0(alphaTable[0]);
     assert(pleaveFactorTable.size() >= alphaTable_0.size());
-
     table.clear();
     table.reserve(alphaTable_0.size());
 
@@ -809,10 +655,8 @@ void GreensFunction3DRadAbs::createPleavesTable(RealVector& table, RealVector co
 
 void GreensFunction3DRadAbs::createPleaveaTable(RealVector& table, RealVector const& pleaveFactorTable) const
 {
-    const RealVector& alphaTable_0(this->alphaTable[0]);
-
+    const RealVector& alphaTable_0(alphaTable[0]);
     assert(pleaveFactorTable.size() >= alphaTable_0.size());
-
     table.clear();
     table.reserve(alphaTable_0.size());
 
@@ -825,147 +669,121 @@ void GreensFunction3DRadAbs::createPleaveaTable(RealVector& table, RealVector co
 
 Real GreensFunction3DRadAbs::p_0_i_exp(uint i, Real t, Real r) const
 {
-    const Real alpha(this->getAlpha0(i));
-    return std::exp(-getD() * t * alpha * alpha) * p_0_i(alpha, r);
+    const Real alpha(getAlpha0(i));
+    return std::exp(-D * t * alpha * alpha) * p_0_i(alpha, r);
 }
 
 Real GreensFunction3DRadAbs::p_survival_i_exp(uint i, Real t) const
 {
-    const Real alpha(this->getAlpha0(i));
+    const Real alpha(getAlpha0(i));
     return p_survival_i_alpha(alpha, t);
 }
 
 Real GreensFunction3DRadAbs::p_survival_i_alpha(Real alpha, Real t) const
 {
-    return std::exp(-getD() * t * alpha * alpha) * p_survival_i(alpha);
+    return std::exp(-D * t * alpha * alpha) * p_survival_i(alpha);
 }
 
 Real GreensFunction3DRadAbs::p_survival_2i_exp(uint i, Real t) const
 {
-    const Real Dt(getD() * t);
-    const Real alpha0(this->getAlpha0(2 * i));
+    const Real Dt(D * t);
+    const Real alpha0(getAlpha0(2 * i));
     const Real p0(std::exp(-Dt * alpha0 * alpha0) * p_survival_i(alpha0));
-
-    const Real alpha1(this->getAlpha0(2 * i + 1));
+    const Real alpha1(getAlpha0(2 * i + 1));
     const Real p1(std::exp(-Dt * alpha1 * alpha1) * p_survival_i(alpha1));
-
     return p0 + p1;
 }
 
 Real GreensFunction3DRadAbs::p_survival_i_exp_table(uint i, Real t, RealVector const& table) const
 {
-    const Real alpha(this->getAlpha0(i));
-    return std::exp(-getD() * t * alpha * alpha) * table[i];
+    const Real alpha(getAlpha0(i));
+    return std::exp(-D * t * alpha * alpha) * table[i];
 }
 
 Real GreensFunction3DRadAbs::p_leave_i_exp_table(uint i, Real t, RealVector const& table) const
 {
     const Real alpha(getAlpha0(i));
-    return expm1(-getD() * t * alpha * alpha) * table[i];
+    return expm1(-D * t * alpha * alpha) * table[i];
 }
 
 Real GreensFunction3DRadAbs::dp_survival_i_exp(uint i, Real t) const
 {
-    const Real alpha(this->getAlpha0(i));
-    return std::exp(-getD() * t * alpha * alpha) * dp_survival_i(alpha);
+    const Real alpha(getAlpha0(i));
+    return std::exp(-D * t * alpha * alpha) * dp_survival_i(alpha);
 }
 
 Real GreensFunction3DRadAbs::leavea_i_exp(uint i, Real t) const
 {
-    const Real alpha(this->getAlpha0(i));
-    return std::exp(-getD() * t * alpha * alpha) * leavea_i(alpha);
+    const Real alpha(getAlpha0(i));
+    return std::exp(-D * t * alpha * alpha) * leavea_i(alpha);
 }
 
 Real GreensFunction3DRadAbs::leaves_i_exp(uint i, Real t) const
 {
-    const Real alpha(this->getAlpha0(i));
-    return std::exp(-getD() * t * alpha * alpha) * leaves_i(alpha);
+    const Real alpha(getAlpha0(i));
+    return std::exp(-D * t * alpha * alpha) * leaves_i(alpha);
 }
 
 Real GreensFunction3DRadAbs::p_leavea_i_exp(uint i, Real t) const
 {
-    const Real alpha(this->getAlpha0(i));
+    const Real alpha(getAlpha0(i));
     const Real num_r0(this->num_r0(alpha));
-    const Real den(this->p_survival_den(alpha));
-    return exp(-getD() * t * alpha * alpha) * p_leavea_i(alpha, num_r0 / den);
+    const Real den(p_survival_den(alpha));
+    return exp(-D * t * alpha * alpha) * p_leavea_i(alpha, num_r0 / den);
 }
 
 Real GreensFunction3DRadAbs::p_leaves_i_exp(uint i, Real t) const
 {
-    const Real alpha(this->getAlpha0(i));
+    const Real alpha(getAlpha0(i));
     const Real num_r0(this->num_r0(alpha));
-    const Real den(this->p_survival_den(alpha));
-    return exp(-getD() * t * alpha * alpha) * p_leaves_i(alpha, num_r0 / den);
+    const Real den(p_survival_den(alpha));
+    return exp(-D * t * alpha * alpha) * p_leaves_i(alpha, num_r0 / den);
 }
 
 Real GreensFunction3DRadAbs::p_int_r_i_exp(uint i, Real t, Real r) const
 {
-    const Real alpha(this->getAlpha0(i));
-
-    return std::exp(-getD() * t * alpha * alpha) * p_int_r_i(r, alpha, num_r0(alpha));
+    const Real alpha(getAlpha0(i));
+    return std::exp(-D * t * alpha * alpha) * p_int_r_i(r, alpha, num_r0(alpha));
 }
 
 Real GreensFunction3DRadAbs::p_int_r_i_exp_table(uint i, Real t, Real r, RealVector& num_r0Table) const
 {
-    const Real alpha(this->getAlpha0(i));
-    return std::exp(-getD() * t * alpha * alpha) * p_int_r_i(r, alpha, num_r0(alpha));      //num_r0Table[i]);
+    const Real alpha(getAlpha0(i));
+    return std::exp(-D * t * alpha * alpha) * p_int_r_i(r, alpha, num_r0(alpha));      //num_r0Table[i]);
 }
 
 Real GreensFunction3DRadAbs::p_0(Real t, Real r) const
 {
-    const Real p(funcSum(boost::bind(&GreensFunction3DRadAbs::p_0_i_exp, this, _1, t, r), this->MAX_ALPHA_SEQ));
-    return p;
+    return funcSum(boost::bind(&GreensFunction3DRadAbs::p_0_i_exp, this, _1, t, r), MAX_ALPHA_SEQ);
 }
 
 uint GreensFunction3DRadAbs::guess_maxi(Real t) const
 {
     const uint safety(2);
-
     if (!std::isfinite(t)) return safety;
 
-    const Real D(this->getD());
-    const Real sigma(this->getSigma());
-    const Real a(this->geta());
-
-    const Real alpha0(this->getAlpha0(0));
+    const Real alpha0(getAlpha0(0));
     const Real Dt(D * t);
+    const Real thr(exp(-Dt * alpha0 * alpha0) * TOLERANCE * 1e-1);
 
-    const Real thr(exp(-Dt * alpha0 * alpha0) * this->TOLERANCE * 1e-1);
-
-    if (thr <= 0.0)
-    {
-        return this->MAX_ALPHA_SEQ;
-    }
+    if (thr <= 0.0) return MAX_ALPHA_SEQ;
 
     const Real max_alpha(sqrt(alpha0 * alpha0 - log(thr) / Dt));
-
-    const uint
-        maxi(safety +
-        static_cast<uint>(max_alpha * (a - sigma) / M_PI));
-
-    return std::min(maxi, this->MAX_ALPHA_SEQ);
+    const uint maxi(safety + static_cast<uint>(max_alpha * (a - sigma) / M_PI));
+    return std::min(maxi, MAX_ALPHA_SEQ);
 }
 
 Real GreensFunction3DRadAbs::p_survival(Real t) const
 {
     RealVector psurvTable;
-
-    const Real p(p_survival_table(t, psurvTable));
-
-    return p;
+    return p_survival_table(t, psurvTable);
 }
 
 Real GreensFunction3DRadAbs::p_survival_table(Real t, RealVector& psurvTable) const
 {
     Real p;
-
-    const Real D(this->getD());
-    const Real sigma(getSigma());
-    const Real a(this->geta());
-
     const Real distToa(a - r0);
     const Real distTos(r0 - sigma);
-
     const Real H(6.0); // a fairly strict criterion for safety.
     const Real maxDist(H * sqrt(6.0 * D * t));
 
@@ -977,8 +795,6 @@ Real GreensFunction3DRadAbs::p_survival_table(Real t, RealVector& psurvTable) co
         }
         else // close only to s, ignore a
         {
-            const Real sigma(this->getSigma());
-            const Real kf(this->getkf());
             p = p_survival_irr(t, r0, kf, D, sigma);
         }
     }
@@ -995,7 +811,7 @@ Real GreensFunction3DRadAbs::p_survival_table(Real t, RealVector& psurvTable) co
             if (psurvTable.size() < maxi + 1)
             {
                 getAlpha0(maxi);  // this updates the table
-                this->createPsurvTable(psurvTable);
+                createPsurvTable(psurvTable);
             }
 
             p = funcSum_all(boost::bind(&GreensFunction3DRadAbs::p_survival_i_exp_table, this, _1, t, psurvTable), maxi);
@@ -1116,11 +932,6 @@ static Real p_int_r_F(Real r, p_int_r_params const* params)
 
 Real GreensFunction3DRadAbs::drawTime(Real rnd) const
 {
-    const Real D(this->getD());
-    const Real sigma(this->getSigma());
-    const Real kf(this->getkf());
-    const Real a(this->geta());
-
     if (!(rnd < 1.0 && rnd >= 0.0))
     {
         throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: rnd < 1.0 && rnd >= 0.0 : rnd=%.16g") % rnd).str());
@@ -1131,10 +942,7 @@ Real GreensFunction3DRadAbs::drawTime(Real rnd) const
         throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r0 >= sigma && r0 <= a : r0=%.16g, sigma=%.16g, a=%.16g") % r0 % sigma % a).str());
     }
 
-    if (r0 == a || a == sigma)
-    {
-        return 0.0;
-    }
+    if (r0 == a || a == sigma) return 0.0;
 
     Real t_guess;
     Real dist;
@@ -1151,14 +959,10 @@ Real GreensFunction3DRadAbs::drawTime(Real rnd) const
     t_guess = dist * dist / (6.0 * D);
     t_guess *= .1;
 
-    const Real minT(std::min(sigma * sigma / D * this->MIN_T_FACTOR, t_guess * 1e-6));
-
+    const Real minT(std::min(sigma * sigma / D * MIN_T_FACTOR, t_guess * 1e-6));
     RealVector psurvTable;
-
     p_survival_table_params params = { this, psurvTable, rnd };
-
     gsl_function F = { reinterpret_cast<double(*)(double, void*)>(&p_survival_table_F), &params };
-
     Real low(t_guess);
     Real high(t_guess);
 
@@ -1172,9 +976,7 @@ Real GreensFunction3DRadAbs::drawTime(Real rnd) const
             const Real high_value(GSL_FN_EVAL(&F, high));
 
             if (high_value >= 0.0)
-            {
                 break;
-            }
 
             if (fabs(high) >= 1e10)
             {
@@ -1191,47 +993,34 @@ Real GreensFunction3DRadAbs::drawTime(Real rnd) const
     {
         Real low_value_prev(value);
         low *= .1;
-
         for (;;)
         {
             const Real low_value(GSL_FN_EVAL(&F, low));
 
             if (low_value <= 0.0)
-            {
                 break;
-            }
 
             // FIXME: 
-            if (fabs(low) <= minT ||
-                fabs(low_value - low_value_prev) < TOLERANCE)
+            if (fabs(low) <= minT || fabs(low_value - low_value_prev) < TOLERANCE)
             {
                 log_.info("GreensFunction3DRadAbs: couldn't adjust low. F(%.16g) = %.16g; r0 = %.16g, %s", low, GSL_FN_EVAL(&F, low), r0, dump().c_str());
                 log_.info("returning %.16g", low);
                 return low;
             }
             low_value_prev = low_value;
-
             low *= .1;
         }
     }
 
     const gsl_root_fsolver_type* solverType(gsl_root_fsolver_brent);
     gsl_root_fsolver* solver(gsl_root_fsolver_alloc(solverType));
-
     const Real t(findRoot(F, solver, low, high, 0.0, TOLERANCE, "drawTime"));
-
     gsl_root_fsolver_free(solver);
-
     return t;
 }
 
 GreensFunction::EventKind GreensFunction3DRadAbs::drawEventType(Real rnd, Real t) const
 {
-    const Real D(this->getD());
-    const Real sigma(this->getSigma());
-    const Real kf(this->getkf());
-    const Real a(this->geta());
-
     if (!(rnd < 1.0 && rnd >= 0.0))
     {
         throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: rnd < 1.0 && rnd >= 0.0 : rnd=%.16g") % rnd).str());
@@ -1247,10 +1036,7 @@ GreensFunction::EventKind GreensFunction3DRadAbs::drawEventType(Real rnd, Real t
         throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: t > 0.0 : t=%.16g") % t).str());
     }
 
-    if (kf == 0)
-    {
-        return IV_ESCAPE;
-    }
+    if (kf == 0) return IV_ESCAPE;
 
     // First, check if r0 is close only either to a or sigma relative
     // to Dt.  In such cases, the event type is always IV_ESCAPE or 
@@ -1281,15 +1067,7 @@ GreensFunction::EventKind GreensFunction3DRadAbs::drawEventType(Real rnd, Real t
     const Real reaction(leaves(t) * 4.0 * M_PI * sigma * sigma);
     const Real escape(leavea(t) * 4.0 * M_PI * a * a);
     const Real value(reaction / (reaction + escape));
-
-    if (rnd <= value)
-    {
-        return IV_REACTION;   // leaves
-    }
-    else
-    {
-        return IV_ESCAPE;     // leavea
-    }
+    return rnd <= value ? IV_REACTION : IV_ESCAPE;
 }
 
 Real GreensFunction3DRadAbs::drawPleavea(gsl_function const& F, gsl_root_fsolver* solver, Real t_guess, RealVector& pleaveFactorTable, RealVector& pleaveaTable) const
@@ -1309,9 +1087,7 @@ Real GreensFunction3DRadAbs::drawPleavea(gsl_function const& F, gsl_root_fsolver
             const Real high_value(GSL_FN_EVAL(&F, high));
 
             if (high_value >= 0.0)
-            {
                 break;
-            }
 
             if (fabs(high) >= 1e10)
             {
@@ -1329,23 +1105,19 @@ Real GreensFunction3DRadAbs::drawPleavea(gsl_function const& F, gsl_root_fsolver
     {
         Real low_value_prev(value);
         low *= .1;
-
         for (;;)
         {
-            this->updateAlphaTable0(low);
-            this->createPleaveFactorTable(pleaveFactorTable);
-            this->createPleaveaTable(pleaveaTable, pleaveFactorTable);
+            updateAlphaTable0(low);
+            createPleaveFactorTable(pleaveFactorTable);
+            createPleaveaTable(pleaveaTable, pleaveFactorTable);
 
             const Real low_value(GSL_FN_EVAL(&F, low));
 
             if (low_value <= 0.0)
-            {
                 break;
-            }
 
             // FIXME: 
-            if (fabs(low) <= minT ||
-                fabs(low_value - low_value_prev) < TOLERANCE)
+            if (fabs(low) <= minT || fabs(low_value - low_value_prev) < TOLERANCE)
             {
                 log_.info("couldn't adjust low. Fa(%.16g) = %.16g; r0 = %.16g, %s", low, GSL_FN_EVAL(&F, low), r0, dump().c_str());
                 log_.info("returning %.16g", minT);
@@ -1358,7 +1130,7 @@ Real GreensFunction3DRadAbs::drawPleavea(gsl_function const& F, gsl_root_fsolver
         }
     }
 
-    const Real t(findRoot(F, solver, low, high, 0., this->TOLERANCE, "drawTime2: a"));
+    const Real t(findRoot(F, solver, low, high, 0., TOLERANCE, "drawTime2: a"));
 
     return t;
 }
@@ -1379,11 +1151,7 @@ Real GreensFunction3DRadAbs::drawPleaves(gsl_function const& F, gsl_root_fsolver
         {
             const Real high_value(GSL_FN_EVAL(&F, high));
 
-            if (high_value >= 0.0)
-            {
-                break;
-            }
-
+            if (high_value >= 0.0) break;
             if (fabs(high) >= 1e10)
             {
                 throw std::runtime_error(
@@ -1400,23 +1168,16 @@ Real GreensFunction3DRadAbs::drawPleaves(gsl_function const& F, gsl_root_fsolver
     {
         //Real low_value_prev(value);
         low *= .1;
-
         for (;;)
         {
-            this->updateAlphaTable0(low);
-            this->createPleaveFactorTable(pleaveFactorTable);
-            this->createPleavesTable(pleavesTable, pleaveFactorTable);
-
+            updateAlphaTable0(low);
+            createPleaveFactorTable(pleaveFactorTable);
+            createPleavesTable(pleavesTable, pleaveFactorTable);
             const Real low_value(GSL_FN_EVAL(&F, low));
 
-            if (low_value <= 0.0)
-            {
-                break;
-            }
-
+            if (low_value <= 0.0) break;
             // FIXME: 
-            if (fabs(low) <= minT)//|| 
-                //                fabs(low_value - low_value_prev) < TOLERANCE) 
+            if (fabs(low) <= minT) //|| fabs(low_value - low_value_prev) < TOLERANCE) 
             {
                 log_.info("couldn't adjust low.  returning minT (=%.16g);"
                     "Fs(%.16g) = %.16g; r0 = %.16g, %s", minT, low, GSL_FN_EVAL(&F, low), r0, dump().c_str());
@@ -1429,17 +1190,11 @@ Real GreensFunction3DRadAbs::drawPleaves(gsl_function const& F, gsl_root_fsolver
         }
     }
 
-    const Real t(findRoot(F, solver, low, high, 0., this->TOLERANCE, "drawTime2: s"));
-
-    return t;
+    return findRoot(F, solver, low, high, 0., TOLERANCE, "drawTime2: s");
 }
 
 Real GreensFunction3DRadAbs::drawR(Real rnd, Real t) const
 {
-    const Real D(this->getD());
-    const Real sigma(this->getSigma());
-    const Real a(this->geta());
-
     if (!(rnd < 1.0 && rnd >= 0.0))
     {
         throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: rnd < 1.0 && rnd >= 0.0 : rnd=%.16g") % rnd).str());
@@ -1450,10 +1205,7 @@ Real GreensFunction3DRadAbs::drawR(Real rnd, Real t) const
         throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r0 >= sigma && r0 < a : r0=%.16g, sigma=%.16g, a=%.16g") % r0 % sigma % a).str());
     }
 
-    if (t == 0.0)
-    {
-        return r0;
-    }
+    if (t == 0.0)return r0;
 
     const Real psurv(p_survival(t));
 
@@ -1461,7 +1213,6 @@ Real GreensFunction3DRadAbs::drawR(Real rnd, Real t) const
     //    createNum_r0Table(num_r0Table, r0);
 
     p_int_r_params params = { this, t, /*num_r0Table,*/ rnd * psurv };
-
     gsl_function F = { reinterpret_cast<double(*)(double, void*)>(&p_int_r_F), &params };
 
     // adjust low and high starting from r0.
@@ -1474,10 +1225,7 @@ Real GreensFunction3DRadAbs::drawR(Real rnd, Real t) const
     const Real sqrt6Dt(sqrt(6.0 * D * t));
     if (GSL_FN_EVAL(&F, r0) < 0.0)
     {
-        // low = r0
-        uint H(3);
-
-        for (;;)
+        for (uint H(3);;)
         {
             high = r0 + H * sqrt6Dt;
             if (high > a)
@@ -1493,21 +1241,14 @@ Real GreensFunction3DRadAbs::drawR(Real rnd, Real t) const
             }
 
             const Real value(GSL_FN_EVAL(&F, high));
-            if (value > 0.0)
-            {
-                break;
-            }
-
+            if (value > 0.0) break;
             ++H;
         }
 
     }
     else
     {
-        // high = r0
-        uint H(3);
-
-        for (;;)
+        for (uint H(3);;)
         {
             low = r0 - H * sqrt6Dt;
             if (low < sigma)
@@ -1523,11 +1264,7 @@ Real GreensFunction3DRadAbs::drawR(Real rnd, Real t) const
             }
 
             const Real value(GSL_FN_EVAL(&F, low));
-            if (value < 0.0)
-            {
-                break;
-            }
-
+            if (value < 0.0) break;
             ++H;
         }
     }
@@ -1539,14 +1276,12 @@ Real GreensFunction3DRadAbs::drawR(Real rnd, Real t) const
     gsl_root_fsolver_set(solver, &F, low, high);
 
     const uint maxIter(100);
-
-    uint i(0);
-    for (;;)
+    for (uint i(0);;)
     {
         gsl_root_fsolver_iterate(solver);
         low = gsl_root_fsolver_x_lower(solver);
         high = gsl_root_fsolver_x_upper(solver);
-        const int status(gsl_root_test_interval(low, high, 1e-15, this->TOLERANCE));
+        const int status(gsl_root_test_interval(low, high, 1e-15, TOLERANCE));
 
         if (status == GSL_CONTINUE)
         {
@@ -1571,20 +1306,15 @@ Real GreensFunction3DRadAbs::drawR(Real rnd, Real t) const
 
 Real GreensFunction3DRadAbs::p_n_alpha(uint i, uint n, Real r, Real t) const
 {
-    const Real sigma(this->getSigma());
-    const Real h(this->geth());
-    const Real a(this->geta());
+    const Real mDt(-D * t);
 
-    const Real mDt(-this->getD() * t);
-
-    const Real alpha(this->getAlpha(n, i));
+    const Real alpha(getAlpha(n, i));
     const Real alphasq(alpha * alpha);
 
     const Real aAlpha(a * alpha);
     const Real sigmaAlpha(sigma * alpha);
-    const Real hSigma(geth() * getSigma());
-    const Real realn(static_cast<Real>(n));
-    const Real hSigma_m_n(hSigma - realn);
+    const Real hSigma(h * sigma);
+    const Real hSigma_m_n(hSigma - n);
 
     const Real term1(alphasq * alphasq * exp(mDt * alphasq));
 
@@ -1606,43 +1336,26 @@ Real GreensFunction3DRadAbs::p_n_alpha(uint i, uint n, Real r, Real t) const
     const Real JY2(ja * yr0 - ya * jr0);
 
     const Real num(Jsq * JY1 * JY2);
-
-    const Real den1(a * (realn + realn * realn -
-        sigma * (h + h * h * sigma + sigma * alphasq))
-        * ja * ja);
-
+    const Real den1(a * (n + n * n - sigma * (h + h * h * sigma + sigma * alphasq)) * ja * ja);
     const Real den2(sigma * Jsq);
-
     const Real den(den1 + den2);
-
     const Real result(term1 * num / den);
-
     return result;
 }
 
 Real GreensFunction3DRadAbs::p_n(Integer n, Real r, Real t, Real max_alpha) const
 {
     const uint min_i(2);
-
     Real p(0.0);
 
-    Integer i(0);
-    for (;;)
+    for (uint i(0);;)
     {
         const Real alpha(getAlpha(n, i));
-
         const Real p_i(p_n_alpha(i, n, r, t));
         p += p_i;
 
-        if (alpha >= max_alpha && i >= min_i)
-        {
-            break;
-        }
-
-        if (i == MAX_ALPHA_SEQ)
-        {
-            break;
-        }
+        if (alpha >= max_alpha && i >= min_i) break;
+        if (i == MAX_ALPHA_SEQ) break;
 
         ++i;
     }
@@ -1652,73 +1365,50 @@ Real GreensFunction3DRadAbs::p_n(Integer n, Real r, Real t, Real max_alpha) cons
 
 void GreensFunction3DRadAbs::makep_nTable(RealVector& p_nTable, Real r, Real t) const
 {
-    const Real sigma(this->getSigma());
-    const Real a(this->geta());
-
     p_nTable.clear();
 
     const Real factor(a * sigma / (M_PI * 2));
+    const Real Dt(D * t);
+    const Real alpha00(getAlpha(0, 0));
+    const Real max_alpha(sqrt(alpha00 * alpha00 - log(THETA_TOLERANCE * 1e-1) / Dt));
 
-    const Real Dt(this->getD() * t);
-    const Real alpha00(this->getAlpha(0, 0));
-
-    const Real max_alpha(sqrt(alpha00 * alpha00 -
-        log(THETA_TOLERANCE * 1e-1) / Dt));
-
-    const Real p_0(this->p_n(0, r, t, max_alpha) * factor);
+    const Real p_0(p_n(0, r, t, max_alpha) * factor);
 
     p_nTable.push_back(p_0);
 
-    if (p_0 == 0)
-    {
-        return;
-    }
-
+    if (p_0 == 0) return;
     const Real threshold(fabs(THETA_TOLERANCE * p_0));
-
     Real p_n_prev_abs(fabs(p_0));
-    uint n(1);
-    for (;;)
+    for (uint n(1);;)
     {
         if (getAlpha(n, 0) >= max_alpha)
-        {
             break;
-        }
 
-        Real p_n(this->p_n(n, r, t, max_alpha) * factor);
+        Real p_n(p_n(n, r, t, max_alpha) * factor);
 
         p_nTable.push_back(p_n);
         const Real p_n_abs(fabs(p_n));
         // truncate when converged enough.
-        if (p_n_abs < threshold &&
-            p_n_prev_abs < threshold &&
-            p_n_abs <= p_n_prev_abs)
-        {
+        if (p_n_abs < threshold && p_n_prev_abs < threshold && p_n_abs <= p_n_prev_abs)
             break;
-        }
 
         n++;
-        if (n >= this->MAX_ORDER) break;
+        if (n >= MAX_ORDER) break;
         p_n_prev_abs = p_n_abs;
     }
 }
 
 Real GreensFunction3DRadAbs::dp_n_alpha_at_a(uint i, uint n, Real t) const
 {
-    const Real sigma(this->getSigma());
-    const Real h(this->geth());
-    const Real a(this->geta());
-
-    const Real mDt(-this->getD() * t);
-    const Real alpha(this->getAlpha(n, i));
+    const Real mDt(-D * t);
+    const Real alpha(getAlpha(n, i));
 
     const Real alphasq(alpha * alpha);
 
     const Real aAlpha(a * alpha);
     const Real sigmaAlpha(sigma * alpha);
-    const Real hSigma(geth() * getSigma());
-    const Real realn(static_cast<Real>(n));
-    const Real hSigma_m_n(hSigma - realn);
+    const Real hSigma(h * sigma);
+    const Real hSigma_m_n(hSigma - n);
 
     const Real term1(alphasq * alpha * exp(mDt * alphasq));
 
@@ -1738,187 +1428,126 @@ Real GreensFunction3DRadAbs::dp_n_alpha_at_a(uint i, uint n, Real t) const
 
     const Real num(Jsq * JY);
 
-    const Real den1(a * (realn + realn * realn -
-        sigma * (h + h * h * sigma + sigma * alphasq))
-        * ja * ja);
-
+    const Real den1(a * (n + n * n - sigma * (h + h * h * sigma + sigma * alphasq)) * ja * ja);
     const Real den2(sigma * Jsq);
-
     const Real den(den1 + den2);
-
     const Real result(term1 * num / den);
-
     return result;
 }
 
 Real GreensFunction3DRadAbs::dp_n_at_a(Integer n, Real t, Real max_alpha) const
 {
     const uint min_i(2);
-
     Real p(0.0);
-
-    Integer i(0);
-    for (;;)
+    for (uint i(0);;)
     {
         const Real alpha(getAlpha(n, i));
         const Real p_i(dp_n_alpha_at_a(i, n, t));
 
         p += p_i;
-
-        if (alpha >= max_alpha && i >= min_i)
-        {
-            break;
-        }
-
-        if (i == MAX_ALPHA_SEQ)
-        {
-            break;
-        }
-
+        if (alpha >= max_alpha && i >= min_i) break;
+        if (i == MAX_ALPHA_SEQ) break;
         ++i;
     }
-
     return p;
 }
 
 void GreensFunction3DRadAbs::makedp_n_at_aTable(RealVector& p_nTable, Real t) const
 {
-    const Real sigma(this->getSigma());
-    const Real a(this->geta());
-
     p_nTable.clear();
 
-    const Real factor(this->getD() * sigma / (a * M_PI * 2));
-
-    const Real Dt(this->getD() * t);
-    const Real alpha00(this->getAlpha(0, 0));
-
-    const Real max_alpha(sqrt(Dt * alpha00 * alpha00 -
-        log(THETA_TOLERANCE * 1e-1) / Dt));
-
-    const Real p_0(this->dp_n_at_a(0, t, max_alpha) * factor);
+    const Real factor(D * sigma / (a * M_PI * 2));
+    const Real Dt(D * t);
+    const Real alpha00(getAlpha(0, 0));
+    const Real max_alpha(sqrt(Dt * alpha00 * alpha00 - log(THETA_TOLERANCE * 1e-1) / Dt));
+    const Real p_0(dp_n_at_a(0, t, max_alpha) * factor);
 
     p_nTable.push_back(p_0);
 
-    if (p_0 == 0)
-    {
-        return;
-    }
+    if (p_0 == 0) return;
 
     const Real threshold(fabs(THETA_TOLERANCE * p_0));
 
     Real p_n_prev_abs(fabs(p_0));
-    uint n(1);
-    for (;;)
+    for (uint n(1);;)
     {
-        if (getAlpha(n, 0) >= max_alpha)
-        {
-            break;
-        }
+        if (getAlpha(n, 0) >= max_alpha) break;
 
-        Real p_n(this->dp_n_at_a(n, t, max_alpha) * factor);
+        Real p_n(dp_n_at_a(n, t, max_alpha) * factor);
 
         p_nTable.push_back(p_n);
 
         const Real p_n_abs(fabs(p_n));
         // truncate when converged enough.
-        if (p_n_abs < threshold &&
-            p_n_prev_abs < threshold &&
-            p_n_abs <= p_n_prev_abs)
-        {
+        if (p_n_abs < threshold && p_n_prev_abs < threshold && p_n_abs <= p_n_prev_abs)
             break;
-        }
 
         n++;
-        if (n >= this->MAX_ORDER) break;
+        if (n >= MAX_ORDER) break;
         p_n_prev_abs = p_n_abs;
     }
 }
 
 Real GreensFunction3DRadAbs::p_theta(Real theta, Real r, Real t) const
 {
+    if (!(theta >= 0.0 && theta <= M_PI))
     {
-        const Real sigma(this->getSigma());
-        const Real a(this->geta());
-
-        if (!(theta >= 0.0 && theta <= M_PI))
-        {
-            throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: theta >= 0.0 && theta <= M_PI : theta=%.16g, M_PI=%.16g") % theta % M_PI).str());
-        }
-
-        // r \in (sigma, a);  not defined at r == sigma and r == a.
-        if (!(r >= sigma && r < a))
-        {
-            throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r >= sigma && r < a : r=%.16g, sigma=%.16g, a=%.16g") % r % sigma % a).str());
-        }
-
-        if (!(r0 >= sigma && r0 < a))
-        {
-            throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r0 >= sigma && r0 < a : r0=%.16g, sigma=%.16g, a=%.16g") % r0 % sigma % a).str());
-        }
-
-        if (!(t >= 0.0))
-        {
-            throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: t >= 0.0 : t=%.16g") % t).str());
-        }
-
+        throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: theta >= 0.0 && theta <= M_PI : theta=%.16g, M_PI=%.16g") % theta % M_PI).str());
     }
 
-    if (t == 0.0)
+    // r \in (sigma, a);  not defined at r == sigma and r == a.
+    if (!(r >= sigma && r < a))
     {
-        return 0.0;
+        throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r >= sigma && r < a : r=%.16g, sigma=%.16g, a=%.16g") % r % sigma % a).str());
     }
+
+    if (!(r0 >= sigma && r0 < a))
+    {
+        throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r0 >= sigma && r0 < a : r0=%.16g, sigma=%.16g, a=%.16g") % r0 % sigma % a).str());
+    }
+
+    if (!(t >= 0.0))
+    {
+        throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: t >= 0.0 : t=%.16g") % t).str());
+    }
+
+    if (t == 0.0) return 0.0;
 
     RealVector p_nTable;
-
     makep_nTable(p_nTable, r, t);
-
     const Real p(p_theta_table(theta, r, t, p_nTable));
-
     return p;
 }
 
 Real GreensFunction3DRadAbs::dp_theta(Real theta, Real r, Real t) const
 {
+    if (!(theta >= 0.0 && theta <= M_PI))
     {
-        const Real sigma(this->getSigma());
-        const Real a(this->geta());
-
-        if (!(theta >= 0.0 && theta <= M_PI))
-        {
-            throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: theta >= 0.0 && theta <= M_PI : theta=%.16g, M_PI=%.16g") % theta % M_PI).str());
-        }
-
-        // r \in [ sigma, a ]  ;  unlike p_theta
-        // defined at r == sigma and r == a.
-        if (!(r >= sigma && r <= a))
-        {
-            throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r >= sigma && r <= a : r=%.16g, sigma=%.16g, a=%.16g") % r % sigma % a).str());
-        }
-
-        if (!(r0 >= sigma && r0 < a))
-        {
-            throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r0 >= sigma && r0 < a : r0=%.16g, sigma=%.16g, a=%.16g") % r0 % sigma % a).str());
-        }
-
-        if (!(t >= 0.0))
-        {
-            throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: t >= 0.0 : t=%.16g") % t).str());
-        }
-
+        throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: theta >= 0.0 && theta <= M_PI : theta=%.16g, M_PI=%.16g") % theta % M_PI).str());
     }
 
-    if (t == 0.0)
+    // r \in [ sigma, a ]  ;  unlike p_theta
+    // defined at r == sigma and r == a.
+    if (!(r >= sigma && r <= a))
     {
-        return 0.0;
+        throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r >= sigma && r <= a : r=%.16g, sigma=%.16g, a=%.16g") % r % sigma % a).str());
     }
+
+    if (!(r0 >= sigma && r0 < a))
+    {
+        throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r0 >= sigma && r0 < a : r0=%.16g, sigma=%.16g, a=%.16g") % r0 % sigma % a).str());
+    }
+
+    if (!(t >= 0.0))
+    {
+        throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: t >= 0.0 : t=%.16g") % t).str());
+    }
+
+    if (t == 0.0)return 0.0;
 
     RealVector p_nTable;
-
     makedp_n_at_aTable(p_nTable, t);
-
     const Real p(p_theta_table(theta, r, t, p_nTable));
-
     return p;
 }
 
@@ -1930,14 +1559,11 @@ static Real p_theta_n(uint n, RealVector const& p_nTable, RealVector const& lgnd
 Real GreensFunction3DRadAbs::p_theta_table(Real theta, Real r, Real t, RealVector const& p_nTable) const
 {
     const uint tableSize(p_nTable.size());
-
     Real sin_theta;
     Real cos_theta;
     sincos(theta, &sin_theta, &cos_theta);
-
     RealVector lgndTable(tableSize);
     gsl_sf_legendre_Pl_array(tableSize - 1, cos_theta, &lgndTable[0]);
-
     return funcSum_all(boost::bind(&p_theta_n, _1, p_nTable, lgndTable), tableSize) * sin_theta;
 }
 
@@ -1948,12 +1574,11 @@ void GreensFunction3DRadAbs::make_p_thetaTable(RealVector& pTable, Real r, Real 
     pTable.push_back(0.0);
 
     Real p_prev(0.0);
-    uint i(1);
-    for (;;)
+    for (uint i(1);;)
     {
         const Real theta(thetaStep * i);
 
-        Real p(this->p_theta_table(theta, r, t, p_nTable));
+        Real p(p_theta_table(theta, r, t, p_nTable));
 
         if (p < 0.0)
         {
@@ -1978,87 +1603,62 @@ void GreensFunction3DRadAbs::make_p_thetaTable(RealVector& pTable, Real r, Real 
 
 Real GreensFunction3DRadAbs::ip_theta(Real theta, Real r, Real t) const
 {
+    if (!(theta >= 0.0 && theta <= M_PI))
     {
-        const Real sigma(this->getSigma());
-        const Real a(this->geta());
-
-        if (!(theta >= 0.0 && theta <= M_PI))
-        {
-            throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: theta >= 0.0 && theta <= M_PI : theta=%.16g, M_PI=%.16g") % theta % M_PI).str());
-        }
-
-        // r \in (sigma, a)
-        if (!(r >= sigma && r < a))
-        {
-            throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r >= sigma && r < a : r=%.16g, sigma=%.16g, a=%.16g") % r % sigma % a).str());
-        }
-
-        if (!(r0 >= sigma && r0 < a))
-        {
-            throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r0 >= sigma && r0 < a : r0=%.16g, sigma=%.16g, a=%.16g") % r0 % sigma % a).str());
-        }
-
-        if (!(t >= 0.0))
-        {
-            throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: t >= 0.0 : t=%.16g") % t).str());
-        }
-
+        throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: theta >= 0.0 && theta <= M_PI : theta=%.16g, M_PI=%.16g") % theta % M_PI).str());
     }
 
-    if (t == 0.0 || theta == 0.0)
+    // r \in (sigma, a)
+    if (!(r >= sigma && r < a))
     {
-        return 0.0;
+        throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r >= sigma && r < a : r=%.16g, sigma=%.16g, a=%.16g") % r % sigma % a).str());
     }
+
+    if (!(r0 >= sigma && r0 < a))
+    {
+        throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r0 >= sigma && r0 < a : r0=%.16g, sigma=%.16g, a=%.16g") % r0 % sigma % a).str());
+    }
+
+    if (!(t >= 0.0))
+    {
+        throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: t >= 0.0 : t=%.16g") % t).str());
+    }
+    if (t == 0.0 || theta == 0.0) return 0.0;
 
     RealVector p_nTable;
-
     makep_nTable(p_nTable, r, t);
-
     const Real p(ip_theta_table(theta, r, t, p_nTable));
-
     return p;
 }
 
 Real GreensFunction3DRadAbs::idp_theta(Real theta, Real r, Real t) const
 {
+    if (!(theta >= 0.0 && theta <= M_PI))
     {
-        const Real sigma(this->getSigma());
-        const Real a(this->geta());
-
-        if (!(theta >= 0.0 && theta <= M_PI))
-        {
-            throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: theta >= 0.0 && theta <= M_PI : theta=%.16g, M_PI=%.16g") % theta % M_PI).str());
-        }
-
-        // r \in [ sigma, a ]
-        if (!(r >= sigma && r <= a))
-        {
-            throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r >= sigma && r <= a : r=%.16g, sigma=%.16g, a=%.16g") % r % sigma % a).str());
-        }
-
-        if (!(r0 >= sigma && r0 < a))
-        {
-            throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r0 >= sigma && r0 < a : r0=%.16g, sigma=%.16g, a=%.16g") % r0 % sigma % a).str());
-        }
-
-        if (!(t >= 0.0))
-        {
-            throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: t >= 0.0 : t=%.16g") % t).str());
-        }
-
+        throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: theta >= 0.0 && theta <= M_PI : theta=%.16g, M_PI=%.16g") % theta % M_PI).str());
     }
 
-    if (t == 0.0 || theta == 0.0)
+    // r \in [ sigma, a ]
+    if (!(r >= sigma && r <= a))
     {
-        return 0.0;
+        throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r >= sigma && r <= a : r=%.16g, sigma=%.16g, a=%.16g") % r % sigma % a).str());
     }
+
+    if (!(r0 >= sigma && r0 < a))
+    {
+        throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: r0 >= sigma && r0 < a : r0=%.16g, sigma=%.16g, a=%.16g") % r0 % sigma % a).str());
+    }
+
+    if (!(t >= 0.0))
+    {
+        throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: t >= 0.0 : t=%.16g") % t).str());
+    }
+
+    if (t == 0.0 || theta == 0.0) return 0.0;
 
     RealVector p_nTable;
-
     makedp_n_at_aTable(p_nTable, t);
-
     const Real p(ip_theta_table(theta, r, t, p_nTable));
-
     return p;
 }
 
@@ -2104,12 +1704,6 @@ Real GreensFunction3DRadAbs::ip_theta_F(Real theta, ip_theta_params const* param
 
 Real GreensFunction3DRadAbs::drawTheta(Real rnd, Real r, Real t) const
 {
-    Real theta;
-
-    const Real sigma(this->getSigma());
-    const Real a(this->geta());
-
-    // input parameter range checks.
     if (!(rnd < 1.0 && rnd >= 0.0))
     {
         throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: rnd < 1.0 && rnd >= 0.0 : rnd=%.16g") % rnd).str());
@@ -2130,17 +1724,12 @@ Real GreensFunction3DRadAbs::drawTheta(Real rnd, Real r, Real t) const
         throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: t >= 0.0 : t=%.16g") % t).str());
     }
 
-    // t == 0 means no move.
-    if (t == 0.0)
-    {
-        return 0.0;
-    }
+    if (t == 0.0) return 0.0;
 
     const Real high(M_PI);
-
     RealVector p_nTable;
 
-    if (r >= geta())
+    if (r >= a)
     {
         //puts("dp");
         makedp_n_at_aTable(p_nTable, t);
@@ -2151,19 +1740,14 @@ Real GreensFunction3DRadAbs::drawTheta(Real rnd, Real r, Real t) const
     }
 
     const Real ip_theta_pi(ip_theta_table(high, r, t, p_nTable));
-
     ip_theta_params params = { this, r, t, p_nTable, rnd * ip_theta_pi };
-
     gsl_function F = { reinterpret_cast<double(*)(double, void*)>(&ip_theta_F), &params };
-
     const gsl_root_fsolver_type* solverType(gsl_root_fsolver_brent);
     gsl_root_fsolver* solver(gsl_root_fsolver_alloc(solverType));
     gsl_root_fsolver_set(solver, &F, 0.0, high);
 
     const uint maxIter(100);
-
-    uint i(0);
-    for (;;)
+    for (uint i(0);;)
     {
         gsl_root_fsolver_iterate(solver);
         const Real low(gsl_root_fsolver_x_lower(solver));
@@ -2182,28 +1766,18 @@ Real GreensFunction3DRadAbs::drawTheta(Real rnd, Real r, Real t) const
         {
             break;
         }
-
         ++i;
     }
 
-    theta = gsl_root_fsolver_root(solver);
+    Real theta = gsl_root_fsolver_root(solver);
     gsl_root_fsolver_free(solver);
     return theta;
 }
 
-//
-// debug
-//
-
 std::string GreensFunction3DRadAbs::dump() const
 {
     std::ostringstream ss;
-    ss << "D = " << this->getD() <<
-        ", r0 = " << this->getr0() <<
-        ", sigma = " << this->getSigma() <<
-        ", a = " << this->geta() <<
-        ", kf = " << this->getkf() <<
-        ", h = " << this->geth() << std::endl;
+    ss << "D = " << D << ", r0 = " << r0 << ", sigma = " << sigma << ", a = " << a << ", kf = " << kf << ", h = " << h << std::endl;
     return ss.str();
 }
 
