@@ -114,7 +114,7 @@ Real GreensFunction2DAbsSym::drawTime(const Real rnd) const
 
             if (fabs(low) <= t_guess * 1e-6 || fabs(value - value_prev) < CUTOFF)
             {
-                log_.warn("Couldn't adjust high. F(%.16g) = %.16g", low, value);
+                log_.warn("Couldn't adjust low. F(%.16g) = %.16g", low, value);
                 return low;
             }
             value_prev = value;

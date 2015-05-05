@@ -1,14 +1,5 @@
-#!/usr/bin/env python
-
-__author__    = 'Koichi Takahashi <shafi@e-cell.org>'
-__license__   = 'GPL'
-__copyright__ = 'Copyright The Molecular Sciences Institute 2006-2008'
-
-
 import unittest
-
 import _greens_functions as mod
-
 import math
 import numpy
 
@@ -20,6 +11,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
 
     def tearDown(self):
         pass
+
 
     def test_instantiation(self):
         D = 1e-12
@@ -61,6 +53,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         t = gf.drawTime(0.5)
         self.failIf(t < 0.0)
 
+
     def test_drawR(self):
         D = 1e-12
         kf = 1e-8
@@ -96,6 +89,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         r = gf.drawR(0.5, t)
         self.assertEqual(r0, r)
 
+
     def test_drawR_smallt(self):
         D = 1e-12
         kf = 1e-8
@@ -109,7 +103,6 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         r = gf.drawR(0.5, t)
 
         self.failIf(r < sigma)
-
 
 
     def test_drawR_r0_equal_sigma(self):
@@ -179,6 +172,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         theta = gf.drawTheta(0.5, r0, t)
         self.assertEqual(0.0, theta)
 
+
     def test_draw_theta_smallt(self):
 
         D = 1e-12
@@ -212,6 +206,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         theta = gf.drawTheta(0.5, r, t)
         self.failIf(theta < 0.0 or theta > numpy.pi)
 
+
     def test_p_int_r_at_s_is_zero(self):
 
         D = 1e-12
@@ -225,6 +220,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
 
         pintr = gf.p_int_r(sigma, t)
         self.assertEqual(0.0, pintr)
+
 
     def test_p_int_r0_at_s_zerot_is_zero(self):
 
@@ -280,8 +276,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         for i in range(1, resolution):
             theta = i * numpy.pi / resolution
             ip = gf.ip_theta(theta, r, t)
-            result = scipy.integrate.quad(gf.p_theta, 0.0, theta,
-                                          args=(r, t))
+            result = scipy.integrate.quad(gf.p_theta, 0.0, theta, args=(r, t))
             np = result[0]
             #print 'theta, np, ip', theta, np, ip
             self.assertAlmostEqual(0.0, (np-ip)/ip)
@@ -327,14 +322,13 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         pcorr = gf.ip_corr(numpy.pi, r, t) * (2 * numpy.pi * r * r)
         pfree = gf.ip_free(numpy.pi, r, t) * (2 * numpy.pi * r * r)
 
-        self.assertNotAlmostEqual(pirr, pfree, 6,
-                                  'pcorr estimated to be too small.' + \
-                                      ' test may not be valid.')
+        self.assertNotAlmostEqual(pirr, pfree, 6, 'pcorr estimated to be too small. test may not be valid.')
 
         #print 'PP', pirr, ip, pcorr, pfree
 
         self.assertNotEqual(0.0, ip)
         self.assertAlmostEqual(ip/pirr, 1)
+
 
     def test_ip_theta_pi_at_sigma_is_p_irr(self):
 
@@ -356,15 +350,12 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
         pcorr = gf.ip_corr(numpy.pi, r, t) * (2 * numpy.pi * r * r)
         pfree = gf.ip_free(numpy.pi, r, t) * (2 * numpy.pi * r * r)
 
-        self.assertNotAlmostEqual(pirr, pfree, 7,
-                                  'pcorr estimated to be too small.' + \
-                                      ' test may not be valid.')
+        self.assertNotAlmostEqual(pirr, pfree, 7,'pcorr estimated to be too small. test may not be valid.')
 
         #print 'PP', pirr, ip, pcorr, pfree
 
         self.assertNotEqual(0.0, ip)
         self.assertAlmostEqual(ip/pirr, 1)
-
 
 
     def test_p_theta_never_negative(self):
@@ -390,8 +381,7 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
             pmin = min(pmin, p)
             #print 'theta: ', theta, '\tp: ', p
 
-        self.failIf(pmin < 0.0, 'Negative p_theta; t= %g, %s'
-                    % (t, gf.dump()))
+        self.failIf(pmin < 0.0, 'Negative p_theta; t= %g, %s' % (t, gf.dump()))
 
 
     def test_ip_theta_never_decrease(self):
@@ -416,7 +406,6 @@ class GreensFunction3DRadInfTestCase(unittest.TestCase):
             #print pint
             self.failIf(pint < pint_prev)
             pint_prev = pint
-
 
 
 

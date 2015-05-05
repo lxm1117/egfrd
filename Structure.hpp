@@ -59,9 +59,7 @@ public:
     structure_id_type const& id() const
     {
         if (!id_)
-        {
             throw illegal_state("ID for structure not defined");
-        }
         return id_;
     }
 
@@ -79,9 +77,7 @@ public:
     structure_type_id_type const& sid() const
     {
         if (!sid_)
-        {
             throw illegal_state("not bound to StructureType");
-        }
         return sid_;
     }
 

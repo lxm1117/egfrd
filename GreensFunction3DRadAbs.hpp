@@ -1,7 +1,7 @@
 #ifndef GREENSFUNCTION3DRADABS_HPP
 #define GREENSFUNCTION3DRADABS_HPP
 
-#include <vector>
+#include "Defs.hpp"
 #include <boost/array.hpp>
 #include <gsl/gsl_roots.h>
 #include "Logger.hpp"
@@ -40,8 +40,8 @@ public:
     Real f_alpha0(Real alpha) const;
     Real f_alpha0_aux(Real alpha) const;
 
-    Real f_alpha(Real alpha, Integer n) const;
-    Real f_alpha_aux(Real alpha, Integer n) const;
+    Real f_alpha(Real alpha, int n) const;
+    Real f_alpha_aux(Real alpha, int n) const;
 
     Real p_0(Real t, Real r) const;
 
@@ -71,21 +71,19 @@ public:
 
     Real idp_theta(Real theta, Real r, Real t) const;
 
-    Real p_n(Integer n, Real r, Real t, Real max_alpha) const;
+    Real p_n(int n, Real r, Real t, Real max_alpha) const;
 
-    Real dp_n_at_a(Integer n, Real t, Real max_alpha) const;
+    Real dp_n_at_a(int n, Real t, Real max_alpha) const;
 
     Real p_n_alpha(uint i, uint n, Real r, Real t) const;
 
     Real dp_n_alpha_at_a(uint i, uint n, Real t) const;
 
-    // methods below are kept public for debugging purpose.
-
     uint alphaOffset(uint n) const;
 
-    Real alpha0_i(Integer i) const;
+    Real alpha0_i(int i) const;
 
-    Real alpha_i(Integer i, Integer n, gsl_root_fsolver* solver) const;
+    Real alpha_i(int i, int n, gsl_root_fsolver* solver) const;
 
     Real p_survival_i(Real alpha) const;
 
@@ -113,7 +111,7 @@ public:
 
     Real p_survival_2i_exp(uint i, Real t) const;
 
-protected:
+private:
 
     void clearAlphaTable() const;
 
@@ -216,7 +214,7 @@ private:
     const Real h;
     const Real hsigma_p_1;
 
-    mutable boost::array<Integer, GF_MAX_ORDER> alphaOffsetTable;
+    mutable boost::array<int, GF_MAX_ORDER> alphaOffsetTable;
     mutable boost::array<RealVector, GF_MAX_ORDER> alphaTable;
 
     static Logger& log_;

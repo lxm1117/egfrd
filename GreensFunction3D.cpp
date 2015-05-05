@@ -103,29 +103,15 @@ Real GreensFunction3D::drawR(Real rnd, Real t) const
     gsl_root_fsolver_set(solver, &F, low_r, max_r);
 
     const uint maxIter(100);
-
-    uint i(0);
-    while (true)
+    for (uint i(0);;++i)
     {
         gsl_root_fsolver_iterate(solver);
         const Real low(gsl_root_fsolver_x_lower(solver));
         const Real high(gsl_root_fsolver_x_upper(solver));
         const int status(gsl_root_test_interval(low, high, 1e-15, TOLERANCE));
 
-        if (status == GSL_CONTINUE)
-        {
-            if (i >= maxIter)
-            {
-                gsl_root_fsolver_free(solver);
-                throw std::runtime_error("GreensFunction3D: drawR: failed to converge");
-            }
-        }
-        else
-        {
-            break;
-        }
-
-        ++i;
+        if (status != GSL_CONTINUE) break;
+        if (i >= maxIter) throw std::runtime_error("GreensFunction3D: drawR: failed to converge");
     }
 
     const Real r(gsl_root_fsolver_root(solver));
@@ -181,29 +167,15 @@ Real GreensFunction3D::drawTheta(Real rnd, Real r, Real t) const
     gsl_root_fsolver_set(solver, &F, 0.0, M_PI + std::numeric_limits<Real>::epsilon());
 
     const uint maxIter(100);
-
-    uint i(0);
-    while (true)
+    for (uint i(0);;++i)
     {
         gsl_root_fsolver_iterate(solver);
         const Real low(gsl_root_fsolver_x_lower(solver));
         const Real high(gsl_root_fsolver_x_upper(solver));
         const int status(gsl_root_test_interval(low, high, 1e-15, TOLERANCE));
 
-        if (status == GSL_CONTINUE)
-        {
-            if (i >= maxIter)
-            {
-                gsl_root_fsolver_free(solver);
-                throw std::runtime_error("GreensFunction3D: drawTheta: failed to converge");
-            }
-        }
-        else
-        {
-            break;
-        }
-
-        ++i;
+        if (status != GSL_CONTINUE) break;
+        if (i >= maxIter) throw std::runtime_error("GreensFunction3D: drawTheta: failed to converge");
     }
 
     const Real theta(gsl_root_fsolver_root(solver));

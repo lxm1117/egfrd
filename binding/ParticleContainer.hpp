@@ -19,7 +19,6 @@
 #include "../generator.hpp"
 #include "../utils/pair.hpp"
 
-#include "peer/compat.h"
 #include "peer/wrappers/generator/pyiterator_generator.hpp"
 #include "peer/wrappers/generator/generator_wrapper.hpp"
 #include "peer/converters/tuple.hpp"
@@ -191,7 +190,7 @@ namespace binding {
 
                 if (hint < 0)
                 {
-                    hint = compat_PyObject_LengthHint(iter.get());
+                    hint = _PyObject_LengthHint(iter.get(),-1);
                     if (hint < 0)
                     {
                         hint = 0;
@@ -297,7 +296,7 @@ namespace binding {
 
                 if (hint < 0)
                 {
-                    hint = compat_PyObject_LengthHint(iter.get());
+                    hint = _PyObject_LengthHint(iter.get(), -1);
                     if (hint < 0)
                     {
                         hint = 0;

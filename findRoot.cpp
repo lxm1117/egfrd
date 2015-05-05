@@ -31,16 +31,8 @@ Real findRoot(gsl_function const& F, gsl_root_fsolver* solver, Real low, Real hi
         const int status(gsl_root_test_interval(l, h, tol_abs, tol_rel));
 
         // stop finder if convergence or too much iterations
-        if (status == GSL_CONTINUE)
-        {
-            if (i >= maxIter)
-            {
-                gsl_root_fsolver_free(solver);
-                throw std::runtime_error(std::string(funcName) + ": failed to converge");
-            }
-        }
-        else
-            break;
+        if (status != GSL_CONTINUE) break;
+        if (i >= maxIter) throw std::runtime_error(std::string(funcName) + ": failed to converge");
     }
 
     return gsl_root_fsolver_root(solver);

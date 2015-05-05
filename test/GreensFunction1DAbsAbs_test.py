@@ -31,15 +31,19 @@ class GreensFunction1DAbsAbsTestCase(unittest.TestCase):
         gf = mod.GreensFunction1DAbsAbs(D, v, r0, L)
         t = gf.drawTime(0.5)
         self.failIf(t <= 0.0 or t >= numpy.inf)
+        self.assertAlmostEqual(t, 1.2499999999999999e-06)
 
         t = gf.drawTime(0.0)
         self.failIf(t < 0.0 or t >= numpy.inf)
+        self.assertAlmostEqual(t, 1.2499999999999999e-06)           # couldn't adjust low!
 
         t = gf.drawTime(1e-16)
         self.failIf(t <= 0.0 or t >= numpy.inf)
+        self.assertAlmostEqual(t, 1.2499999999999999e-06)           # couldn't adjust low!
 
         t = gf.drawTime(1 - 1e-16)
         self.failIf(t <= 0.0 or t >= numpy.inf)
+        self.assertAlmostEqual(t, 1.2499999999999999e-06)           # couldn't adjust low!
 
 
     def test_DrawTime_a_equal_sigma(self):
@@ -62,6 +66,7 @@ class GreensFunction1DAbsAbsTestCase(unittest.TestCase):
         gf = mod.GreensFunction1DAbsAbs(D, r0, v,  L)
         t = gf.drawTime(0.5)
         self.failIf(t <= 0.0 or t >= numpy.inf)
+        self.assertAlmostEqual(t, 4.0712199109240494e-17)
 
 
     def test_DrawTime_r0_equal_a(self):
@@ -84,6 +89,7 @@ class GreensFunction1DAbsAbsTestCase(unittest.TestCase):
         gf = mod.GreensFunction1DAbsAbs(D, r0, v, L)
         t = gf.drawTime(0.5)
         self.failIf(t < 0.0 or t >= numpy.inf)
+        self.assertAlmostEqual(t, 0.0)
 
 
     def test_DrawEventType(self):
@@ -178,20 +184,20 @@ class GreensFunction1DAbsAbsTestCase(unittest.TestCase):
         t = 1e-6
 
         r0 = 0
-        gf.setr0(r0)
+        gf = mod.GreensFunction1DAbsAbs(D, r0, v, L)
         #r = gf.drawR( 0.501, t )
         #self.failIf( r < 0 or r > L )
 
         # near s
         r0 = 0.0001e-8
-        gf.setr0(r0)
+        gf = mod.GreensFunction1DAbsAbs(D, r0, v, L)
         r = gf.drawR(0.502, t)
         self.failIf(r < 0 or r > L)
 
     
         # near a
         r0 = L - 0.0001e-8
-        gf.setr0(r0)
+        gf = mod.GreensFunction1DAbsAbs(D, r0, v, L)
         r = gf.drawR(0.503, t)
         self.failIf(r < 0 or r > L)
 

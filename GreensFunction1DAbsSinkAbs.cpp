@@ -3,15 +3,13 @@
 #include <vector>
 #include <cmath>
 #include <boost/bind.hpp>
-#include <boost/format.hpp>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_roots.h>
 #include "findRoot.hpp"
 #include "freeFunctions.hpp"
-#include "GreensFunction1DAbsSinkAbs.hpp"
 #include "funcSum.hpp"
+#include "GreensFunction1DAbsSinkAbs.hpp"
 
-const Real GreensFunction1DAbsSinkAbs::L_TYPICAL = 1E-8;
 const Real GreensFunction1DAbsSinkAbs::T_TYPICAL = 1E-6;
 const Real GreensFunction1DAbsSinkAbs::EPSILON = 1E-10;
 const Real GreensFunction1DAbsSinkAbs::PDENS_TYPICAL = 1;
@@ -64,18 +62,12 @@ void GreensFunction1DAbsSinkAbs::fill_table_to_n(uint i, uint n)
     const Real Lm_L(Lm / L);
     const Real h(k * L / (2 * D));
 
-    Real root_i;
-    RealPair lower_upper_pair;
-
     // reserve space
     rootList.reserve(n);
 
     /* Define the root function. */
-    gsl_function F;
     struct root_f_params params = { Lm_L, h };
-
-    F.function = &GreensFunction1DAbsSinkAbs::root_f;
-    F.params = &params;
+    gsl_function F = { &GreensFunction1DAbsSinkAbs::root_f, &params };
 
     /* define and ad a new solver type brent */
     const gsl_root_fsolver_type* solverType(gsl_root_fsolver_brent);
@@ -95,8 +87,8 @@ void GreensFunction1DAbsSinkAbs::fill_table_to_n(uint i, uint n)
     /* Find all the roots up to the nth */
     while (i++ < n)
     {
-        lower_upper_pair = get_lower_and_upper();
-        root_i = findRoot(F, solver, lower_upper_pair.first, lower_upper_pair.second, 1.0*EPSILON, EPSILON, "GreensFunction1DAbsSinkAbs::root_f");
+        RealPair lower_upper_pair = get_lower_and_upper();
+        Real root_i = findRoot(F, solver, lower_upper_pair.first, lower_upper_pair.second, 1.0*EPSILON, EPSILON, "GreensFunction1DAbsSinkAbs::root_f");
         assert(root_i > std::max(lo_up_params.last_long_root, lo_up_params.last_short_root) - EPSILON);
         rootList.push_back(root_i / L);
         if (lo_up_params.last_was_long)
@@ -257,8 +249,6 @@ Real GreensFunction1DAbsSinkAbs::p_survival_table(Real t, RealVector& psurvTable
 {
     THROW_UNLESS(std::invalid_argument, t >= 0.0);
 
-    Real p;
-
     if (t == 0.0 || D == 0.0) return 1.0; //particle can't escape.
 
     /* First check if we need full solution.
@@ -293,8 +283,7 @@ Real GreensFunction1DAbsSinkAbs::p_survival_table(Real t, RealVector& psurvTable
         createPsurvTable(psurvTable);
     }
 
-    p = funcSum_all(boost::bind(&GreensFunction1DAbsSinkAbs::p_survival_i, this, _1, t, psurvTable), maxi);
-
+    Real p = funcSum_all(boost::bind(&GreensFunction1DAbsSinkAbs::p_survival_i, this, _1, t, psurvTable), maxi);
     return p;
 }
 
@@ -323,6 +312,7 @@ void GreensFunction1DAbsSinkAbs::createPsurvTable(RealVector& table) const
 {
     uint const root_nbr(rootList_size());
     uint i(table.size());
+    table.reserve(root_nbr);
 
     while (i < root_nbr)
         table.push_back(p_survival_table_i(get_root(i++)));
@@ -535,17 +525,6 @@ GreensFunction::EventKind GreensFunction1DAbsSinkAbs::drawEventType(Real rnd, Re
     return rnd < p_sink ? IV_REACTION : IV_ESCAPE;
 }
 
-/* This function is needed to cast the math. form of the function
-   into the form needed by the GSL root solver. */
-Real GreensFunction1DAbsSinkAbs::drawT_f(Real t, void *p)
-{
-    struct drawT_params *params = static_cast<struct drawT_params *>(p);
-    return params->rnd - params->gf->p_survival_table(t, params->table);
-}
-
-/* Draws the first passage time from the survival probability
-   using an assistance function drawT_f that casts the math. function
-   into the form needed by the GSL root solver. */
 Real GreensFunction1DAbsSinkAbs::drawTime(Real rnd) const
 {
     THROW_UNLESS(std::invalid_argument, 0.0 <= rnd && rnd < 1.0);
@@ -555,10 +534,6 @@ Real GreensFunction1DAbsSinkAbs::drawTime(Real rnd) const
     if (D == 0.0 || L == INFINITY) return INFINITY;
 
     if (rnd >(1 - EPSILON) || L < 0.0 || fabs(a - r0) < EPSILON * L) return 0.0;
-
-    /* the structure to store the numbers to calculate the numbers for 1-S */
-    RealVector psurvTable;
-    drawT_params params = { this, psurvTable, rnd };
 
     /* Find a good interval to determine the first passage time.
        First we get the distance to one of the absorbing boundaries or the sink. */
@@ -576,10 +551,10 @@ Real GreensFunction1DAbsSinkAbs::drawTime(Real rnd) const
     t_guess = std::min(t_Abs, t_Rad);
     t_guess *= .1;
 
-    /* Define the function for the rootfinder */
-    gsl_function F;
-    F.function = &GreensFunction1DAbsSinkAbs::drawT_f;
-    F.params = &params;
+    /* the structure to store the numbers to calculate the numbers for 1-S */
+    RealVector psurvTable;
+    auto f = [rnd, &psurvTable, this](double t){ return rnd - p_survival_table(t, psurvTable); };
+    gsl_lambda<decltype(f)> F(f);
 
     Real value(GSL_FN_EVAL(&F, t_guess));
     Real low(t_guess);
@@ -593,8 +568,7 @@ Real GreensFunction1DAbsSinkAbs::drawTime(Real rnd) const
         {
             if (fabs(high) >= t_guess * 1e10)
             {
-                log_.error("drawTime: couldn't adjust high. F( %.16g ) = %.16g"
-                    , high, value);
+                log_.error("drawTime: couldn't adjust high. F( %.16g ) = %.16g", high, value);
                 throw std::exception();
             }
             // keep increasing the upper boundary until the
@@ -611,8 +585,7 @@ Real GreensFunction1DAbsSinkAbs::drawTime(Real rnd) const
         Real value_prev(2);
         do
         {
-            if (fabs(low) <= t_guess * 1e-10 ||
-                fabs(value - value_prev) < EPSILON*1.0)
+            if (fabs(low) <= t_guess * 1e-10 || fabs(value - value_prev) < EPSILON*1.0)
             {
                 log_.warn("drawTime Couldn't adjust low. F( %.16g ) = %.16g", low, value);
                 /*
@@ -766,13 +739,6 @@ Real GreensFunction1DAbsSinkAbs::p_int_r_rightdomainB(uint i, Real const& rr, Re
     return get_p_int_r_Table_i(i, t, table) * temp;
 }
 
-/* Function for GFL rootfinder of drawR. */
-Real GreensFunction1DAbsSinkAbs::drawR_f(Real r, void *p)
-{
-    struct drawR_params *params = static_cast<struct drawR_params *>(p);
-    return params->gf->p_int_r_table(r, params->t, params->table) - params->rnd;
-}
-
 Real GreensFunction1DAbsSinkAbs::drawR(Real rnd, Real t) const
 {
     THROW_UNLESS(std::invalid_argument, 0.0 <= rnd && rnd <= 1.0);
@@ -786,21 +752,16 @@ Real GreensFunction1DAbsSinkAbs::drawR(Real rnd, Real t) const
     if (rnd >= (1 - EPSILON)) return a;
 
     // the structure to store the numbers to calculate r.
-    RealVector drawR_table;
-    drawR_params parameters = { this, t, drawR_table, rnd * p_survival(t) };
-
-    // define gsl function for rootfinder
-    gsl_function F;
-    F.function = &drawR_f;
-    F.params = &parameters;
+    RealVector pintTable;
+    Real rndpsurf = rnd * p_survival(t);
+    auto f = [t, &pintTable, rndpsurf, this](double r){ return p_int_r_table(r, t, pintTable) - rndpsurf; };
+    gsl_lambda<decltype(f)> F(f);
 
     // define a new solver type brent
     const gsl_root_fsolver_type* solverType(gsl_root_fsolver_brent);
-
     gsl_root_fsolver* solver(gsl_root_fsolver_alloc(solverType));
     Real r(findRoot(F, solver, sigma, a, EPSILON*L, EPSILON, "GreensFunction1AbsSinkAbs::drawR"));
     gsl_root_fsolver_free(solver);
-    // Convert the position rr to 'world' coordinates and return it.
     return r;
 }
 

@@ -21,11 +21,6 @@ namespace binding
                 .def(self_ns::str(self))
                 .def("__hash__", &Timpl_::serial)
                 .def(self == self)
-                .def(self != self)
-                .def(self > self)
-                .def(self < self)
-                .def(self >= self)
-                .def(self <= self)
                 ;
         }
     };

@@ -1,19 +1,6 @@
-// Greens function class for 2d Green's Function for 2d annulus with radial and
-// axial dependence. Inner boundary is radiative (rad) (reaction event), outer 
-// boundary is absorbing (abs) (escape event). Different "draw" functions 
-// provide a way to draw certain values from the Green's Function, e.g. an
-// escape angle theta ("drawTheta" function).
-// 
-// Based upon code from Riken Institute. 
-// Written by Laurens Bossen, Adapted by Martijn Wehrens. FOM Institute AMOLF.
-
-//#define NDEBUG
-//#define BOOST_DISABLE_ASSERTS
-
-#include "compat.h"
-#include <iostream>
 #include <stdexcept>
 #include <vector>
+#include <iostream>
 #include <sstream>
 #include <boost/bind.hpp>
 #include <boost/tuple/tuple.hpp>
@@ -39,6 +26,17 @@ const Real GreensFunction2DRadAbs::CONVERGENCE_ASSUMED = 25;
 const Real GreensFunction2DRadAbs::INTERVAL_MARGIN = .33;
 
 Logger& GreensFunction2DRadAbs::log_(Logger::get_logger("GreensFunction2DRadAbs"));
+
+// Greens function class for 2d Green's Function for 2d annulus with radial and
+// axial dependence. Inner boundary is radiative (rad) (reaction event), outer 
+// boundary is absorbing (abs) (escape event). Different "draw" functions 
+// provide a way to draw certain values from the Green's Function, e.g. an
+// escape angle theta ("drawTheta" function).
+// 
+// Based upon code from Riken Institute. 
+// Written by Laurens Bossen, Adapted by Martijn Wehrens. FOM Institute AMOLF.
+
+
 
 GreensFunction2DRadAbs::GreensFunction2DRadAbs(const Real D, const Real kf, const Real r0, const Real sigma, const Real a) :
 PairGreensFunction(D, kf, r0, sigma), h(kf / (D * 2.0 * M_PI * sigma)), a(a), estimated_alpha_root_distance_(M_PI / (a - sigma))
@@ -123,7 +121,7 @@ Real GreensFunction2DRadAbs::f_alpha0_aux_F(const Real alpha, const f_alpha0_aux
 
 // f_alpha() Calculates the value of the mathematical function f_alpha(). The
 // roots (y=0) of this function are constants in the Green's Functions.
-Real GreensFunction2DRadAbs::f_alpha(const Real alpha, const Integer n) const
+Real GreensFunction2DRadAbs::f_alpha(const Real alpha, const int n) const
 {
     const Real s_An(sigma * alpha);
     const Real a_An(a * alpha);
@@ -154,7 +152,7 @@ Real GreensFunction2DRadAbs::f_alpha_aux_F(const Real alpha, const f_alpha_aux_p
     // Params contains pointer to gf object (params.gf), which has f_alpha() as 
     // a member.
     const GreensFunction2DRadAbs* const gf(params->gf);
-    const Integer n(params->n);
+    const int n(params->n);
     return gf->f_alpha(alpha, n);
 }
 
@@ -328,7 +326,7 @@ boost::tuple<Real, Real, Real> GreensFunction2DRadAbs::Y0J0J1_constants(const Re
 void GreensFunction2DRadAbs::GiveRootInterval(
     Real& low,             // Variable to return left boundary interval
     Real& high,            // Variable to return right boundary interval
-    const Integer n) const // Order of Bessel functions
+    const int n) const // Order of Bessel functions
 {
     THROW_UNLESS(std::invalid_argument, static_cast<uint>(n) < alpha_x_scan_table_.size());
 
@@ -398,7 +396,7 @@ void GreensFunction2DRadAbs::GiveRootInterval(
 
 // Simply returns an interval based upon previous root, estimated interval 
 // in-between roots and INTERVAL_MARGIN (see .hpp).
-void GreensFunction2DRadAbs::GiveRootIntervalSimple(Real& low, Real& high, const Integer n, const uint i) const
+void GreensFunction2DRadAbs::GiveRootIntervalSimple(Real& low, Real& high, const int n, const uint i) const
 {
     // Offset is simply based on previous root, the interval in which the first 
     // root (i=0) lies is never calculated with this function.
@@ -447,7 +445,7 @@ Real GreensFunction2DRadAbs::getAlphaRoot0(const Real low, const Real high) cons
 
 // This function calls the GSL root finder, for roots for which n > 0. (n = 0 is
 // a special case for which the function simplifies.)
-Real GreensFunction2DRadAbs::getAlphaRootN(const Real low, const Real high, const Integer n) const
+Real GreensFunction2DRadAbs::getAlphaRootN(const Real low, const Real high, const int n) const
 {
     // f_alpha_aux_params is a struct: {gf, n, value}
     // n is the summation index (the order of the Bessel functions used
@@ -471,7 +469,7 @@ Real GreensFunction2DRadAbs::getAlphaRootN(const Real low, const Real high, cons
 // getAlphaRoot0 or getAlphaRootN).
 Real GreensFunction2DRadAbs::getAlphaRoot(const Real low,   // root lies between low
     const Real high,  // .. and high 
-    const Integer n   // nth order Bessel
+    const int n   // nth order Bessel
     ) const
 {
     Real alpha;
@@ -796,7 +794,6 @@ Real GreensFunction2DRadAbs::drawTime(const Real rnd) const
             if (fabs(high) >= 1e10)	// if high time is way too high forget about it
             {
                 log_.warn("Couldn't adjust high. F(%.16g) = %.16g; r0 = %.16g,", high, GSL_FN_EVAL(&F, high), r0);
-                std::cerr << dump() << std::endl;
                 throw std::exception();
             }
         } while (value < 0.0);
@@ -1016,7 +1013,7 @@ Real GreensFunction2DRadAbs::p_m_alpha(const uint n, const uint m, const Real r,
 }
 
 // This calculates the m-th constant factor for the drawTheta method. 
-Real GreensFunction2DRadAbs::p_m(const Integer m, const Real r, const Real t) const
+Real GreensFunction2DRadAbs::p_m(const int m, const Real r, const Real t) const
 {
     // The m-th factor is a summation over n
     return funcSum(boost::bind(&GreensFunction2DRadAbs::p_m_alpha, this, _1, m, r, t), MAX_ALPHA_SEQ, EPSILON);
@@ -1051,12 +1048,11 @@ void GreensFunction2DRadAbs::makep_mTable(RealVector& p_mTable, const Real r, co
         if (m >= MAX_ORDER) // If the number of terms is too large
         {
             log_.warn("p_m didn't converge (m=%u, t=%.16g, r0=%.16g, r=%.16g, t_est=%.16g, continuing...", m, t, r0, r, gsl_pow_2(r - r0) / D);
-            std::cerr << dump() << std::endl;
             break;
         }
 
         p_m_prev_abs = p_m_abs;                             // store the previous term
-        const Real p_m(p_m(m, r, t) / p_0);       // get the next term
+        const Real p_m( this->p_m(m, r, t) / p_0);       // get the next term
 
         if (!std::isfinite(p_m))                        // if the calculated value is not valid->exit
         {
@@ -1112,7 +1108,7 @@ Real GreensFunction2DRadAbs::dp_m_alpha_at_a(const uint n, const uint m, const R
 }
 
 // Makes the sum over n for order m for the constants for the drawtheta Method
-Real GreensFunction2DRadAbs::dp_m_at_a(const Integer m, const Real t) const
+Real GreensFunction2DRadAbs::dp_m_at_a(const int m, const Real t) const
 {
     const Real p(funcSum(boost::bind(&GreensFunction2DRadAbs::dp_m_alpha_at_a, this, _1, m, t), MAX_ALPHA_SEQ, EPSILON));
 

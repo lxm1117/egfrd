@@ -1,7 +1,6 @@
 #ifndef GREENSFUNCTION3DABSSYM_HPP
 #define GREENSFUNCTION3DABSSYM_HPP
 
-#include <ostream>
 #include "Defs.hpp"
 #include "Logger.hpp"
 #include "GreensFunction.hpp"

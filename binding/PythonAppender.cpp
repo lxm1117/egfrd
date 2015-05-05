@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif /* HAVE_CONFIG_H */
-
 #include <map>
 #include <cstdio>
 #include <boost/foreach.hpp>
@@ -68,135 +64,6 @@ private:
 class CppLoggerHandler
 {
 public:
-// XXX: logging.Handler is a old-style class... *sigh*
-#ifdef HAVE_OLD_FASHIONED_LOGGER_CLASSES
-    static PyObject* __class_init__(const char* name, PyObject* mod)
-    {
-        using namespace boost::python;
-
-        import_logging_module();
-        object mod_name(object(borrowed(mod)).attr("__name__"));
-
-        boost::python::handle<> dict(PyDict_New());
-        if (PyDict_SetItemString(dict.get(), "__module__", mod_name.ptr()))
-            return NULL;
-
-        boost::python::object bases(
-            boost::python::make_tuple(
-                getattr(logging_module, "Handler")));
-
-        boost::python::object _name(name);
-
-        boost::python::handle<> klass(
-            PyClass_New(bases.ptr(), dict.get(), _name.ptr()));
-        if (PyErr_Occurred())
-            return NULL;
-
-        for (PyMethodDef* meth = __methods__; meth->ml_name; ++meth)
-        {
-            boost::python::handle<> _meth(
-                boost::python::allow_null(
-                    meth->ml_flags & METH_STATIC ?
-                        PyStaticMethod_New(PyCFunction_New(meth, NULL)):
-                        PyDescr_NewMethod(&PyInstance_Type, meth)));
-            if (!_meth)
-                return NULL;
-            if (PyDict_SetItemString(dict.get(), meth->ml_name, _meth.get()))
-                return NULL;
-        }
-
-        for (PyGetSetDef* gsp = __getsets__; gsp->name; ++gsp)
-        {
-            boost::python::handle<> descr(
-                boost::python::allow_null(
-                    PyDescr_NewGetSet(&PyInstance_Type, gsp)));
-            if (!descr)
-                return NULL;
-            if (PyDict_SetItemString(dict.get(), gsp->name, descr.get()))
-                return NULL;
-        }
-
-        __class__ = klass;
-
-        return klass.get();
-    }
-
-    static CppLoggerHandler* get_self(PyObject* _self)
-    {
-        boost::python::handle<> ptr(
-            boost::python::allow_null(
-                PyObject_GetAttrString(_self, "__ptr__")));
-        if (!ptr)
-            return 0;
-        if (!PyCObject_Check(ptr.get()))
-        {
-            PyErr_Format(PyExc_TypeError,
-                    "self.__ptr__ must be a PyCObject instance (got %s)",
-                    ptr.get()->ob_type->tp_name);
-            return 0;
-        }
-        return reinterpret_cast<CppLoggerHandler*>(PyCObject_AsVoidPtr(ptr.get()));
-    }
-
-    static PyObject* __init__(PyObject* _self, PyObject* logger)
-    try
-    {
-        BOOST_ASSERT(PyInstance_Check(_self));
-
-        CppLoggerHandler* self(new CppLoggerHandler(
-            *boost::python::extract<Logger*>(logger)()));
-
-        boost::python::handle<> ptr(
-            boost::python::allow_null(
-                PyCObject_FromVoidPtr(self, &__dealloc__)));
-        if (!ptr)
-        {
-            delete self;
-            return NULL;
-        }
-
-        if (PyObject_SetAttrString(_self, "__ptr__", ptr.get()))
-            return NULL;
-
-        boost::python::handle<> bases(
-            boost::python::borrowed(
-                reinterpret_cast<PyInstanceObject*>(_self)->in_class->cl_bases));
-   
-        if (!PyTuple_Check(bases.get()))
-            return NULL;
-
-        boost::python::handle<> super_arg(PyTuple_Pack(1, _self));
-
-        for (std::size_t i(0), l(PyTuple_GET_SIZE(bases.get())); i < l; ++i)
-        {
-            boost::python::handle<> base(
-                boost::python::borrowed(PyTuple_GET_ITEM(bases.get(), i)));
-            boost::python::handle<> super_init(
-                boost::python::borrowed(
-                    PyObject_GetAttrString(base.get(), "__init__")));
-            if (PyErr_Occurred())
-            {
-                PyErr_Clear();
-                continue;
-            }
-
-            if (!boost::python::handle<>(
-                boost::python::allow_null(
-                    PyObject_Call(super_init.get(), super_arg.get(), NULL))))
-
-            {
-                return NULL; 
-            }
-        }
-
-        return boost::python::incref(Py_None);
-    }
-    catch (boost::python::error_already_set const&)
-    {
-        return NULL;
-    }
-
-#else
     void* operator new(size_t)
     {
         PyObject* retval = PyObject_New(PyObject, &__class__);
@@ -281,7 +148,6 @@ public:
             PyObject_ClearWeakRefs(reinterpret_cast<PyObject*>(this));
         }
     }
-#endif
 
     static void __dealloc__(void* ptr)
     {
@@ -397,7 +263,6 @@ public:
     }
 
 
-#ifndef HAVE_OLD_FASHIONED_LOGGER_CLASSES
     static PyObject* get___dict__(PyObject *_self, void* context)
     {
         CppLoggerHandler* const self(get_self(_self));
@@ -405,16 +270,8 @@ public:
             return NULL;
         return boost::python::incref(self->__dict__.get());
     }
-#endif
 
-    CppLoggerHandler(Logger& impl)
-        :
-#ifndef HAVE_OLD_FASHIONED_LOGGER_CLASSES
-        __weakreflist__(0),
-        __dict__(PyDict_New()),
-#endif
-        impl_(impl)
-    {}
+    CppLoggerHandler(Logger& impl) : __weakreflist__(0), __dict__(PyDict_New()), impl_(impl) {}
 
 protected:
     static enum Logger::level translate_level(PyObject* _level)

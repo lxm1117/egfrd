@@ -10,7 +10,6 @@
 #include <boost/range/size.hpp>
 #include <numpy/arrayobject.h>
 
-#include "peer/compat.h"
 #include "peer/utils.hpp"
 #include "peer/numpy/type_mappings.hpp"
 #include "peer/pickle_support.hpp"
@@ -328,7 +327,7 @@ public:
             return get_radius(reinterpret_cast<ParticleWrapper*>(self));
         case 2:
             return get_D(reinterpret_cast<ParticleWrapper*>(self));
-    	case 3:
+        case 3:
             return get_v(reinterpret_cast<ParticleWrapper*>(self));
         case 4:
             return get_sid(reinterpret_cast<ParticleWrapper*>(self));
@@ -354,7 +353,7 @@ public:
             return set_radius(reinterpret_cast<ParticleWrapper*>(self), val, 0);
         case 2:
             return set_D(reinterpret_cast<ParticleWrapper*>(self), val, 0);
-	    case 3:
+        case 3:
             return set_v(reinterpret_cast<ParticleWrapper*>(self), val, 0);
         case 4:
             return set_sid(reinterpret_cast<ParticleWrapper*>(self), val, 0);
@@ -497,37 +496,37 @@ PySequenceMethods ParticleWrapper<Timpl_>::__sequence_methods__ = {
 
 template<typename Timpl_>
 PyTypeObject ParticleWrapper<Timpl_>::__class__ = {
-	PyObject_HEAD_INIT(&PyType_Type)
-	0,					/* ob_size */
-	0,                  /* tp_name */
-	sizeof(ParticleWrapper), /* tp_basicsize */
-	0,					/* tp_itemsize */
-	/* methods */
-	(destructor)&ParticleWrapper::__dealloc__, /* tp_dealloc */
-	0,					/* tp_print */
-	0,					/* tp_getattr */
-	0,					/* tp_setattr */
-	0,					/* tp_compare */
-	(reprfunc)&ParticleWrapper::__repr__,					/* tp_repr */
-	0,					/* tp_as_number */
-	&ParticleWrapper::__sequence_methods__,	/* tp_as_sequence */
-	0,					/* tp_as_mapping */
-	(hashfunc)&ParticleWrapper::__hash__,					/* tp_hash */
-	0,					/* tp_call */
-	(reprfunc)&ParticleWrapper::__str__,					/* tp_str */
-	PyObject_GenericGetAttr,		/* tp_getattro */
-	0,					/* tp_setattro */
-	0,					/* tp_as_buffer */
-	Py_TPFLAGS_HAVE_CLASS | Py_TPFLAGS_HAVE_RICHCOMPARE,/* tp_flags */
-	0,					/* tp_doc */
-	0,              	/* tp_traverse */
-	0,					/* tp_clear */
-	0,                  /* tp_richcompare */
-	0,					/* tp_weaklistoffset */
-	0,                  /* tp_iter */
-	0,                  /* tp_iternext */
-	ParticleWrapper::__methods__,		        	/* tp_methods */
-	0,					/* tp_members */
+    PyObject_HEAD_INIT(&PyType_Type)
+    0,					/* ob_size */
+    0,                  /* tp_name */
+    sizeof(ParticleWrapper), /* tp_basicsize */
+    0,					/* tp_itemsize */
+    /* methods */
+    (destructor)&ParticleWrapper::__dealloc__, /* tp_dealloc */
+    0,					/* tp_print */
+    0,					/* tp_getattr */
+    0,					/* tp_setattr */
+    0,					/* tp_compare */
+    (reprfunc)&ParticleWrapper::__repr__,					/* tp_repr */
+    0,					/* tp_as_number */
+    &ParticleWrapper::__sequence_methods__,	/* tp_as_sequence */
+    0,					/* tp_as_mapping */
+    (hashfunc)&ParticleWrapper::__hash__,					/* tp_hash */
+    0,					/* tp_call */
+    (reprfunc)&ParticleWrapper::__str__,					/* tp_str */
+    PyObject_GenericGetAttr,		/* tp_getattro */
+    0,					/* tp_setattro */
+    0,					/* tp_as_buffer */
+    Py_TPFLAGS_HAVE_CLASS | Py_TPFLAGS_HAVE_RICHCOMPARE,/* tp_flags */
+    0,					/* tp_doc */
+    0,              	/* tp_traverse */
+    0,					/* tp_clear */
+    0,                  /* tp_richcompare */
+    0,					/* tp_weaklistoffset */
+    0,                  /* tp_iter */
+    0,                  /* tp_iternext */
+    ParticleWrapper::__methods__,		        	/* tp_methods */
+    0,					/* tp_members */
     ParticleWrapper::__getsets__, /* tp_getset */
     &PyBaseObject_Type, /* tp_base */
     0,                  /* tp_dict */

@@ -1,16 +1,6 @@
-#!/usr/bin/env python
-
-__author__    = 'Koichi Takahashi <shafi@e-cell.org>'
-__license__   = 'GPL'
-__copyright__ = 'Copyright The Molecular Sciences Institute 2006-2007'
-
-
 import unittest
-
 import _greens_functions as mod
-
 import numpy
-
 
 class GreensFunction3DTestCase(unittest.TestCase):
 
@@ -26,6 +16,7 @@ class GreensFunction3DTestCase(unittest.TestCase):
 
         gf = mod.GreensFunction3D(D, r0)
         self.failIf(gf == None)
+
 
     def test_drawR(self):
         D = 1e-12
@@ -44,6 +35,7 @@ class GreensFunction3DTestCase(unittest.TestCase):
         r = gf.drawR(1.0, t)
         self.failIf(r < 0.0)
 
+
     def test_drawR_zerot_is_r0(self):
         D = 1e-12
         r0 = 2e-8
@@ -60,6 +52,7 @@ class GreensFunction3DTestCase(unittest.TestCase):
 
         r = gf.drawR(1.0, t)
         self.assertEqual(r, r0)
+
 
     def test_drawR_smallt(self):
         D = 1e-12
@@ -80,7 +73,6 @@ class GreensFunction3DTestCase(unittest.TestCase):
             self.failIf(r < 0.0)
 
             t *= 1e-3
-
 
 
     def test_draw_theta(self):
@@ -140,8 +132,7 @@ class GreensFunction3DTestCase(unittest.TestCase):
         for i in range(1, resolution):
             r = i * maxr / resolution
             ip = gf.ip_r(r, t)
-            result = scipy.integrate.quad(gf.p_r, 0.0, r,
-                                          args=(t, ))
+            result = scipy.integrate.quad(gf.p_r, 0.0, r, args=(t, ))
             np = result[0]
             self.assertAlmostEqual(0.0, (np-ip)/ip)
 
@@ -159,17 +150,13 @@ class GreensFunction3DTestCase(unittest.TestCase):
         gf = mod.GreensFunction3D(D, r0)
 
         ip = gf.ip_theta(numpy.pi, r, t)
-        result = scipy.integrate.quad(gf.p_theta, 0.0, numpy.pi,
-                                      args=(r, t))
+        result = scipy.integrate.quad(gf.p_theta, 0.0, numpy.pi, args=(r, t))
         np = result[0]
 
         pr = gf.p_r(r, t) / (2 * numpy.pi * r * r)
 
         self.assertAlmostEqual(0.0, (pr-ip)/pr)
         self.assertAlmostEqual(0.0, (pr-np)/pr)
-
-
-
 
 
     def test_int_p_theta_is_ip_theta(self):
@@ -191,12 +178,9 @@ class GreensFunction3DTestCase(unittest.TestCase):
         for i in range(1, resolution):
             theta = i * numpy.pi / resolution
             ip = gf.ip_theta(theta, r, t)
-            result = scipy.integrate.quad(gf.p_theta, 0.0, theta,
-                                          args=(r, t))
+            result = scipy.integrate.quad(gf.p_theta, 0.0, theta, args=(r, t))
             np = result[0]
             self.assertAlmostEqual(0.0, (np-ip)/ip)
-
-
 
 
 if __name__ == "__main__":

@@ -1,4 +1,3 @@
-#include "compat.h"
 #include <stdexcept>
 #include <vector>
 #include <sstream>
@@ -55,20 +54,15 @@ Real GreensFunction3DAbs::p_int_r(Real r, Real t) const
     const uint i_max(std::max(static_cast<uint>(ceil(sqrt(1.0 - asq / M_PI / M_PI * log(TOLERANCE) / Dt))), 2u));
 
     Real p(0.0);
-    for (uint i(1);;)
+    for (uint i(1);;++i)
     {
-        Real sin_r;
-        Real cos_r;
-        sincos(r_angle_factor * i, &sin_r, &cos_r);
-
         const Real isq(i * i);
         const Real term1(exp(exp_factor * isq) * sin(r0_angle_factor * i));
-        const Real term2(a * sin_r - PIr * i * cos_r);
+        const Real term2(a * sin(r_angle_factor * i) - PIr * i * cos(r_angle_factor * i));
         const Real term(term1 * term2 / isq);
 
         p += term;
         if (i >= i_max) break;
-        ++i;
     }
 
     const Real factor(M_2_PI / PIr0);
@@ -122,7 +116,7 @@ Real GreensFunction3DAbs::p_n_alpha(uint i, uint n, Real r, Real t) const
     return result;
 }
 
-Real GreensFunction3DAbs::p_n(Integer n, Real r, Real t) const
+Real GreensFunction3DAbs::p_n(int n, Real r, Real t) const
 {
     return funcSum(boost::bind(&GreensFunction3DAbs::p_n_alpha, this, _1, n, r, t), MAX_ALPHA_SEQ);
 }
@@ -171,11 +165,8 @@ Real GreensFunction3DAbs::p_theta_table(Real theta, Real r, Real t, RealVector c
 {
     const uint tableSize(p_nTable.size());
     RealVector lgndTable(tableSize);
-    Real sin_theta;
-    Real cos_theta;
-    sincos(theta, &sin_theta, &cos_theta);
-    gsl_sf_legendre_Pl_array(tableSize - 1, cos_theta, &lgndTable[0]);
-    return funcSum_all(boost::bind(&p_theta_i, _1, p_nTable, lgndTable), tableSize) * sin_theta;
+    gsl_sf_legendre_Pl_array(tableSize - 1, cos(theta), &lgndTable[0]);
+    return funcSum_all(boost::bind(&p_theta_i, _1, p_nTable, lgndTable), tableSize) * sin(theta);
 }
 
 Real GreensFunction3DAbs::p_theta(Real theta, Real r, Real t) const
@@ -294,7 +285,7 @@ Real GreensFunction3DAbs::dp_n_alpha(uint i, uint n, Real t) const
     return result;
 }
 
-Real GreensFunction3DAbs::dp_n(Integer n, Real t) const
+Real GreensFunction3DAbs::dp_n(int n, Real t) const
 {
     return funcSum(boost::bind(&GreensFunction3DAbs::dp_n_alpha, this, _1, n, t), MAX_ALPHA_SEQ);
 }
@@ -427,9 +418,7 @@ Real GreensFunction3DAbs::drawTime(Real rnd) const
         log_.info("drawTime: adjusting high: %.16g", high);
         if (fabs(high) >= 1e10)
         {
-            throw std::runtime_error(
-                (boost::format("GreensFunction3DAbs: couldn't adjust high. F(%.16g) = %.16g; r0=%.16g, %s") %
-                high % GSL_FN_EVAL(&F, high) % r0 % dump()).str());
+            throw std::runtime_error((boost::format("GreensFunction3DAbs: couldn't adjust high. F(%.16g) = %.16g; r0=%.16g, %s") % high % GSL_FN_EVAL(&F, high) % r0 % dump()).str());
         }
     }
 
@@ -456,7 +445,7 @@ Real GreensFunction3DAbs::drawTime(Real rnd) const
     gsl_root_fsolver_set(solver, &F, low, high);
 
     const uint maxIter(100);
-    for (uint i(0);;)
+    for (uint i(0);; ++i)
     {
         gsl_root_fsolver_iterate(solver);
         low = gsl_root_fsolver_x_lower(solver);
@@ -464,20 +453,8 @@ Real GreensFunction3DAbs::drawTime(Real rnd) const
 
         const int status(gsl_root_test_interval(low, high, MIN_T, TOLERANCE));
 
-        if (status == GSL_CONTINUE)
-        {
-            if (i >= maxIter)
-            {
-                gsl_root_fsolver_free(solver);
-                throw std::runtime_error("GreensFunction3DAbs: drawTime: failed to converge");
-            }
-        }
-        else
-        {
-            break;
-        }
-
-        ++i;
+        if (status != GSL_CONTINUE) break;
+        if (i >= maxIter) throw std::runtime_error("GreensFunction3DAbs: drawTime: failed to converge");
     }
 
     Real t(gsl_root_fsolver_root(solver));
@@ -522,27 +499,15 @@ Real GreensFunction3DAbs::drawR(Real rnd, Real t) const
     gsl_root_fsolver_set(solver, &F, low, high);
 
     const uint maxIter(100);
-    for (uint i(0);;)
+    for (uint i(0);;++i)
     {
         gsl_root_fsolver_iterate(solver);
         low = gsl_root_fsolver_x_lower(solver);
         high = gsl_root_fsolver_x_upper(solver);
         const int status(gsl_root_test_interval(low, high, 1e-15, TOLERANCE));
 
-        if (status == GSL_CONTINUE)
-        {
-            if (i >= maxIter)
-            {
-                gsl_root_fsolver_free(solver);
-                throw std::runtime_error("GreensFunction3DAbs: drawR: failed to converge");
-            }
-        }
-        else
-        {
-            break;
-        }
-
-        ++i;
+        if (status != GSL_CONTINUE) break;
+        if (i >= maxIter) throw std::runtime_error("GreensFunction3DAbs: drawR: failed to converge");
     }
 
     const Real r(gsl_root_fsolver_root(solver));
@@ -597,27 +562,15 @@ Real GreensFunction3DAbs::drawTheta(Real rnd, Real r, Real t) const
     gsl_root_fsolver_set(solver, &F, 0.0, M_PI);
 
     const uint maxIter(100);
-    for (uint i(0);;)
+    for (uint i(0);;++i)
     {
         gsl_root_fsolver_iterate(solver);
         const Real low(gsl_root_fsolver_x_lower(solver));
         const Real high(gsl_root_fsolver_x_upper(solver));
         const int status(gsl_root_test_interval(low, high, 1e-11, THETA_TOLERANCE));
 
-        if (status == GSL_CONTINUE)
-        {
-            if (i >= maxIter)
-            {
-                gsl_root_fsolver_free(solver);
-                throw std::runtime_error("GreensFunction3DAbs: drawTheta: failed to converge");
-            }
-        }
-        else
-        {
-            break;
-        }
-
-        ++i;
+        if (status != GSL_CONTINUE) break;
+        if (i >= maxIter) throw std::runtime_error("GreensFunction3DAbs: drawTheta: failed to converge");
     }
 
     Real theta = gsl_root_fsolver_root(solver);

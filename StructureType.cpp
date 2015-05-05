@@ -12,9 +12,7 @@ StructureType::identifier_type const& StructureType::id() const
 StructureType::structure_type_id_type const& StructureType::structure_type_id() const
 {
     if (!structure_type_id_)
-    {
         throw illegal_state("no structure_type defined");
-    }
     return structure_type_id_;
 }
 

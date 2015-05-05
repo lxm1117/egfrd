@@ -1,15 +1,14 @@
 #include <sstream>
-#include <iostream>
 #include <exception>
 #include <vector>
+#include <cmath>
 #include <boost/bind.hpp>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_roots.h>
-#include <cmath>
 #include "findRoot.hpp"
 #include "freeFunctions.hpp"
-#include "GreensFunction1DRadAbs.hpp"
 #include "funcSum.hpp"
+#include "GreensFunction1DRadAbs.hpp"
 
 const Real GreensFunction1DRadAbs::L_TYPICAL = 1E-8;
 const Real GreensFunction1DRadAbs::T_TYPICAL = 1E-6;
@@ -504,8 +503,7 @@ Real GreensFunction1DRadAbs::drawTime(Real rnd) const
         Real value_prev(2);
         do
         {
-            if (fabs(low) <= t_guess * 1e-10 ||
-                fabs(value - value_prev) < EPSILON*1.0)
+            if (fabs(low) <= t_guess * 1e-10 || fabs(value - value_prev) < EPSILON*1.0)
             {
                 log_.warn("drawTime: couldn't adjust low. F( %.16g ) = %.16g", low, value);
                 /*
@@ -538,8 +536,6 @@ Real GreensFunction1DRadAbs::drawTime(Real rnd) const
 /* Returns c.d.f. for drawR */
 Real GreensFunction1DRadAbs::p_int_r_table(Real const& r, Real const& t, RealVector& table) const
 {
-    const Real L(a - sigma);
-
     /* If not all boundaries are 'visible' to the particle
        use approximation. */
     const Real distToa(a - r0);
@@ -573,11 +569,7 @@ Real GreensFunction1DRadAbs::p_int_r_table(Real const& r, Real const& t, RealVec
     const Real prefac(2.0*exp(vexpo));
 
     if (maxi >= MAX_TERMS)
-    {
-        log_.warn("drawR: maxi was cut to MAX_TERMS for t = %.16g", t);
-        std::cerr << dump();
-        std::cerr << "L: " << L << " r0: " << r0 - sigma << std::endl;
-    }
+        log_.warn("p_int_r_table: maxi was cut to MAX_TERMS for t = %.16g", t);
 
     if (table.size() < maxi)
     {

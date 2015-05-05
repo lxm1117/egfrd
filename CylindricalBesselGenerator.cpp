@@ -1,5 +1,4 @@
 #include <cassert>
-#include "compat.h"
 #include "CylindricalBesselTable.hpp"
 #include "CylindricalBesselGenerator.hpp"
 
@@ -23,12 +22,12 @@ inline static Real interp(Real x_start, Real delta_x, Real const* yTable, Real x
     return hermite_interp(x, x_start, delta_x, yTable);
 }
 
-static Real _J(UnsignedInteger n, Real z)
+static Real _J(uint n, Real z)
 {
     return gsl_sf_bessel_Jn(n, z);
 }
 
-static Real _Y(UnsignedInteger n, Real z)
+static Real _Y(uint n, Real z)
 {
     return gsl_sf_bessel_Yn(n, z);
 }
@@ -39,51 +38,51 @@ CylindricalBesselGenerator const& CylindricalBesselGenerator::instance()
     return cylindricalBesselGenerator;
 }
 
-UnsignedInteger CylindricalBesselGenerator::getMinNJ()
+uint CylindricalBesselGenerator::getMinNJ()
 {
     return cb_table::cj_table_min;
 }
 
-UnsignedInteger CylindricalBesselGenerator::getMinNY()
+uint CylindricalBesselGenerator::getMinNY()
 {
     return cb_table::cy_table_min;
 }
 
-UnsignedInteger CylindricalBesselGenerator::getMaxNJ()
+uint CylindricalBesselGenerator::getMaxNJ()
 {
     return cb_table::cj_table_max;
 }
 
-UnsignedInteger CylindricalBesselGenerator::getMaxNY()
+uint CylindricalBesselGenerator::getMaxNY()
 {
     return cb_table::cy_table_max;
 }
 
-static cb_table::Table const* getCJTable(UnsignedInteger n)
+static cb_table::Table const* getCJTable(uint n)
 {
     return cb_table::cj_table[n];
 }
 
-static cb_table::Table const* getCYTable(UnsignedInteger n)
+static cb_table::Table const* getCYTable(uint n)
 {
     return cb_table::cy_table[n];
 }
 
-static inline Real _J_table(UnsignedInteger n, Real z)
+static inline Real _J_table(uint n, Real z)
 {
     cb_table::Table const* tablen(getCJTable(n));
 
     return interp(tablen->x_start, tablen->delta_x, tablen->y, z);
 }
 
-static inline Real _Y_table(UnsignedInteger n, Real z)
+static inline Real _Y_table(uint n, Real z)
 {
     cb_table::Table const* tablen(getCYTable(n));
 
     return interp(tablen->x_start, tablen->delta_x, tablen->y, z);
 }
 
-Real CylindricalBesselGenerator::J(UnsignedInteger n, Real z) const
+Real CylindricalBesselGenerator::J(uint n, Real z) const
 {
     if (n > getMaxNJ())
     {
@@ -106,7 +105,7 @@ Real CylindricalBesselGenerator::J(UnsignedInteger n, Real z) const
     }
 }
 
-Real CylindricalBesselGenerator::Y(const UnsignedInteger n, const Real z) const
+Real CylindricalBesselGenerator::Y(const uint n, const Real z) const
 {
     if (n > getMaxNY())
     {

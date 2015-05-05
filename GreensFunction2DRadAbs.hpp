@@ -1,12 +1,3 @@
-// Greens function class for 2d Green's Function for 2d annulus with radial and
-// axial dependence. Inner boundary is radiative (rad) (reaction event), outer 
-// boundary is absorbing (abs) (escape event). Different "draw" functions 
-// provide a way to draw certain values from the Green's Function, e.g. an
-// escape angle theta ("drawTheta" function).
-// 
-// Written by Laurens Bossen. Adapted by Martijn Wehrens.
-// FOM Institute AMOLF.
-
 #ifndef GREENSFUNCTION2DRADABS_HPP
 #define GREENSFUNCTION2DRADABS_HPP
 
@@ -15,6 +6,15 @@
 #include "Logger.hpp"
 #include "PairGreensFunction.hpp"
 
+
+// Greens function class for 2d Green's Function for 2d annulus with radial and
+// axial dependence. Inner boundary is radiative (rad) (reaction event), outer 
+// boundary is absorbing (abs) (escape event). Different "draw" functions 
+// provide a way to draw certain values from the Green's Function, e.g. an
+// escape angle theta ("drawTheta" function).
+// 
+// Written by Laurens Bossen. Adapted by Martijn Wehrens.
+// FOM Institute AMOLF.
 
 class GF_CLASS GreensFunction2DRadAbs : public PairGreensFunction
 {
@@ -63,7 +63,7 @@ public:
 
     Real f_alpha0(const Real alpha) const;
 
-    Real f_alpha(const Real alpha, const Integer n) const;
+    Real f_alpha(const Real alpha, const int n) const;
 
     Real p_survival(const Real t) const;
 
@@ -73,27 +73,25 @@ public:
 
     Real leavea(const Real t) const;
 
-    Real p_m(const Integer n, const Real r, const Real t) const;
+    Real p_m(const int n, const Real r, const Real t) const;
 
-    Real dp_m_at_a(const Integer m, const Real t) const;
+    Real dp_m_at_a(const int m, const Real t) const;
 
     Real p_m_alpha(const uint n, const uint m, const Real r, const Real t) const;
 
     Real dp_m_alpha_at_a(const uint n, const uint m, const Real t) const;
 
-    void GiveRootInterval(Real& low, Real& high, const Integer n) const;
+    void GiveRootInterval(Real& low, Real& high, const int n) const;
 
-    void GiveRootIntervalSimple(Real& low, Real& high, const Integer n, const uint i) const;
+    void GiveRootIntervalSimple(Real& low, Real& high, const int n, const uint i) const;
 
     Real getAlphaRoot0(const Real low, const Real high) const;
 
-    Real getAlphaRootN(const Real low, const Real high, const Integer n) const;
+    Real getAlphaRootN(const Real low, const Real high, const int n) const;
 
-    Real getAlphaRoot(const Real high, const Real low, const Integer n) const;
+    Real getAlphaRoot(const Real high, const Real low, const int n) const;
 
     void decideOnMethod2(size_t n, RealVector::size_type i) const;
-
-    // void needToSwitchBackMethod1(size_t n, RealVector::size_type i) const;
 
     Real getAlpha(size_t n, RealVector::size_type i) const;
 
@@ -105,17 +103,13 @@ public:
 
     boost::tuple<Real, Real, Real> Y0J0J1_constants(const Real alpha, const Real t) const;
 
-    //    Real getAlpha(const size_t n, const RealVector::size_type i) const;
-
-    //    Real getAlpha0(const RealVector::size_type i) const;
-
     Real givePDFTheta(const Real theta, const Real r, const Real t) const;
 
     Real givePDFR(const Real r, const Real t) const;
 
     void dumpRoots(int n);
 
-protected:
+private:
 
     void clearAlphaTable() const;
 
@@ -160,7 +154,7 @@ protected:
     struct f_alpha_aux_params
     {
         const GreensFunction2DRadAbs* const gf;
-        const Integer n;
+        const int n;
         Real value;
     };
 

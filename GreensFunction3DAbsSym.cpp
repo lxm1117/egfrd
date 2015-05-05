@@ -1,4 +1,3 @@
-#include "compat.h"
 #include <sstream>
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
@@ -110,12 +109,8 @@ Real GreensFunction3DAbsSym::p_int_r(Real r, Real t) const
         const Real term1(exp(-n * n * DtPIsq_asq));
 
         const Real angle_n(n * PIr_a);
-        Real sin_n;
-        Real cos_n;
-        sincos(angle_n, &sin_n, &cos_n);
-        const Real term2(a * sin_n);
-        const Real term3(n * PIr * cos_n);
-
+        const Real term2(a * sin(angle_n));
+        const Real term3(n * PIr * cos(angle_n));
         const Real term(term1 * (term2 - term3) / n);
         value += term;
     }
@@ -156,30 +151,14 @@ Real GreensFunction3DAbsSym::p_r_fourier(Real r, Real t) const
     return value * factor;
 }
 
-struct p_survival_params
-{
-    const GreensFunction3DAbsSym* const gf;
-    const Real rnd;
-};
-
-static Real p_survival_F(Real t, p_survival_params const* params)
-{
-    return params->rnd - params->gf->p_survival(t);
-}
-
 Real GreensFunction3DAbsSym::drawTime(Real rnd) const
 {
-    if (rnd >= 1.0 || rnd < 0.0)
-    {
-        throw std::invalid_argument((boost::format("GreensFunction3DAbsSym: 0.0 <= %.16g < 1.0") % rnd).str());
-    }
-
+    if (rnd >= 1.0 || rnd < 0.0) throw std::invalid_argument((boost::format("GreensFunction3DAbsSym: 0.0 <= %.16g < 1.0") % rnd).str());
     if (D == 0.0 || a == INFINITY) return INFINITY;
-
     if (a == 0.0) return 0.0;
 
-    p_survival_params params = { this, rnd };
-    gsl_function F = { reinterpret_cast<double(*)(double, void*)>(&p_survival_F), &params };
+    auto f = [rnd, this](double t){ return rnd - p_survival(t); };
+    gsl_lambda<decltype(f)> F(f);
 
     const Real t_guess(a * a / (6. * D));
 
@@ -195,8 +174,7 @@ Real GreensFunction3DAbsSym::drawTime(Real rnd) const
         {
             const Real high_value(GSL_FN_EVAL(&F, high));
 
-            if (high_value >= 0.0)
-                break;
+            if (high_value >= 0.0) break;
 
             if (fabs(high) >= t_guess * 1e6)
                 throw std::runtime_error((boost::format("GreensFunction3DAbsSym: couldn't adjust high. F(%.16g) = %.16g; %s") % high % GSL_FN_EVAL(&F, high) % dump()).str());
@@ -211,16 +189,14 @@ Real GreensFunction3DAbsSym::drawTime(Real rnd) const
         {
             const Real low_value(GSL_FN_EVAL(&F, low));
 
-            if (low_value <= 0.0)
-                break;
+            if (low_value <= 0.0) break;
 
-            if (fabs(low) <= t_guess * 1e-6 ||
-                fabs(low_value - low_value_prev) < CUTOFF)
+            if (fabs(low) <= t_guess * 1e-6 || fabs(low_value - low_value_prev) < CUTOFF)
             {
-                log_.info("couldn't adjust high. F(%.16g) = %.16g; %s", low, GSL_FN_EVAL(&F, low), dump().c_str());
-                log_.info("returning low (%.16g)", low);
+                log_.info("couldn't adjust low. F(%.16g) = %.16g; %s", low, GSL_FN_EVAL(&F, low), dump().c_str());
                 return low;
             }
+
             low_value_prev = low_value;
             low *= .1;
         }
@@ -252,16 +228,8 @@ static Real p_r_F(Real r, p_r_params const* params)
 
 Real GreensFunction3DAbsSym::drawR(Real rnd, Real t) const
 {
-    if (rnd >= 1.0 || rnd < 0.0)
-    {
-        throw std::invalid_argument((boost::format("GreensFunction3DAbsSym: 0.0 <= %.16g < 1.0") % rnd).str());
-    }
-
-    if (t < 0.0)
-    {
-        throw std::invalid_argument((boost::format("GreensFunction3DAbsSym: %.16g < 0.0") % t).str());
-    }
-
+    if (rnd >= 1.0 || rnd < 0.0) throw std::invalid_argument((boost::format("GreensFunction3DAbsSym: 0.0 <= %.16g < 1.0") % rnd).str());
+    if (t < 0.0) throw std::invalid_argument((boost::format("GreensFunction3DAbsSym: %.16g < 0.0") % t).str());
     if (a == 0.0 || t == 0.0 || D == 0.0) return 0.0;
 
     const Real thresholdDistance(CUTOFF_H * sqrt(6.0 * D * t));
@@ -295,7 +263,6 @@ Real GreensFunction3DAbsSym::drawR(Real rnd, Real t) const
     F.params = &params;
     const Real low(0.0);
     const Real high(a);
-    //const Real high(std::min(thresholdDistance, a));
 
     const gsl_root_fsolver_type* solverType(gsl_root_fsolver_brent);
     gsl_root_fsolver* solver(gsl_root_fsolver_alloc(solverType));

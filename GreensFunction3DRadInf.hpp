@@ -2,9 +2,9 @@
 #define GREENSFUNCTION3DRADINF_HPP 
 
 #include "Defs.hpp"
+#include <gsl/gsl_integration.h>
 #include "Logger.hpp"
 #include "PairGreensFunction.hpp"
-#include <gsl/gsl_integration.h>
 
 class GF_CLASS GreensFunction3DRadInf : public PairGreensFunction
 {

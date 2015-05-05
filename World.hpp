@@ -525,9 +525,7 @@ public:
     virtual structure_type_id_type get_def_structure_type_id() const
     {
         if (!default_structure_type_id_)
-        {
             throw not_found("Default structure_type is not defined.");
-        }
         return default_structure_type_id_;
     }
     void set_def_structure_type_id(structure_type_id_type const& sid)

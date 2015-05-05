@@ -1,16 +1,6 @@
-#!/usr/bin/env python
-
-__author__    = 'Koichi Takahashi <shafi@e-cell.org>'
-__license__   = 'GPL'
-__copyright__ = 'Copyright The Molecular Sciences Institute 2006-2007'
-
-
 import unittest
-
 import _greens_functions as mod
-
 import numpy
-
 
 class GreensFunction3DRadAbsTestCase(unittest.TestCase):
 
@@ -19,6 +9,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
 
     def tearDown(self):
         pass
+
 
     def test_instantiation(self):
         D = 1e-12
@@ -42,12 +33,15 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
 
         t = gf.drawTime(0.5)
         self.failIf(t <= 0.0 or t >= numpy.inf)
+        self.assertAlmostEqual(t, 0.0008270075049176781)
 
         t = gf.drawTime(0.0)
         self.failIf(t < 0.0 or t >= numpy.inf)
+        self.assertAlmostEqual(t, 2.666666666666667)
 
         t = gf.drawTime(1 - 1e-16)
         self.failIf(t <= 0.0 or t >= numpy.inf)
+        self.assertAlmostEqual(t, 1.1574074017561311e-05)
 
 
     def test_draw_time_a_equal_sigma(self):
@@ -62,6 +56,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         t = gf.drawTime(0.5)
         self.assertEqual(0.0, t)
 
+
     def test_draw_time_a_near_sigma(self):
         D = 1e-12
         kf = 1e-8
@@ -73,6 +68,8 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
 
         t = gf.drawTime(0.5)
         self.failIf(t <= 0.0 or t >= numpy.inf)
+        self.assertAlmostEqual(t, 9.468933926123182e-18)
+
 
     def test_draw_time_r0_equal_a(self):
         D = 1e-12
@@ -86,6 +83,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         t = gf.drawTime(0.5)
         self.assertEqual(0.0, t)
 
+
     def test_draw_time_r0_equal_sigma_kf_zero(self):
         D = 1e-12
         kf = 0.0 # note this
@@ -97,6 +95,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
 
         t = gf.drawTime(0.5)
         self.failIf(t < 0.0 or t >= numpy.inf)
+        self.assertAlmostEqual(t, 0.0013418666154817517)
 
 
     def no_test_draw_time_r0_equal_sigma_kf_large(self):
@@ -110,6 +109,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
 
         t = gf.drawTime(0.5)
         self.failIf(t < 0.0 or t >= numpy.inf)
+        self.assertAlmostEqual(t, 1.1392328540279013e-06)
 
 
     def test_draw_event_type(self):
@@ -330,6 +330,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         r = gf.drawR(0.5, t)
         self.failIf(r < sigma or r > a)
 
+
     def test_drawR_squeezed(self):
 
         D = 1e-12
@@ -394,6 +395,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         t = 0.0
         theta = gf.drawTheta(0.5, r0, t)
         self.assertEqual(0.0, theta)
+
 
     def test_draw_theta_smallt(self):
 
@@ -475,6 +477,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         theta = gf.drawTheta(0.5, r, t)
         self.failIf(theta < 0.0 or theta > numpy.pi)
 
+
     def test_draw_theta_r_equal_a(self):
         D = 1e-12
         kf = 1e-8
@@ -489,6 +492,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
 
         theta = gf.drawTheta(0.5, r, t)
         self.failIf(theta < 0.0 or theta > numpy.pi)
+
 
     def test_draw_theta_1(self):
         r0 =  1.0206416181e-07
@@ -525,6 +529,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
             maxerror = max(error, maxerror)
 
         self.failIf(abs(maxerror) > 1e-10)
+
 
     def test_psurvival_is_pleaves_plus_pleavea(self):
 
@@ -628,6 +633,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
         psurv = gf.p_survival(t)
         self.assertAlmostEqual(pintr, psurv)
 
+
     def test_p_int_r_at_s_is_zero(self):
 
         D = 1e-12
@@ -643,6 +649,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
 
         pintr = gf.p_int_r(gf.getSigma(), t)
         self.assertEqual(0.0, pintr)
+
 
     def test_p_int_r_never_decrease(self):
 
@@ -744,8 +751,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
             pmin = min(pmin, p)
             #print 'theta: ', theta, '\tp: ', p
 
-        self.failIf(pmin < 0.0, 'Negative p_theta; t= %g, %s'
-                    % (t, gf.dump()))
+        self.failIf(pmin < 0.0, 'Negative p_theta; t= %g, %s' % (t, gf.dump()))
 
 
     def test_ip_theta_never_decrease(self):
@@ -770,6 +776,7 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
             pint = gf.ip_theta(theta, r, t)
             self.failIf(pint < pint_prev)
             pint_prev = pint
+
 
     def test_int_dp_theta_at_a_is_leavea(self):
 
@@ -834,8 +841,6 @@ class GreensFunction3DRadAbsTestCase(unittest.TestCase):
 
         self.failIf(abs(maxerror) > 1e-8)
 '''
-
-
 
 
 if __name__ == "__main__":

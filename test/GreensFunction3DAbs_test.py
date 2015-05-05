@@ -1,16 +1,6 @@
-#!/usr/bin/env python
-
-__author__    = 'Koichi Takahashi <shafi@e-cell.org>'
-__license__   = 'GPL'
-__copyright__ = 'Copyright The Molecular Sciences Institute 2006-2007'
-
-
 import unittest
-
 import _greens_functions as mod
-
 import numpy
-
 
 class GreensFunction3DAbsTestCase(unittest.TestCase):
 
@@ -19,6 +9,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
 
     def tearDown(self):
         pass
+
 
     def test_instantiation(self):
         D = 1e-12
@@ -40,12 +31,16 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
 
         t = gf.drawTime(0.5)
         self.failIf(t <= 0.0 or t >= numpy.inf)
+        self.assertAlmostEqual(t, 0.000946869595678489)
 
         t = gf.drawTime(0.0)
         self.failIf(t < 0.0 or t >= numpy.inf)
+        self.assertAlmostEqual(t, 1.0)
 
         t = gf.drawTime(1.0)
         self.failIf(t <= 0.0 or t >= numpy.inf)
+        self.assertAlmostEqual(t, 1.1392328540279013e-06)
+
 
     def test_draw_time_r0_equal_a(self):
         D = 1e-12
@@ -57,6 +52,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
 
         t = gf.drawTime(0.5)
         self.assertEqual(0.0, t)
+
 
     def test_drawR(self):
         D = 1e-12
@@ -79,6 +75,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
 
         self.failIf(abs(r1) > 1e-15)
         self.assertAlmostEqual(abs(r2 - a), 0)
+
 
     def test_drawR_zerot(self):
         D = 1e-12
@@ -152,6 +149,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         theta = gf.drawTheta(0.5, r0, t)
         self.assertEqual(0.0, theta)
 
+
     def test_draw_theta_smallt(self):
 
         D = 1e-12
@@ -166,6 +164,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         theta = gf.drawTheta(0.5, r, t)
         self.failIf(theta < 0.0 or theta > numpy.pi)
 
+
     def test_draw_theta_large_t(self):
 
         D = 1e-12
@@ -179,7 +178,6 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         t = 1e5
         theta = gf.drawTheta(0.5, r, t)
         self.failIf(theta < 0.0 or theta > numpy.pi)
-
 
 
     def test_draw_theta_near_a(self):
@@ -197,6 +195,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         theta = gf.drawTheta(0.5, r, t)
         self.failIf(theta < 0.0 or theta > numpy.pi)
 
+
     def test_draw_theta_r_equal_a(self):
         D = 1e-12
         a = 1e-7
@@ -210,6 +209,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         theta = gf.drawTheta(0.5, r, t)
 
         self.failIf(theta < 0.0 or theta > numpy.pi)
+
 
     def test_draw_theta_r0_near_a_r_equal_a(self):
         D = 1e-12
@@ -272,6 +272,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         pintr = gf.p_int_r(0.0, t)
         self.assertEqual(0.0, pintr)
 
+
     def test_ip_theta_is_int_p_theta(self):
 
         import scipy.integrate
@@ -293,8 +294,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         for i in range(1, resolution):
             theta = i * numpy.pi / resolution
             ip = gf.ip_theta(theta, r, t)
-            result = scipy.integrate.quad(gf.p_theta, 0.0, theta,
-                                          args=(r, t))
+            result = scipy.integrate.quad(gf.p_theta, 0.0, theta, args=(r, t))
             np = result[0]
             #print theta, np, ip
             self.assertAlmostEqual(0.0, (np-ip)/ip)
@@ -345,8 +345,7 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
             pmin = min(pmin, p)
             #print 'theta: ', theta, '\tp: ', p
 
-        self.failIf(pmin < 0.0, 'Negative p_theta; t= %g, %s'
-                    % (t, gf.dump()))
+        self.failIf(pmin < 0.0, 'Negative p_theta; t= %g, %s' % (t, gf.dump()))
 
 
     def test_ip_theta_never_decrease(self):
@@ -385,9 +384,6 @@ class GreensFunction3DAbsTestCase(unittest.TestCase):
         iptheta = gf.idp_theta(numpy.pi, a, t) * numpy.pi * a * a * 2
 
         self.assertAlmostEqual(dp, iptheta)
-
-
-
 
 
 

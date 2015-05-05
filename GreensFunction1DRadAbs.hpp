@@ -42,44 +42,6 @@ public:
 
     Real getsigma() const { return sigma; }
 
-    // This also sets the scale
-    void seta(Real a)
-    {
-        THROW_UNLESS(std::invalid_argument, (a - sigma) >= 0.0 && r0 <= a);
-
-        // Use a typical domain size to determine if we are here 
-        // defining a domain of size 0.
-        if ((a - sigma) < EPSILON*l_scale)
-        {
-            // just some random value to show that the domain is zero
-            this->a = -1.0;
-        }
-        else
-        {
-            // set the l_scale to the given one
-            l_scale = a - sigma;
-            // set the typical time scale (MSD = sqrt(2*d*D*t) )
-            t_scale = (l_scale*l_scale) / D;
-            this->a = a;
-        }
-    }
-
-    void setr0(Real r0)
-    {
-        if (a - sigma < 0.0)
-        {
-            // if the domain had zero size
-            THROW_UNLESS(std::invalid_argument, 0.0 <= (r0 - sigma) && (r0 - sigma) <= EPSILON * l_scale);
-            this->r0 = 0.0;
-        }
-        else
-        {
-            // The normal case
-            THROW_UNLESS(std::invalid_argument, 0.0 <= (r0 - sigma) && r0 <= a);
-            this->r0 = r0;
-        }
-    }
-
     Real getr0() const    { return r0; }
 
     Real getk() const    { return k; }
@@ -211,13 +173,13 @@ private:
     }
 
 private:
-    Real v;         // The diffusion constant and drift velocity
-    Real k;         // The reaction constant
-    Real r0;
-    Real sigma;     // The left and right boundary of the domain (sets the l_scale, see below)
-    Real a;
-    Real l_scale;   // This is the length scale of the system
-    Real t_scale;   // This is the time scale of the system.
+    const Real v;         // The diffusion constant and drift velocity
+    const Real k;         // The reaction constant
+    const Real r0;
+    const Real sigma;     // The left and right boundary of the domain (sets the l_scale, see below)
+    const Real a;
+    const Real l_scale;   // This is the length scale of the system
+    const Real t_scale;   // This is the time scale of the system.
 
     RealVector rootList;            /* vector containing the roots 0f tan_f. */
     static Logger& log_;

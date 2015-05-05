@@ -1,5 +1,4 @@
 #include <cassert>
-#include "compat.h"
 #include "SphericalBesselTable.hpp"
 #include "SphericalBesselGenerator.hpp"
 
@@ -24,12 +23,12 @@ inline static Real interp(Real x_start, Real delta_x, Real const* yTable, Real x
     return hermite_interp(x, x_start, delta_x, yTable);
 }
 
-static Real _j(UnsignedInteger n, Real z)
+static Real _j(uint n, Real z)
 {
     return gsl_sf_bessel_jl(n, z);
 }
 
-static Real _y(UnsignedInteger n, Real z)
+static Real _y(uint n, Real z)
 {
     return gsl_sf_bessel_yl(n, z);
 }
@@ -40,51 +39,51 @@ SphericalBesselGenerator const& SphericalBesselGenerator::instance()
     return sphericalBesselGenerator;
 }
 
-UnsignedInteger SphericalBesselGenerator::getMinNJ()
+uint SphericalBesselGenerator::getMinNJ()
 {
     return sb_table::sj_table_min;
 }
 
-UnsignedInteger SphericalBesselGenerator::getMinNY()
+uint SphericalBesselGenerator::getMinNY()
 {
     return sb_table::sy_table_min;
 }
 
-UnsignedInteger SphericalBesselGenerator::getMaxNJ()
+uint SphericalBesselGenerator::getMaxNJ()
 {
     return sb_table::sj_table_max;
 }
 
-UnsignedInteger SphericalBesselGenerator::getMaxNY()
+uint SphericalBesselGenerator::getMaxNY()
 {
     return sb_table::sy_table_max;
 }
 
-static sb_table::Table const* getSJTable(UnsignedInteger n)
+static sb_table::Table const* getSJTable(uint n)
 {
     return sb_table::sj_table[n];
 }
 
-static sb_table::Table const* getSYTable(UnsignedInteger n)
+static sb_table::Table const* getSYTable(uint n)
 {
     return sb_table::sy_table[n];
 }
 
-static inline Real _j_table(UnsignedInteger n, Real z)
+static inline Real _j_table(uint n, Real z)
 {
     sb_table::Table const* tablen(getSJTable(n));
 
     return interp(tablen->x_start, tablen->delta_x, tablen->y, z);
 }
 
-static inline Real _y_table(UnsignedInteger n, Real z)
+static inline Real _y_table(uint n, Real z)
 {
     sb_table::Table const* tablen(getSYTable(n));
 
     return interp(tablen->x_start, tablen->delta_x, tablen->y, z);
 }
 
-static inline Real _j_smalln(UnsignedInteger n, Real z)
+static inline Real _j_smalln(uint n, Real z)
 {
     assert(n <= 3 && n >= 0);
 
@@ -92,7 +91,7 @@ static inline Real _j_smalln(UnsignedInteger n, Real z)
     {
         if (z != 0)
         {
-            return std::sin(z) / z;
+            return sin(z) / z;
         }
         else
         {
@@ -105,57 +104,48 @@ static inline Real _j_smalln(UnsignedInteger n, Real z)
         return 0.0;
     }
 
-    Real sin_z;
-    Real cos_z;
-    sincos(z, &sin_z, &cos_z);
-
     const Real z_r(1. / z);
 
     if (n == 1)
     {
-        return (sin_z * z_r - cos_z) * z_r;
+        return (sin(z) * z_r - cos(z)) * z_r;
     }
     else if (n == 2)
     {
         const Real _3_zsq(3. * z_r * z_r);
-        return (_3_zsq - 1) * sin_z * z_r - _3_zsq * cos_z;
+        return (_3_zsq - 1) * sin(z) * z_r - _3_zsq * cos(z);
     }
     else //if(n == 3)
     {
         const Real _15_zsq(15. * z_r * z_r);
-        return ((_15_zsq - 6.) * sin_z * z_r -
-            (_15_zsq - 1) * cos_z) * z_r;
+        return ((_15_zsq - 6.) * sin(z) * z_r - (_15_zsq - 1) * cos(z)) * z_r;
     }
 
 }
 
-static inline Real _y_smalln(UnsignedInteger n, Real z)
+static inline Real _y_smalln(uint n, Real z)
 {
     assert(n <= 2 && n >= 0);
 
     if (n == 0)
     {
-        return -std::cos(z) / z;
+        return -cos(z) / z;
     }
-
-    Real sin_z;
-    Real cos_z;
-    sincos(z, &sin_z, &cos_z);
 
     const Real z_r(1. / z);
 
     if (n == 1)
     {
-        return -(cos_z * z_r + sin_z) * z_r;
+        return -(cos(z) * z_r + sin(z)) * z_r;
     }
     else //if(n == 2)
     {
         const Real _3_zsq(3. * z_r * z_r);
-        return (1 - _3_zsq) * cos_z * z_r - _3_zsq * sin_z;
+        return (1 - _3_zsq) * cos(z) * z_r - _3_zsq * sin(z);
     }
 }
 
-Real SphericalBesselGenerator::j(UnsignedInteger n, Real z) const
+Real SphericalBesselGenerator::j(uint n, Real z) const
 {
     if (n <= 3)
     {
@@ -183,7 +173,7 @@ Real SphericalBesselGenerator::j(UnsignedInteger n, Real z) const
     }
 }
 
-Real SphericalBesselGenerator::y(const UnsignedInteger n, const Real z) const
+Real SphericalBesselGenerator::y(const uint n, const Real z) const
 {
     if (n <= 2)
     {

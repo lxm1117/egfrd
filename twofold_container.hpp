@@ -21,9 +21,7 @@ public:
     typedef typename containing_type::difference_type difference_type;
 
     class const_iterator;
-    class iterator
-        : public boost::iterator_facade<
-            iterator, value_type, boost::forward_traversal_tag>
+    class iterator : public boost::iterator_facade <iterator, value_type, boost::forward_traversal_tag >
     {
         friend class const_iterator;
         friend class twofold_container;
@@ -60,9 +58,7 @@ public:
         size_type idx_;
     };
 
-    class const_iterator
-        : public boost::iterator_facade<
-            const_iterator, const value_type, boost::forward_traversal_tag>
+    class const_iterator : public boost::iterator_facade <const_iterator, const value_type, boost::forward_traversal_tag >
     {
         friend class iterator;
         friend class twofold_container;
@@ -133,7 +129,7 @@ public:
 
     size_type size() const
     {
-        return items_[0] ? items_[1] ? 2: 1: 0;
+        return items_[0] != 0 ? items_[1] != 0 ? 2 : 1 : 0;
     }
 
     iterator begin()
@@ -265,7 +261,7 @@ protected:
 
 template<typename T_>
 inline twofold_container<T_>::iterator::iterator(
-        typename twofold_container<T_>::const_iterator const& that)
+    typename twofold_container<T_>::const_iterator const& that)
     : cntnr_(const_cast<twofold_container&>(that.cntnr_)), idx_(that.idx_)
 {
 }

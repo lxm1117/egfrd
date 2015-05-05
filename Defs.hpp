@@ -5,11 +5,8 @@
 
 typedef double Real;
 typedef unsigned int uint;
-typedef long int Integer;
-typedef unsigned long int UnsignedInteger;
 typedef std::vector<Real> RealVector;
 typedef std::pair<Real, Real> RealPair;
-
 
 const uint GF_MAX_ORDER = 50;
 
@@ -24,10 +21,6 @@ const Real MINIMAL_SEPARATION_FACTOR(1.0 + SEPARATION_TOLERANCE);
 const Real M_PI = 3.1415926535897932384626433832795;
 #endif
 
-
-#define USE_SPHERICALBESSELGENERATOR
-
-
 #ifdef _MSC_VER
 #ifdef GF_EXPORT
 #define GF_CLASS __declspec(dllexport)
@@ -37,6 +30,32 @@ const Real M_PI = 3.1415926535897932384626433832795;
 #else
 #define GF_CLASS
 #endif
+
+
+
+
+
+// Template class to map Lambda functions to GSL function pointers
+// Uses params as this pointer, so no params avail to functions
+template< typename _Lambda>
+class gsl_lambda : public gsl_function
+{
+public:
+    gsl_lambda(const _Lambda& func) : _func(func)
+    {
+        function = &gsl_lambda::invoke;
+        params = this;
+    }
+private:
+    const _Lambda& _func;
+    static double invoke(double x, void *params)
+    {
+        return static_cast<gsl_lambda*>(params)->_func(x);
+    }
+};
+
+
+
 
 
 #endif // DEFS_HPP

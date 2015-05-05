@@ -2,7 +2,6 @@
 #include <vector>
 #include <sstream>
 #include <cmath>
-#include "compat.h"
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
 #include <gsl/gsl_math.h>
@@ -187,7 +186,7 @@ Real GreensFunction3DRadInf::drawTime(Real rnd) const
     gsl_root_fsolver_set(solver, &F, low, high);
 
     const uint maxIter(100);
-    for (uint i(0);;)
+    for (uint i(0);;++i)
     {
         gsl_root_fsolver_iterate(solver);
 
@@ -195,20 +194,8 @@ Real GreensFunction3DRadInf::drawTime(Real rnd) const
         high = gsl_root_fsolver_x_upper(solver);
         int status(gsl_root_test_interval(low, high, 1e-18, 1e-12));
 
-        if (status == GSL_CONTINUE)
-        {
-            if (i >= maxIter)
-            {
-                gsl_root_fsolver_free(solver);
-                throw std::runtime_error("GreensFunction3DRadInf: drawTime: failed to converge");
-            }
-        }
-        else
-        {
-            break;
-        }
-
-        ++i;
+        if (status != GSL_CONTINUE) break;
+        if (i >= maxIter) throw std::runtime_error("GreensFunction3DRadInf: drawTime: failed to converge");
     }
 
     const Real r(gsl_root_fsolver_root(solver));
@@ -289,27 +276,15 @@ Real GreensFunction3DRadInf::drawR(Real rnd, Real t) const
     gsl_root_fsolver_set(solver, &F, low, high);
 
     const uint maxIter(100);
-    for (uint i(0);;)
+    for (uint i(0);;++i)
     {
         gsl_root_fsolver_iterate(solver);
         low = gsl_root_fsolver_x_lower(solver);
         high = gsl_root_fsolver_x_upper(solver);
         const int status(gsl_root_test_interval(low, high, 1e-15, TOLERANCE));
 
-        if (status == GSL_CONTINUE)
-        {
-            if (i >= maxIter)
-            {
-                gsl_root_fsolver_free(solver);
-                throw std::runtime_error("GreensFunction3DRadInf: drawR: failed to converge");
-            }
-        }
-        else
-        {
-            break;
-        }
-
-        ++i;
+        if (status != GSL_CONTINUE) break;
+        if (i >= maxIter) throw std::runtime_error("GreensFunction3DRadInf: drawR: failed to converge");
     }
 
     const Real r(gsl_root_fsolver_root(solver));
@@ -347,15 +322,11 @@ Real GreensFunction3DRadInf::p_corr_table(Real theta, Real r, Real t, RealVector
     const size_t tableSize(RnTable.size());
     if (tableSize == 0) return 0.0;
 
-    Real sin_theta;
-    Real cos_theta;
-    sincos(theta, &sin_theta, &cos_theta);
-
     RealVector lgndTable(tableSize);
     gsl_sf_legendre_Pl_array(tableSize - 1, cos(theta), &lgndTable[0]);
 
     const Real p(funcSum_all(boost::bind(&GreensFunction3DRadInf::p_corr_n, this, _1, RnTable, lgndTable), tableSize));
-    Real result = -p * sin_theta;
+    Real result = -p * sin(theta);
     result /= 4.0 * M_PI * sqrt(r * r0);
     return result;
 }
@@ -522,27 +493,15 @@ Real GreensFunction3DRadInf::drawTheta(Real rnd, Real r, Real t) const
     gsl_root_fsolver_set(solver, &F, 0.0, M_PI);
 
     const uint maxIter(100);
-    for (uint i(0);;)
+    for (uint i(0);;++i)
     {
         gsl_root_fsolver_iterate(solver);
         const Real low(gsl_root_fsolver_x_lower(solver));
         const Real high(gsl_root_fsolver_x_upper(solver));
         const int status(gsl_root_test_interval(low, high, 1e-15, THETA_TOLERANCE));
 
-        if (status == GSL_CONTINUE)
-        {
-            if (i >= maxIter)
-            {
-                gsl_root_fsolver_free(solver);
-                throw std::runtime_error("GreensFunction3DRadInf: drawTheta: failed to converge");
-            }
-        }
-        else
-        {
-            break;
-        }
-
-        ++i;
+        if (status != GSL_CONTINUE) break;
+        if (i >= maxIter) throw std::runtime_error("GreensFunction3DRadInf: drawTheta: failed to converge");
     }
 
     Real theta = gsl_root_fsolver_root(solver);

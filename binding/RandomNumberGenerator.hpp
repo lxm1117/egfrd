@@ -4,7 +4,6 @@
 #include <boost/python.hpp>
 #include "Defs.hpp"
 #include "peer/numpy/type_mappings.hpp"
-#include "peer/compat.h"
 
 namespace binding {
 

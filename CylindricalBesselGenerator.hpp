@@ -11,13 +11,13 @@ class CylindricalBesselGenerator
 public:
     CylindricalBesselGenerator() {}
 
-    Real J(UnsignedInteger n, Real z) const;
-    Real Y(UnsignedInteger n, Real z) const;
+    Real J(uint n, Real z) const;
+    Real Y(uint n, Real z) const;
 
-    static UnsignedInteger getMinNJ();
-    static UnsignedInteger getMinNY();
-    static UnsignedInteger getMaxNJ();
-    static UnsignedInteger getMaxNY();
+    static uint getMinNJ();
+    static uint getMinNY();
+    static uint getMaxNJ();
+    static uint getMaxNY();
 
     static CylindricalBesselGenerator const& instance();
 };

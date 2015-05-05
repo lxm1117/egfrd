@@ -9,8 +9,14 @@ public:
     enum EventKind { IV_ESCAPE, IV_REACTION };
 
     GreensFunction(const Real D) : D(D) {}
-
     virtual ~GreensFunction() { }
+
+    // prevent default construction, assignment and move operations, allow copy construction
+    GreensFunction() = delete;
+    GreensFunction(const GreensFunction&) = default;
+    GreensFunction& operator=(const GreensFunction&) = delete;
+    GreensFunction(const GreensFunction&&) = delete;
+    GreensFunction& operator=(const GreensFunction&&) = delete;
 
     Real getD() const { return D; }
 

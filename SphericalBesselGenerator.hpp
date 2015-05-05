@@ -12,13 +12,13 @@ class SphericalBesselGenerator
 public:
     SphericalBesselGenerator() { }
 
-    Real j(UnsignedInteger n, Real z) const;
-    Real y(UnsignedInteger n, Real z) const;
+    Real j(uint n, Real z) const;
+    Real y(uint n, Real z) const;
 
-    static UnsignedInteger getMinNJ();
-    static UnsignedInteger getMinNY();
-    static UnsignedInteger getMaxNJ();
-    static UnsignedInteger getMaxNY();
+    static uint getMinNJ();
+    static uint getMinNY();
+    static uint getMaxNJ();
+    static uint getMaxNY();
 
     static SphericalBesselGenerator const& instance();
 };

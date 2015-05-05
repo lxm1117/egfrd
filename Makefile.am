@@ -128,7 +128,6 @@ noinst_HEADERS = \
 	peer/numpy/type_mappings.hpp \
 	peer/numpy/wrapped_multi_array.hpp \
 	peer/set_indexing_suite.hpp \
-	peer/compat.h \
 	peer/pickle_support.hpp \
 	peer/converters/sequence.hpp \
 	peer/converters/tuple.hpp \

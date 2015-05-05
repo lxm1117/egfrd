@@ -47,15 +47,15 @@ public:
 
     Real idp_theta(Real theta, Real r, Real t) const;
 
-    Real p_n(Integer n, Real r, Real t) const;
+    Real p_n(int n, Real r, Real t) const;
 
-    Real dp_n(Integer n, Real t) const;
+    Real dp_n(int n, Real t) const;
 
     Real p_n_alpha(uint i, uint n, Real r, Real t) const;
 
     Real dp_n_alpha(uint i, uint n, Real t) const;
 
-protected:
+private:
 
     Real p_theta_table(Real theta, Real r, Real t, RealVector const& p_nTable) const;
 
@@ -68,8 +68,7 @@ protected:
     struct ip_theta_params;
     static Real ip_theta_F(Real theta, ip_theta_params const* params);
 
-private:
-    Real a;
+    const Real a;
     static Logger& log_;
 };
 

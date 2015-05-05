@@ -7,7 +7,6 @@
 
 class GF_CLASS GreensFunction1DAbsSinkAbs : public GreensFunction
 {
-    static const Real L_TYPICAL;            // This is a typical length scale of the system, may not be true!
     static const Real T_TYPICAL;            // The typical timescale of the system, may also not be true!!
     static const Real EPSILON;              // measure of 'sameness' when comparing floating points numbers
     static const Real PDENS_TYPICAL;        // Is 1E3 a good measure for the probability density?!
@@ -17,24 +16,12 @@ class GF_CLASS GreensFunction1DAbsSinkAbs : public GreensFunction
 
 public:
     GreensFunction1DAbsSinkAbs(Real D, Real k, Real r0, Real rsink, Real sigma, Real a)
-        : GreensFunction(D), k(k), r0(r0), sigma(sigma), a(a), rsink(rsink), l_scale(L_TYPICAL), t_scale(T_TYPICAL)
+        : GreensFunction(D), k(k), r0(r0), sigma(sigma), a(a), rsink(rsink), t_scale(T_TYPICAL), 
+            L0(fabs(r0 - rsink)), Lr(r0 >= rsink ? a - rsink : rsink - sigma), Ll(r0 >= rsink ? rsink - sigma : a - rsink)
     {
         /* Set variables which define a domain with the sink at the origin.
            Furthermore r0 is assumed to be right from the sink. */
         assert(a > sigma);
-
-        L0 = fabs(r0 - rsink);
-        if (r0 >= rsink)
-        {
-            Lr = a - rsink;
-            Ll = rsink - sigma;
-        }
-        else
-        {
-            Lr = rsink - sigma;
-            Ll = a - rsink;
-        }
-
         calculate_n_roots(1);
     }
 
@@ -114,20 +101,6 @@ public:
     Real prob_r(Real r, Real t) const;
 
 private:
-    struct drawR_params
-    {
-        GreensFunction1DAbsSinkAbs const* gf;
-        const Real t;
-        RealVector& table;
-        const Real rnd;
-    };
-
-    struct drawT_params
-    {
-        GreensFunction1DAbsSinkAbs const* gf;
-        RealVector& table;
-        const Real rnd;
-    };
 
     struct root_f_params
     {
@@ -234,18 +207,18 @@ private:
     const Real sigma;       // The left and right boundary of the domain (sets the l_scale, see below)
     const Real a;
     const Real rsink;       // Position of the sink in the domain.
-    Real l_scale;           // This is the length scale of the system
-    Real t_scale;           // This is the time scale of the system.
+    const Real t_scale;           // This is the time scale of the system.
 
     /* Greensfunction assumes that the sink is at the origin, and
        consists of two sub-domains: one between a boundary and the sink including
        r0, and one between boundary and sink not including r0. */
 
-    Real Lr;            // Length of sub-domain which does not include r0.
-    Real Ll;            // Length of sub-domain which does include r0.
-    Real L0;            // Distance between the sink and r0.
+    const Real Lr;            // Length of sub-domain which does not include r0.
+    const Real Ll;            // Length of sub-domain which does include r0.
+    const Real L0;            // Distance between the sink and r0.
 
     RealVector rootList;                        // Stores all the roots.
+    //RealVector psurvTable;        TODO createPsurvTable is cache-able
     struct lower_upper_params lo_up_params;     // Stores params for rootfinder.
 
     static Logger& log_;

@@ -1,4 +1,3 @@
-#include "compat.h"
 #include <stdexcept>
 #include <vector>
 #include <sstream>
@@ -46,11 +45,8 @@ void GreensFunction3DRadAbs::clearAlphaTable() const
 Real GreensFunction3DRadAbs::f_alpha0(Real alpha) const
 {
     const Real alpha_a_m_sigma(alpha * (a - sigma));
-    Real sin_alpha_a_m_sigma;
-    Real cos_alpha_a_m_sigma;
-    sincos(alpha_a_m_sigma, &sin_alpha_a_m_sigma, &cos_alpha_a_m_sigma);
-    const Real term1(alpha * sigma * cos_alpha_a_m_sigma);
-    const Real term2(hsigma_p_1 * sin_alpha_a_m_sigma);
+    const Real term1(alpha * sigma * cos(alpha_a_m_sigma));
+    const Real term2(hsigma_p_1 * sin(alpha_a_m_sigma));
     return term1 + term2;
 }
 
@@ -73,7 +69,7 @@ static Real f_alpha0_aux_F(Real alpha, f_alpha0_aux_params const* params)
     return params->gf->f_alpha0_aux(alpha) - params->value;
 }
 
-Real GreensFunction3DRadAbs::alpha0_i(Integer i) const
+Real GreensFunction3DRadAbs::alpha0_i(int i) const
 {
     if (!(i >= 0))
     {
@@ -97,7 +93,7 @@ Real GreensFunction3DRadAbs::alpha0_i(Integer i) const
     gsl_root_fsolver_set(solver, &F, low, high);
 
     const uint maxIter(100);
-    for (uint j(0);;)
+    for (uint j(0);;++j)
     {
         gsl_root_fsolver_iterate(solver);
 
@@ -105,20 +101,8 @@ Real GreensFunction3DRadAbs::alpha0_i(Integer i) const
         high = gsl_root_fsolver_x_upper(solver);
         const int status(gsl_root_test_interval(low, high, 0.0, 1e-15));
 
-        if (status == GSL_CONTINUE)
-        {
-            if (j >= maxIter)
-            {
-                gsl_root_fsolver_free(solver);
-                throw std::runtime_error("GreensFunction3DRadAbs: alpha0_i: failed to converge");
-            }
-        }
-        else
-        {
-            break;
-        }
-
-        ++j;
+        if (status != GSL_CONTINUE) break;
+        if (j >= maxIter) throw std::runtime_error("GreensFunction3DRadAbs: alpha0_i: failed to converge");
     }
 
     const Real alpha(gsl_root_fsolver_root(solver));
@@ -142,7 +126,7 @@ void GreensFunction3DRadAbs::updateAlphaTable0(const Real t) const
     const Real alpha_cutoff(sqrt((-log(TOLERANCE * 1e-3) / Dt)));
     for (uint i(1);;)
     {
-        const Real alpha0_i(alpha0_i(i));
+        const Real alpha0_i(this->alpha0_i(i));
         alphaTable_0.push_back(alpha0_i);
 
         if (alpha0_i > alpha_cutoff && i >= 10) // make at least 10 terms
@@ -155,7 +139,7 @@ void GreensFunction3DRadAbs::updateAlphaTable0(const Real t) const
     }
 }
 
-Real GreensFunction3DRadAbs::f_alpha(Real alpha, Integer n) const
+Real GreensFunction3DRadAbs::f_alpha(Real alpha, int n) const
 {
     const Real aAlpha(a * alpha);
     const Real sigmaAlpha(sigma * alpha);
@@ -184,12 +168,12 @@ static inline Real G(const uint n, const uint k)
     return factorial(n + k) * (factorial_r(k) * factorial_r(n - k));
 }
 
-static Real P(Integer n, Real x)
+static Real P(int n, Real x)
 {
     Real result(0.0);
 
     Real sx2(1.0);
-    Integer term1(1);
+    int term1(1);
 
     const Real x2sq_r(1.0 / gsl_pow_2(x + x));
     const uint maxm(n / 2);
@@ -204,13 +188,13 @@ static Real P(Integer n, Real x)
     return result;
 }
 
-static std::pair<Real, Real> P2(Integer n, Real x)
+static std::pair<Real, Real> P2(int n, Real x)
 {
     Real result(0.0);
     Real resultp(0.0);
 
     Real sx2(1.0);
-    Integer term1(1);
+    int term1(1);
 
     const Real x2sq_r(1.0 / gsl_pow_2(x + x));
     const uint np1(n + 1);
@@ -237,12 +221,12 @@ static std::pair<Real, Real> P2(Integer n, Real x)
     return std::make_pair(result, resultp);
 }
 
-static Real Q(Integer n, Real x)
+static Real Q(int n, Real x)
 {
     Real result(0.0);
 
     Real sx2(1.0 / (x + x));
-    Integer term1(1);
+    int term1(1);
 
     const Real x2sq(sx2 * sx2);
     const uint maxm((n + 1) / 2); // sum_(0)^((n-1)/2)
@@ -258,13 +242,13 @@ static Real Q(Integer n, Real x)
     return result;
 }
 
-static std::pair<Real, Real> Q2(Integer n, Real x)
+static std::pair<Real, Real> Q2(int n, Real x)
 {
     Real result(0.0);
     Real resultp(0.0);
 
     Real sx2(1.0 / (x + x));
-    Integer term1(1);  // (-1)^m
+    int term1(1);  // (-1)^m
 
     const Real x2sq(sx2 * sx2);
     const uint np1(n + 1);
@@ -291,7 +275,7 @@ static std::pair<Real, Real> Q2(Integer n, Real x)
     return std::make_pair(result, resultp);
 }
 
-Real GreensFunction3DRadAbs::f_alpha_aux(Real alpha, Integer n) const
+Real GreensFunction3DRadAbs::f_alpha_aux(Real alpha, int n) const
 {
     if (alpha == 0.0) return -1.0;
 
@@ -346,7 +330,7 @@ Real GreensFunction3DRadAbs::f_alpha_aux(Real alpha, Integer n) const
 struct f_alpha_aux_params
 {
     GreensFunction3DRadAbs const* const gf;
-    const Integer n;
+    const int n;
     const Real value;
 };
 
@@ -355,7 +339,7 @@ static Real f_alpha_aux_F(Real alpha, f_alpha_aux_params const* params)
     return params->gf->f_alpha_aux(alpha, params->n) - params->value;
 }
 
-Real GreensFunction3DRadAbs::alpha_i(Integer i, Integer n, gsl_root_fsolver* solver) const
+Real GreensFunction3DRadAbs::alpha_i(int i, int n, gsl_root_fsolver* solver) const
 {
     const Real target(M_PI * i + M_PI_2);
     const Real factor(1.0 / (a - sigma));
@@ -367,7 +351,7 @@ Real GreensFunction3DRadAbs::alpha_i(Integer i, Integer n, gsl_root_fsolver* sol
     gsl_root_fsolver_set(solver, &F, low, high);
 
     const uint maxIter(100);
-    for (uint k(0);;)
+    for (uint k(0);;++k)
     {
         gsl_root_fsolver_iterate(solver);
 
@@ -375,20 +359,8 @@ Real GreensFunction3DRadAbs::alpha_i(Integer i, Integer n, gsl_root_fsolver* sol
         high = gsl_root_fsolver_x_upper(solver);
         const int status(gsl_root_test_interval(low, high, 1e-6, 1e-15));
 
-        if (status == GSL_CONTINUE)
-        {
-            if (k >= maxIter)
-            {
-                gsl_root_fsolver_free(solver);
-                throw std::runtime_error("GreensFunction3DRadAbs: alpha_i: failed to converge");
-            }
-        }
-        else
-        {
-            break;
-        }
-
-        ++k;
+        if (status != GSL_CONTINUE) break;
+        if (k >= maxIter) throw std::runtime_error("GreensFunction3DRadAbs: alpha_i: failed to converge");
     }
     return gsl_root_fsolver_root(solver);
 }
@@ -470,7 +442,7 @@ void GreensFunction3DRadAbs::updateAlphaTable(const uint n, const Real t) const
     const uint end(offset + MAX_ALPHA_SEQ);
     for (uint i(offset + 1);;)
     {
-        const Real alpha_i(alpha_i(i, n, solver));
+        const Real alpha_i(this->alpha_i(i, n, solver));
         alphaTable_n.push_back(alpha_i);
 
         // cutoff
@@ -493,16 +465,8 @@ Real GreensFunction3DRadAbs::p_0_i(Real alpha, Real r) const
 {
     const Real sigmasq(sigma * sigma);
     const Real alphasq(alpha * alpha);
-
-    Real num1;
-    {
-        const Real angle_r(alpha * (r - sigma));
-        Real sin_r;
-        Real cos_r;
-        sincos(angle_r, &sin_r, &cos_r);
-        num1 = alpha * sigma * cos_r + hsigma_p_1 * sin_r;
-    }
-
+    const Real angle_r(alpha * (r - sigma));
+    Real num1 = alpha * sigma * cos(angle_r) + hsigma_p_1 * sin(angle_r);
     const Real num2(num_r0(alpha));
     const Real den(2 * M_PI * r * r0 * ((a - sigma) * sigmasq * alphasq + hsigma_p_1 * (a + a * h * sigma - h * sigmasq)));
     const Real result(num1 * num2 / den);
@@ -587,10 +551,7 @@ Real GreensFunction3DRadAbs::p_survival_den(Real alpha) const
 Real GreensFunction3DRadAbs::num_r0(Real alpha) const
 {
     const Real angle_r0(alpha * (r0 - sigma));
-    Real sin_r0;
-    Real cos_r0;
-    sincos(angle_r0, &sin_r0, &cos_r0);
-    const Real result(alpha * sigma * cos_r0 + hsigma_p_1 * sin_r0);
+    const Real result(alpha * sigma * cos(angle_r0) + hsigma_p_1 * sin(angle_r0));
     return result;
 }
 
@@ -602,13 +563,10 @@ Real GreensFunction3DRadAbs::pleaveFactor(Real alpha) const
 Real GreensFunction3DRadAbs::p_int_r_i(Real r, Real alpha, Real num_r0) const
 {
     const Real angle_r(alpha * (r - sigma));
-    Real sin_r;
-    Real cos_r;
-    sincos(angle_r, &sin_r, &cos_r);  // do sincos here; latency. 
     const Real sigmasq(sigma * sigma);
     const Real alphasq(alpha * alpha);
     const Real hsigma(h * sigma);
-    const Real num1(alpha * (hsigma * sigma - hsigma * r * cos_r - (r - sigma) * cos_r) + (hsigma_p_1 + r * sigma * alphasq) * sin_r);
+    const Real num1(alpha * (hsigma * sigma - hsigma * r * cos(angle_r) - (r - sigma) * cos(angle_r)) + (hsigma_p_1 + r * sigma * alphasq) * sin(angle_r));
     const Real num2(num_r0);
     const Real den(r0 * alphasq * ((a - sigma) * sigmasq * alphasq + hsigma_p_1 * (a + a * h * sigma - h * sigmasq)));
     const Real result(2 * num1 * num2 / den);
@@ -979,12 +937,7 @@ Real GreensFunction3DRadAbs::drawTime(Real rnd) const
                 break;
 
             if (fabs(high) >= 1e10)
-            {
-                throw std::runtime_error(
-                    (boost::format(
-                    "GreensFunction3DRadAbs: couldn't adjust high. F(%.16g) = %.16g; r0 = %.16g, %s") %
-                    high % GSL_FN_EVAL(&F, high) % r0 % dump()).str());
-            }
+                throw std::runtime_error((boost::format("GreensFunction3DRadAbs: couldn't adjust high. F(%.16g) = %.16g; r0 = %.16g, %s") % high % GSL_FN_EVAL(&F, high) % r0 % dump()).str());
 
             high *= 10;
         }
@@ -1004,7 +957,6 @@ Real GreensFunction3DRadAbs::drawTime(Real rnd) const
             if (fabs(low) <= minT || fabs(low_value - low_value_prev) < TOLERANCE)
             {
                 log_.info("GreensFunction3DRadAbs: couldn't adjust low. F(%.16g) = %.16g; r0 = %.16g, %s", low, GSL_FN_EVAL(&F, low), r0, dump().c_str());
-                log_.info("returning %.16g", low);
                 return low;
             }
             low_value_prev = low_value;
@@ -1090,12 +1042,7 @@ Real GreensFunction3DRadAbs::drawPleavea(gsl_function const& F, gsl_root_fsolver
                 break;
 
             if (fabs(high) >= 1e10)
-            {
-                throw std::runtime_error(
-                    (boost::format(
-                    "GreensFunction3DRadAbs: couldn't adjust high. Fa(%.16g) = %.16g; r0 = %.16g, %s") %
-                    high % GSL_FN_EVAL(&F, high) % r0 % dump()).str());
-            }
+                throw std::runtime_error((boost::format("GreensFunction3DRadAbs: couldn't adjust high. Fa(%.16g) = %.16g; r0 = %.16g, %s") % high % GSL_FN_EVAL(&F, high) % r0 % dump()).str());
 
             log_.info("drawTime2: adjusting high: %.16g Fa = %.16g", high, high_value);
             high *= 10;
@@ -1120,7 +1067,6 @@ Real GreensFunction3DRadAbs::drawPleavea(gsl_function const& F, gsl_root_fsolver
             if (fabs(low) <= minT || fabs(low_value - low_value_prev) < TOLERANCE)
             {
                 log_.info("couldn't adjust low. Fa(%.16g) = %.16g; r0 = %.16g, %s", low, GSL_FN_EVAL(&F, low), r0, dump().c_str());
-                log_.info("returning %.16g", minT);
                 return minT;
             }
             low_value_prev = low_value;
@@ -1153,12 +1099,7 @@ Real GreensFunction3DRadAbs::drawPleaves(gsl_function const& F, gsl_root_fsolver
 
             if (high_value >= 0.0) break;
             if (fabs(high) >= 1e10)
-            {
-                throw std::runtime_error(
-                    (boost::format(
-                    "GreensFunction3DRadAbs: couldn't adjust high. Fs(%.16g) = %.16g; r0 = %.16g, %s") %
-                    high % GSL_FN_EVAL(&F, high) % r0 % dump()).str());
-            }
+                throw std::runtime_error((boost::format("GreensFunction3DRadAbs: couldn't adjust high. Fs(%.16g) = %.16g; r0 = %.16g, %s") % high % GSL_FN_EVAL(&F, high) % r0 % dump()).str());
 
             log_.info("drawTime2: adjusting high: %.16g Fs = %.16g", high, high_value);
             high *= 10;
@@ -1179,8 +1120,7 @@ Real GreensFunction3DRadAbs::drawPleaves(gsl_function const& F, gsl_root_fsolver
             // FIXME: 
             if (fabs(low) <= minT) //|| fabs(low_value - low_value_prev) < TOLERANCE) 
             {
-                log_.info("couldn't adjust low.  returning minT (=%.16g);"
-                    "Fs(%.16g) = %.16g; r0 = %.16g, %s", minT, low, GSL_FN_EVAL(&F, low), r0, dump().c_str());
+                log_.info("couldn't adjust low.  returning minT (=%.16g);" "Fs(%.16g) = %.16g; r0 = %.16g, %s", minT, low, GSL_FN_EVAL(&F, low), r0, dump().c_str());
                 return minT;
             }
             //low_value_prev = low_value;
@@ -1276,27 +1216,15 @@ Real GreensFunction3DRadAbs::drawR(Real rnd, Real t) const
     gsl_root_fsolver_set(solver, &F, low, high);
 
     const uint maxIter(100);
-    for (uint i(0);;)
+    for (uint i(0);;++i)
     {
         gsl_root_fsolver_iterate(solver);
         low = gsl_root_fsolver_x_lower(solver);
         high = gsl_root_fsolver_x_upper(solver);
         const int status(gsl_root_test_interval(low, high, 1e-15, TOLERANCE));
 
-        if (status == GSL_CONTINUE)
-        {
-            if (i >= maxIter)
-            {
-                gsl_root_fsolver_free(solver);
-                throw std::runtime_error("GreensFunction3DRadAbs: drawR: failed to converge");
-            }
-        }
-        else
-        {
-            break;
-        }
-
-        ++i;
+        if (status != GSL_CONTINUE) break;
+        if (i >= maxIter) throw std::runtime_error("GreensFunction3DRadAbs: drawR: failed to converge");
     }
 
     const Real r(gsl_root_fsolver_root(solver));
@@ -1343,7 +1271,7 @@ Real GreensFunction3DRadAbs::p_n_alpha(uint i, uint n, Real r, Real t) const
     return result;
 }
 
-Real GreensFunction3DRadAbs::p_n(Integer n, Real r, Real t, Real max_alpha) const
+Real GreensFunction3DRadAbs::p_n(int n, Real r, Real t, Real max_alpha) const
 {
     const uint min_i(2);
     Real p(0.0);
@@ -1384,7 +1312,7 @@ void GreensFunction3DRadAbs::makep_nTable(RealVector& p_nTable, Real r, Real t) 
         if (getAlpha(n, 0) >= max_alpha)
             break;
 
-        Real p_n(p_n(n, r, t, max_alpha) * factor);
+        Real p_n(this->p_n(n, r, t, max_alpha) * factor);
 
         p_nTable.push_back(p_n);
         const Real p_n_abs(fabs(p_n));
@@ -1435,7 +1363,7 @@ Real GreensFunction3DRadAbs::dp_n_alpha_at_a(uint i, uint n, Real t) const
     return result;
 }
 
-Real GreensFunction3DRadAbs::dp_n_at_a(Integer n, Real t, Real max_alpha) const
+Real GreensFunction3DRadAbs::dp_n_at_a(int n, Real t, Real max_alpha) const
 {
     const uint min_i(2);
     Real p(0.0);
@@ -1559,12 +1487,9 @@ static Real p_theta_n(uint n, RealVector const& p_nTable, RealVector const& lgnd
 Real GreensFunction3DRadAbs::p_theta_table(Real theta, Real r, Real t, RealVector const& p_nTable) const
 {
     const uint tableSize(p_nTable.size());
-    Real sin_theta;
-    Real cos_theta;
-    sincos(theta, &sin_theta, &cos_theta);
     RealVector lgndTable(tableSize);
-    gsl_sf_legendre_Pl_array(tableSize - 1, cos_theta, &lgndTable[0]);
-    return funcSum_all(boost::bind(&p_theta_n, _1, p_nTable, lgndTable), tableSize) * sin_theta;
+    gsl_sf_legendre_Pl_array(tableSize - 1, cos(theta), &lgndTable[0]);
+    return funcSum_all(boost::bind(&p_theta_n, _1, p_nTable, lgndTable), tableSize) * sin(theta);
 }
 
 void GreensFunction3DRadAbs::make_p_thetaTable(RealVector& pTable, Real r, Real t, uint n, RealVector const& p_nTable) const
@@ -1747,26 +1672,15 @@ Real GreensFunction3DRadAbs::drawTheta(Real rnd, Real r, Real t) const
     gsl_root_fsolver_set(solver, &F, 0.0, high);
 
     const uint maxIter(100);
-    for (uint i(0);;)
+    for (uint i(0);;++i)
     {
         gsl_root_fsolver_iterate(solver);
         const Real low(gsl_root_fsolver_x_lower(solver));
         const Real high(gsl_root_fsolver_x_upper(solver));
         const int status(gsl_root_test_interval(low, high, 1e-11, THETA_TOLERANCE));
 
-        if (status == GSL_CONTINUE)
-        {
-            if (i >= maxIter)
-            {
-                gsl_root_fsolver_free(solver);
-                throw std::runtime_error("GreensFunction3DRadAbs: drawTheta: failed to converge");
-            }
-        }
-        else
-        {
-            break;
-        }
-        ++i;
+        if (status != GSL_CONTINUE) break;
+        if (i >= maxIter) throw std::runtime_error("GreensFunction3DRadAbs: drawTheta: failed to converge");
     }
 
     Real theta = gsl_root_fsolver_root(solver);

@@ -1,16 +1,14 @@
 #include <sstream>
-#include <iostream>
 #include <exception>
 #include <vector>
+#include <cmath>
 #include <boost/bind.hpp>
-#include <boost/format.hpp>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_roots.h>
-#include <cmath>
 #include "findRoot.hpp"
 #include "freeFunctions.hpp"
-#include "GreensFunction1DAbsAbs.hpp"
 #include "funcSum.hpp"
+#include "GreensFunction1DAbsAbs.hpp"
 
 const Real GreensFunction1DAbsAbs::L_TYPICAL = 1E-8;
 const Real GreensFunction1DAbsAbs::T_TYPICAL = 1E-6;
@@ -49,7 +47,7 @@ Real GreensFunction1DAbsAbs::p_survival(Real t) const
 }
 
 /* Calculates survival probability using a table.
-   Switchbox for which greensfunction to use. */
+Switchbox for which greensfunction to use. */
 Real GreensFunction1DAbsAbs::p_survival_table(Real t, RealVector& psurvTable) const
 {
     THROW_UNLESS(std::invalid_argument, t >= 0.0);
@@ -127,6 +125,7 @@ Real GreensFunction1DAbsAbs::p_survival_table_i_nov(uint const& i) const
 void GreensFunction1DAbsAbs::createPsurvTable(uint const& maxi, RealVector& table) const
 {
     uint i(table.size());
+    table.reserve(maxi);
     if (v == 0.0)
     {
         while (i < maxi)
@@ -139,8 +138,7 @@ void GreensFunction1DAbsAbs::createPsurvTable(uint const& maxi, RealVector& tabl
     }
 }
 
-/* Calculates the probability density of finding the particle at location r at
-   time t. */
+/* Calculates the probability density of finding the particle at location r at time t. */
 Real GreensFunction1DAbsAbs::prob_r(Real r, Real t) const
 {
     THROW_UNLESS(std::invalid_argument, 0.0 <= (r - sigma) && r <= a);
@@ -289,20 +287,6 @@ GreensFunction::EventKind GreensFunction1DAbsAbs::drawEventType(Real rnd, Real t
     return rnd > fluxratio ? IV_ESCAPE : IV_REACTION;
 }
 
-/* This is a help function that casts the drawT_params parameter structure into
-   the right form and calculates the survival probability from it (and returns it).
-   The routine drawTime uses this one to sample the next-event time from the
-   survival probability using a rootfinder from GSL.*/
-Real GreensFunction1DAbsAbs::drawT_f(Real t, void *p)
-{
-    struct drawT_params *params = static_cast<struct drawT_params *>(p);
-    return params->rnd - params->gf->p_survival_table(t, params->psurvTable);
-}
-
-/* Draws the first passage time from the propensity function.
-   Uses the help routine drawT_f and structure drawT_params for some technical
-   reasons related to the way to input a function and parameters required by
-   the GSL library. */
 Real GreensFunction1DAbsAbs::drawTime(Real rnd) const
 {
     THROW_UNLESS(std::invalid_argument, 0.0 <= rnd && rnd < 1.0);
@@ -311,13 +295,9 @@ Real GreensFunction1DAbsAbs::drawTime(Real rnd) const
     if (D == 0.0) return INFINITY;
     if (L < 0.0 || fabs(a - r0) < EPSILON*L || fabs(r0 - sigma) > (1.0 - EPSILON)*L) return 0.0;
 
-    /* Set params structure. */
     RealVector psurvTable;
-    struct drawT_params parameters = { this, psurvTable, rnd };
-
-    gsl_function F;
-    F.function = &drawT_f;
-    F.params = &parameters;
+    auto f = [rnd, &psurvTable, this](double t){ return rnd - p_survival_table(t, psurvTable); };
+    gsl_lambda<decltype(f)> F(f);
 
     /* Find a good interval to determine the first passage time in */
     const Real dist(std::min(r0 - sigma, a - r0));
@@ -365,8 +345,7 @@ Real GreensFunction1DAbsAbs::drawTime(Real rnd) const
         Real value_prev(2.0);
         do
         {
-            if (fabs(low) <= t_guess * 1.0e-6 ||
-                fabs(value - value_prev) < EPSILON*t_scale)
+            if (fabs(low) <= t_guess * 1.0e-6 || fabs(value - value_prev) < EPSILON*t_scale)
             {
                 log_.warn("drawTime: couldn't adjust low. F( %.16g ) = %.16g", low, value);
                 /*
@@ -388,22 +367,16 @@ Real GreensFunction1DAbsAbs::drawTime(Real rnd) const
         } while (value >= 0.0);
     }
 
-    // find the intersection on the y-axis between the random number and 
-    // the function
-    // define a new solver type brent
+    // find the intersection on the y-axis between the random number and the function
     const gsl_root_fsolver_type* solverType(gsl_root_fsolver_brent);
-    // make a new solver instance
-    // TODO: incl typecast?
     gsl_root_fsolver* solver(gsl_root_fsolver_alloc(solverType));
     const Real t(findRoot(F, solver, low, high, EPSILON*t_scale, EPSILON, "GreensFunction1DAbsAbs::drawTime"));
     gsl_root_fsolver_free(solver);
-    // return the drawn time
     return t;
 }
 
 Real GreensFunction1DAbsAbs::p_int_r_table(Real const& r, Real const& t, RealVector& table) const
 {
-    const Real L(a - sigma);
     const Real distToa(a - r0);
     const Real distTos(r0 - sigma);
     const Real maxDist(CUTOFF_H * (sqrt(2.0 * D * t) + fabs(v * t)));
@@ -427,11 +400,7 @@ Real GreensFunction1DAbsAbs::p_int_r_table(Real const& r, Real const& t, RealVec
         create_p_int_r_Table(t, maxi, table);
 
     if (maxi >= MAX_TERMS)
-    {
-        log_.warn("drawR: maxi was cut to MAX_TERMS for t = %.16g", t);
-        std::cerr << dump();
-        std::cerr << "L: " << L << " r0: " << r0 - sigma << std::endl;
-    }
+        log_.warn("p_int_r_table: maxi was cut to MAX_TERMS for t = %.16g", t);
 
     Real p = funcSum(boost::bind(&GreensFunction1DAbsAbs::p_int_r_i, this, _1, r, t, table), MAX_TERMS);
     return prefac * p;
@@ -460,9 +429,9 @@ void GreensFunction1DAbsAbs::create_p_int_r_Table(Real const& t, uint const& max
     const Real expo(-D*t / (L*L));
     const Real r0s_L((r0 - sigma) / L);
     const Real Lv2D(L*v / 2.0 / D);
+    table.reserve(maxi);
 
     Real nPI, term;
-
     while (n < maxi)
     {
         nPI = (n + 1)*M_PI;
@@ -475,11 +444,20 @@ void GreensFunction1DAbsAbs::create_p_int_r_Table(Real const& t, uint const& max
     }
 }
 
-/* Function for GSL rootfinder of drawR. */
-Real GreensFunction1DAbsAbs::drawR_f(Real r, drawR_params *params)
-{
-    return params->gf->p_int_r_table(r, params->t, params->table) - params->rnd;
-}
+//struct drawR_params
+//{
+//    GreensFunction1DAbsAbs const* gf;
+//    const Real t;
+//    RealVector table;
+//    Real rnd;
+//};
+//
+//Real GreensFunction1DAbsAbs::drawR_f(Real r, void *p)
+//{
+//    auto params = static_cast<drawR_params*>(p);
+//    return params->gf->p_int_r_table(r, params->t, params->table) - params->rnd;
+//}
+
 
 /* Draws the position of the particle at a given time from p(r,t), assuming
    that the particle is still in the domain */
@@ -498,14 +476,12 @@ Real GreensFunction1DAbsAbs::drawR(Real rnd, Real t) const
     THROW_UNLESS(std::invalid_argument, (r0 - sigma) >= L*EPSILON && (r0 - sigma) <= L*(1.0 - EPSILON));
 
     RealVector pintTable;
-    struct drawR_params parameters = { this, t, pintTable, rnd * p_survival(t) };
-    gsl_function F = { reinterpret_cast<double(*)(double, void*)>(&drawR_f), &parameters };
+    Real rndpsurf = rnd * p_survival(t);
+    auto f = [t, &pintTable, rndpsurf, this](double r){ return p_int_r_table(r, t, pintTable) - rndpsurf; };
+    gsl_lambda<decltype(f)> F(f);
 
     // find the intersection on the y-axis between the random number and the function
-    // define a new solver type brent
     const gsl_root_fsolver_type* solverType(gsl_root_fsolver_brent);
-
-    // make a new solver instance
     gsl_root_fsolver* solver(gsl_root_fsolver_alloc(solverType));
     const Real r(findRoot(F, solver, sigma, a, L*EPSILON, EPSILON, "GreensFunction1DAbsAbs::drawR"));
     gsl_root_fsolver_free(solver);

@@ -2,21 +2,20 @@ import unittest
 import numpy
 import _greens_functions as mod
 
-
 class GreensFunction1DRadAbsTestCase( unittest.TestCase ):    
     def test_Instantiation( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-7
-	r0 = L/2
+        r0 = L/2
         gf = mod.GreensFunction1DRadAbs( D, kf, r0, v, L )
         self.failIf( gf == None )
 
 
     def test_DrawTime( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-7
         r0 = 5e-8
@@ -24,14 +23,16 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
         t = gf.drawTime( 0.5 )
         self.failIf( t <= 0.0 or t >= numpy.inf )
+        self.assertAlmostEqual(t, 0.016640658158384385)
 
         t = gf.drawTime( 1 - 1e-8 )
         self.failIf( t <= 0.0 or t >= numpy.inf )
+        self.assertAlmostEqual(t, 0.00023053362778331762)
 
 
     def test_DrawTime_a_equal_sigma( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-7
         r0 = L
@@ -43,7 +44,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
     def test_DrawTime_a_near_sigma( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-14
         r0 = L/2
@@ -51,11 +52,12 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
         t = gf.drawTime( 0.5 )
         self.failIf( t <= 0.0 or t >= numpy.inf )
+        self.assertAlmostEqual(t, 8.363306317187119e-17)
 
 
     def test_DrawTime_r0_equal_a( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-7
         r0 = L
@@ -67,7 +69,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
     def test_DrawTime_r0_equal_sigma_kf_zero( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 0.0
         L = 1e-7
         r0 = 0
@@ -75,11 +77,12 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
         t = gf.drawTime( 0.5 )
         self.failIf( t < 0.0 or t >= numpy.inf )
+        self.assertAlmostEqual(t, 0.0033201928315758156)
 
 
     def no_test_DrawTime_r0_equal_sigma_kf_large( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 20e-7
         r0 = 1e-12
@@ -87,11 +90,13 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
         t = gf.drawTime( 0.5 )
         self.failIf( t < 0.0 or t >= numpy.inf )
+        self.assertAlmostEqual(t, 0.0033201928315758156)
+
 
 
     def test_DrawEventType( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-7
         r0 = L/2
@@ -107,7 +112,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
     def test_DrawEventType_smallt( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-6
         r0 = L/2
@@ -128,7 +133,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
     def test_DrawR( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-6
         r0 = L/2
@@ -137,6 +142,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
         t = 1e-3
         r = gf.drawR( 0.5, t )
         self.failIf( r < 0 or r > L )
+        self.assertAlmostEqual(r, 1e-6)
 
         r1 = gf.drawR( 0.00001, t )
         r2 = gf.drawR( 0.99999, t )
@@ -146,7 +152,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
     def test_DrawR_zerot( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 1e-7
         r0 = L/2
@@ -159,7 +165,7 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
 
     def test_DrawR_r0_equal_sigma( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-7
         r0 = 0
@@ -168,33 +174,36 @@ class GreensFunction1DRadAbsTestCase( unittest.TestCase ):
         t = 1e-3
         r = gf.drawR( 0.5, t )
         self.failIf( r < 0 or r > L )
+        self.assertAlmostEqual(r, 7.418530574193204e-09)
 
 
     def test_DrawR_squeezed( self ):
         D = 1e-12
-	v = -3e-8
+        v = -3e-8
         kf = 1e-8
         L = 2e-5
-	r0 = L/2
-        gf = mod.GreensFunction1DRadAbs( D, kf, r0, v, L )
-
+        r0 = L/2
         t = 1e-3
         r0 = 0
-        gf.setr0 ( r0 )
+        gf = mod.GreensFunction1DRadAbs( D, kf, r0, v, L )
+
         r = gf.drawR( 0.5, t )
-        print "hello r: {}".format(r)
+        #print "hello r: {}".format(r)
         self.failIf( r < 0 or r > L )
+        self.assertAlmostEqual(r, 7.4188628950178195e-09)
+
 
         r0 = 0.0001e-8
-        gf.setr0 ( r0 )
+        gf = mod.GreensFunction1DRadAbs( D, kf, r0, v, L )
         r = gf.drawR( 0.5, t )
         self.failIf( r < 0 or r > L )
+        self.assertAlmostEqual(r, 7.419371788498693e-09)
 
         r0 = L - 0.0001e-8
-        gf.setr0 ( r0 )
+        gf = mod.GreensFunction1DRadAbs( D, kf, r0, v, L )
         r = gf.drawR( 0.5, t )
         self.failIf( r < 0 or r > L )
-        self.failIf( r < 0 or r > L )
+        self.assertAlmostEqual(r, 1.994734462304115e-05)
 
 
 if __name__ == "__main__":
