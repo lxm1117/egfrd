@@ -54,10 +54,7 @@ struct volume_clearer_converter
 
     static void* convert(PyObject* pyo)
     {
-        if (!pyo || pyo == Py_None)
-        {
-            return 0;
-        }
+        if (!pyo || pyo == Py_None) return nullptr;
 
         if (!PyCallable_Check(pyo))
         {

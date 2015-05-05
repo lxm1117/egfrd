@@ -84,7 +84,7 @@ public:
     static PyObject* __next__(stl_iterator_wrapper* self)
     {
         if (self->i_ == self->end_)
-            return NULL;
+            return nullptr;
 
         try
         {
@@ -92,7 +92,7 @@ public:
         }
         catch (boost::python::error_already_set const&)
         {
-            return NULL;
+            return nullptr;
         }
     }
 };

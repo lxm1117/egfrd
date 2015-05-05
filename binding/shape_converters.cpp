@@ -6,54 +6,39 @@
 
 namespace binding {
 
-struct sphere_to_python_converter
-{
-    typedef Sphere native_type;
-
-    static PyObject* convert(native_type const& v)
+    struct sphere_to_python_converter
     {
-        return boost::python::incref(
-            boost::python::object(boost::make_tuple(
-                v.position(), v.radius())).ptr());
-    }
-};
+        typedef Sphere native_type;
 
-struct python_to_sphere_converter
-{
-    typedef Sphere native_type;
-
-    static void* convertible(PyObject* pyo)
-    {
-        if (!PyTuple_Check(pyo))
+        static PyObject* convert(native_type const& v)
         {
-            return 0;
+            return boost::python::incref(boost::python::object(boost::make_tuple(v.position(), v.radius())).ptr());
         }
-        if (PyTuple_Size(pyo) != 2)
-        {
-            return 0;
-        }
-        return pyo;
-    }
+    };
 
-    static void construct(PyObject* pyo, 
-                          boost::python::converter::rvalue_from_python_stage1_data* data)
+    struct python_to_sphere_converter
     {
-        PyObject* items[] = { PyTuple_GetItem(pyo, 0), PyTuple_GetItem(pyo, 1) };
-        void* storage(reinterpret_cast<
-            boost::python::converter::rvalue_from_python_storage<
-                native_type >*
-            >(data)->storage.bytes);
-        new (storage) native_type (
-            boost::python::extract<
-                native_type::position_type>(items[0]),
-            PyFloat_AsDouble(items[1]));
-        data->convertible = storage;
-    }
-};
+        typedef Sphere native_type;
 
-void register_sphere_converters()
-{
-    peer::util::to_native_converter<Sphere, python_to_sphere_converter>();
-}
+        static void* convertible(PyObject* pyo)
+        {
+            if (!PyTuple_Check(pyo)) return nullptr;
+            if (PyTuple_Size(pyo) != 2) return nullptr;
+            return pyo;
+        }
+
+        static void construct(PyObject* pyo, boost::python::converter::rvalue_from_python_stage1_data* data)
+        {
+            PyObject* items[] = { PyTuple_GetItem(pyo, 0), PyTuple_GetItem(pyo, 1) };
+            void* storage(reinterpret_cast<boost::python::converter::rvalue_from_python_storage<native_type >*>(data)->storage.bytes);
+            new (storage)native_type(boost::python::extract<native_type::position_type>(items[0]), PyFloat_AsDouble(items[1]));
+            data->convertible = storage;
+        }
+    };
+
+    void register_sphere_converters()
+    {
+        peer::util::to_native_converter<Sphere, python_to_sphere_converter>();
+    }
 
 } // namespace binding

@@ -47,17 +47,14 @@ public:
         managers_.push_back(entry_type(boost::regex(logger_name_pattern), manager));
     }
 
-    boost::shared_ptr<LoggerManager>
-        get_default_logger_manager() const
+    boost::shared_ptr<LoggerManager> get_default_logger_manager() const
     {
         return default_manager_;
     }
 
-    boost::shared_ptr<LoggerManager>
-        operator()(char const* logger_name) const
+    boost::shared_ptr<LoggerManager> operator()(char const* logger_name) const
     {
-        if (!logger_name)
-            return default_manager_;
+        if (!logger_name) return default_manager_;
 
         char const* const logger_name_end(logger_name + std::strlen(logger_name));
         BOOST_FOREACH(entry_type const& i, managers_)
@@ -104,8 +101,7 @@ Logger& Logger::get_logger(char const* name)
     static map_adapter_handler hdlr;
     static loggers_type loggers(hdlr);
     std::string _name(name);
-    std::pair<loggers_type::iterator, bool> i(
-        loggers.insert(loggers_type::value_type(_name, 0)));
+    std::pair<loggers_type::iterator, bool> i(loggers.insert(loggers_type::value_type(_name, 0)));
 
     if (i.second)
     {
@@ -118,7 +114,8 @@ Logger& Logger::get_logger(char const* name)
 
 char const* Logger::stringize_error_level(enum level lv)
 {
-    static char const* names[] = {
+    static char const* names[] =
+    {
         "OFF",
         "DEBUG",
         "INFO",
@@ -133,7 +130,7 @@ struct invoke_appender
 {
     void operator()(boost::shared_ptr<LogAppender> const& appender) const
     {
-        const char* chunks[] = { formatted_msg, NULL };
+        const char* chunks[] = { formatted_msg, nullptr };
         (*appender)(level, name, chunks);
     }
 
@@ -160,12 +157,10 @@ void Logger::logv(enum level lv, char const* format, va_list ap)
 {
     ensure_initialized();
 
-    if (lv < level_)
-        return;
+    if (lv < level_) return;
 
     char buf[1024];
     std::vsnprintf(buf, sizeof(buf), format, ap);
-
     std::for_each(appenders_.begin(), appenders_.end(), invoke_appender(lv, name_.c_str(), buf));
 }
 
@@ -189,8 +184,7 @@ inline void Logger::ensure_initialized()
     }
 }
 
-Logger::Logger(LoggerManagerRegistry const& registry, char const* name)
-    : registry_(registry), name_(name), manager_() {}
+Logger::Logger(LoggerManagerRegistry const& registry, char const* name) : registry_(registry), name_(name), manager_() {}
 
 void LoggerManager::level(enum Logger::level level)
 {
@@ -224,8 +218,7 @@ void LoggerManager::add_appender(boost::shared_ptr<LogAppender> const& appender)
     /* } */
 }
 
-LoggerManager::LoggerManager(char const* name, enum Logger::level level)
-    : name_(name), level_(level) {}
+LoggerManager::LoggerManager(char const* name, enum Logger::level level) : name_(name), level_(level) {}
 
 void LoggerManager::manage(Logger* logger)
 {

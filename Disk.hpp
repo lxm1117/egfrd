@@ -19,14 +19,11 @@ public:
 
 public:
     // constructors
-    Disk()
-        : position_(), radius_(0), unit_z_() {}
+    Disk() : position_(), radius_(0), unit_z_() {}
 
-    Disk(position_type const& position, length_type const& radius,
-             position_type const& unit_z)
+    Disk(position_type const& position, length_type const& radius, position_type const& unit_z)
         : position_(position), radius_(radius), unit_z_(unit_z) {}
 
-    
     bool operator==(const Disk& rhs) const
     {
         return position_ == rhs.position() && radius_ == rhs.radius() && unit_z_ == rhs.unit_z();
@@ -66,7 +63,7 @@ public:
     {
         return unit_z_;
     }
-    
+
     const int dof() const
     {   // degrees of freedom for particle movement
         return 0;
@@ -80,7 +77,7 @@ public:
         return strm.str();
     }
 
-/////// Member variables
+    /////// Member variables
 private:
     position_type   position_;    // centre.
     length_type     radius_;
@@ -88,12 +85,10 @@ private:
 };
 
 
-//////// Inline functions
 template<typename Tstrm_, typename T_>
-inline std::basic_ostream<Tstrm_>& operator<<(std::basic_ostream<Tstrm_>& strm,
-        const Disk<T_>& v)
+inline std::basic_ostream<Tstrm_>& operator<<(std::basic_ostream<Tstrm_>& strm, const Disk<T_>& v)
 {
-    strm << "{" << v.position() <<  ", " << v.radius() << ", " << v.unit_z() << ", " << "}";
+    strm << "{" << v.position() << ", " << v.radius() << ", " << v.unit_z() << ", " << "}";
     return strm;
 }
 
@@ -107,17 +102,15 @@ to_internal(Disk<T_> const& obj, typename Disk<T_>::position_type const& pos)
     typedef typename Disk<T_>::length_type      length_type;
 
     const position_type pos_vector(subtract(pos, obj.position()));
-    
-    const length_type z( dot_product(pos_vector, obj.unit_z()) );               // z can be < 0
-    const length_type r( length(subtract(pos_vector, multiply(obj.unit_z(), z))) );// r is always >= 0
+
+    const length_type z(dot_product(pos_vector, obj.unit_z()));               // z can be < 0
+    const length_type r(length(subtract(pos_vector, multiply(obj.unit_z(), z))));// r is always >= 0
 
     return array_gen<typename Disk<T_>::length_type>(r, z);
 }
 
 template<typename T_>
-inline std::pair<typename Disk<T_>::position_type,
-                 std::pair<typename Disk<T_>::length_type,
-                           typename Disk<T_>::length_type> >
+inline std::pair<typename Disk<T_>::position_type, std::pair<typename Disk<T_>::length_type, typename Disk<T_>::length_type> >
 project_point(Disk<T_> const& obj, typename Disk<T_>::position_type const& pos)
 // Calculates the projection of 'pos' onto the disk 'obj' and also returns the coefficient
 // for the normal component (z) of 'pos' in the basis of the disk and the distance of the
@@ -133,47 +126,42 @@ project_point(Disk<T_> const& obj, typename Disk<T_>::position_type const& pos)
     // Here we do not call 'to_internal' for efficiency
     const position_type pos_vector(subtract(pos, obj.position()));
 
-    const length_type   z ( dot_product(pos_vector, obj.unit_z()) );
-    const position_type r_vector (subtract(pos_vector, multiply(obj.unit_z(), z)));
-    const length_type   r (length(r_vector));
+    const length_type   z(dot_product(pos_vector, obj.unit_z()));
+    const position_type r_vector(subtract(pos_vector, multiply(obj.unit_z(), z)));
+    const length_type   r(length(r_vector));
     assert(r >= 0.0);
-    
+
     // The quantities that will be return, with default values
     // for the standard case (pos is not in plane of disk)
-    position_type proj_pos( add(obj.position(), r_vector) );
-    length_type   normal_comp( z );
-    length_type   dist_to_edge( r - obj.radius() );
-    
+    position_type proj_pos(add(obj.position(), r_vector));
+    length_type   normal_comp(z);
+    length_type   dist_to_edge(r - obj.radius());
+
     // Special case: pos is in the same plane as the disk
-    if( feq(z, 0.0, obj.radius()) ){ // third argument is typical scale
-     
+    if (feq(z, 0.0, obj.radius())){ // third argument is typical scale
+
         proj_pos = obj.position(); // projected position = disk center
         normal_comp = r;
         dist_to_edge = -1.0;
-    }        
-    
-    return std::make_pair( proj_pos,
-                           std::make_pair(normal_comp, dist_to_edge) );
+    }
+
+    return std::make_pair(proj_pos, std::make_pair(normal_comp, dist_to_edge));
 }
 
 // The same as in case of the plane: project_point_on_surface = project_point
 template<typename T_>
-inline std::pair<typename Disk<T_>::position_type,
-                 std::pair<typename Disk<T_>::length_type,
-                           typename Disk<T_>::length_type> >
+inline std::pair<typename Disk<T_>::position_type, std::pair<typename Disk<T_>::length_type, typename Disk<T_>::length_type> >
 project_point_on_surface(Disk<T_> const& obj, typename Disk<T_>::position_type const& pos)
 {
     return project_point(obj, pos);
 }
 
 template<typename T_>
-inline typename Disk<T_>::length_type
-distance(Disk<T_> const& obj,
-                typename Disk<T_>::position_type const& pos)
+inline typename Disk<T_>::length_type distance(Disk<T_> const& obj, typename Disk<T_>::position_type const& pos)
 {
-  typedef typename Disk<T_>::length_type length_type;
+    typedef typename Disk<T_>::length_type length_type;
 
-    /* First compute the (r,z) components of pos in a coordinate system 
+    /* First compute the (r,z) components of pos in a coordinate system
      * defined by the vectors unitR and unit_z, where unitR is
      * choosen such that unitR and unit_z define a plane in which
      * pos lies. */
@@ -188,7 +176,7 @@ distance(Disk<T_> const& obj,
     {
         // pos is not above the disk.
         // Compute distance to edge.
-        distance = std::sqrt( dz * dz + dr * dr );
+        distance = std::sqrt(dz * dz + dr * dr);
     }
     else
     {
@@ -200,31 +188,27 @@ distance(Disk<T_> const& obj,
 }
 
 template<typename T_>
-inline std::pair<typename Disk<T_>::position_type, bool>
-deflect(Disk<T_> const& obj,
-        typename Disk<T_>::position_type const& r0,
-        typename Disk<T_>::position_type const& d  )
+inline std::pair<typename Disk<T_>::position_type, bool> deflect(Disk<T_> const& obj, typename Disk<T_>::position_type const& r0, typename Disk<T_>::position_type const& d)
 {
     // Displacements are not deflected on disks (yet),
     // but this function has to be defined for every shape to be used in structure.
     // For now it just returns original pos. + displacement. The changeflage = false.
-    return std::make_pair( add(r0, d), false );
+    return std::make_pair(add(r0, d), false);
 }
 /*
 template<typename T_>
 inline typename Disk<T_>::position_type
 deflect_back(Disk<T_> const& obj,
-        typename Disk<T_>::position_type const& r,
-        typename Disk<T_>::position_type const& u_z  )
+typename Disk<T_>::position_type const& r,
+typename Disk<T_>::position_type const& u_z  )
 {
-    // Return the vector r without any changes
-    return r;
+// Return the vector r without any changes
+return r;
 }
 */
 
 template<typename T, typename Trng>
-inline typename Disk<T>::position_type
-random_position(Disk<T> const& shape, Trng& rng)
+inline typename Disk<T>::position_type random_position(Disk<T> const& shape, Trng& rng)
 {
     // The disk has only one "legal" position = its center
     return shape.position();
@@ -243,16 +227,17 @@ inline Disk<T_>& shape(Disk<T_>& shape)
 }
 
 template<typename T_>
-struct is_shape<Disk<T_> >: public boost::mpl::true_ {};
+struct is_shape<Disk<T_> > : public boost::mpl::true_{};
 
 template<typename T_>
-struct shape_position_type<Disk<T_> >
+struct shape_position_type < Disk<T_> >
 {
     typedef typename Disk<T_>::position_type type;
 };
 
 template<typename T_>
-struct shape_length_type<Disk<T_> > {
+struct shape_length_type < Disk<T_> > 
+{
     typedef typename Disk<T_>::length_type type;
 };
 
@@ -260,27 +245,27 @@ template<typename T>
 inline typename shape_length_type<Disk<T> >::type const& shape_size(Disk<T> const& shape)
 {
     return shape.radius();
-} 
+}
 
 template<typename T>
 inline typename shape_length_type<Disk<T> >::type& shape_size(Disk<T>& shape)
 {
     return shape.radius();
-} 
+}
 
 namespace std {
-template<typename T_>
-struct hash<Disk<T_> >
-{
-    typedef Disk<T_> argument_type;
-
-    std::size_t operator()(argument_type const& val)
+    template<typename T_>
+    struct hash < Disk<T_> >
     {
-        return hash<typename argument_type::position_type>()(val.position()) ^
-            hash<typename argument_type::length_type>()(val.radius()) ^
-            hash<typename argument_type::position_type>()(val.unit_z());
-    }
-};
+        typedef Disk<T_> argument_type;
+
+        std::size_t operator()(argument_type const& val)
+        {
+            return hash<typename argument_type::position_type>()(val.position()) ^
+                hash<typename argument_type::length_type>()(val.radius()) ^
+                hash<typename argument_type::position_type>()(val.unit_z());
+        }
+    };
 } // namespace std
 
 #endif /* DISK_HPP */

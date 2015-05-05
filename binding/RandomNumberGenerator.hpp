@@ -10,30 +10,29 @@ namespace binding {
     template<typename Timpl_>
     static PyObject* RandomNumberGenerator_normal(Timpl_& impl, Real loc, Real scale, boost::python::object size)
     {
-        if (size.ptr() == Py_None) {
-            return boost::python::incref(boost::python::object(
-                impl.normal(loc, scale)).ptr());
+        if (size.ptr() == Py_None)
+        {
+            return boost::python::incref(boost::python::object(impl.normal(loc, scale)).ptr());
         }
-        else {
+        else
+        {
             ssize_t len = 0;
             std::size_t num_samples = 1;
             PyObject* retval = 0;
             len = PySequence_Size(size.ptr());
             // cancel the error that would occur if size wasn't be a sequence
-            if (PyErr_Occurred())
-            {
-                PyErr_Clear();
-            }
+            if (PyErr_Occurred()) PyErr_Clear();
+
             if (len == -1 && PyNumber_Check(size.ptr()))
             {
-                npy_intp dims[1] = { PyNumber_AsSsize_t(size.ptr(), NULL) };
+                npy_intp dims[1] = { PyNumber_AsSsize_t(size.ptr(), nullptr) };
                 if (dims[0] < 0)
                 {
                     PyErr_SetString(PyExc_ValueError, "expected size >= 0");
                     boost::python::throw_error_already_set();
                 }
                 num_samples = dims[0];
-                retval = PyArray_New(&PyArray_Type, 1, dims, peer::util::get_numpy_typecode<Real>::value, NULL, NULL, 0, NPY_CARRAY, NULL);
+                retval = PyArray_New(&PyArray_Type, 1, dims, peer::util::get_numpy_typecode<Real>::value, nullptr, nullptr, 0, NPY_CARRAY, nullptr);
             }
             else if (len >= 0)
             {
@@ -48,7 +47,7 @@ namespace binding {
                     dims[i] = boost::python::extract<npy_intp>(size[i]);
                     num_samples *= dims[i];
                 }
-                retval = PyArray_New(&PyArray_Type, len, dims, peer::util::get_numpy_typecode<Real>::value, NULL, NULL, 0, NPY_CARRAY, NULL);
+                retval = PyArray_New(&PyArray_Type, len, dims, peer::util::get_numpy_typecode<Real>::value, nullptr, nullptr, 0, NPY_CARRAY, nullptr);
                 delete[] dims;
             }
             Real* data(reinterpret_cast<Real*>(PyArray_DATA(retval)));

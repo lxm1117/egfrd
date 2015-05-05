@@ -45,7 +45,7 @@ public:
 public:
     void* operator new(size_t)
     {
-        return (*base_traits::pytype_object->tp_new)(&__class__, NULL, NULL);
+        return (*base_traits::pytype_object->tp_new)(&__class__, nullptr, nullptr);
     }
 
     void operator delete(void* ptr)
@@ -63,7 +63,7 @@ public:
     {
         boost::python::tuple t(boost::python::make_tuple(impl_.what()));
         if ((*base_traits::pytype_object->tp_init)(
-                reinterpret_cast<PyObject*>(this), t.ptr(), NULL) == -1)
+                reinterpret_cast<PyObject*>(this), t.ptr(), nullptr) == -1)
         {
             throw std::runtime_error("Failed to initialize the base class");
         }
@@ -109,7 +109,7 @@ public:
     static PyObject* __new__(PyTypeObject* type, PyObject* arg, PyObject* kwarg)
     {
         PyErr_SetString(PyExc_RuntimeError, "This class cannot be instantiated from within a Python script");
-        return NULL;
+        return nullptr;
     }
 
     static int __traverse__(exception_wrapper* self, visitproc visit, void *arg)
@@ -143,13 +143,13 @@ std::string exception_wrapper<Texc_, TbaseTraits_>::__name__;
 
 template<typename Texc_, typename TbaseTraits_>
 PyGetSetDef exception_wrapper<Texc_, TbaseTraits_>::__getsets__[] = {
-    { const_cast<char*>("message"), (getter)&exception_wrapper::__get_message__, NULL },
-    { NULL }
+    { const_cast<char*>("message"), (getter)&exception_wrapper::__get_message__, nullptr },
+    { nullptr }
 };
 
 template<typename Texc_, typename TbaseTraits_>
 PyTypeObject exception_wrapper<Texc_, TbaseTraits_>::__class__ = {
-    PyObject_HEAD_INIT(NULL)
+    PyObject_HEAD_INIT(nullptr)
     0,					/* ob_size */
     0,                  /* tp_name */
     sizeof(exception_wrapper), /* tp_basicsize */

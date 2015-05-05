@@ -57,7 +57,7 @@ public:
         if (!valid(self->impl_))
         {
             PyErr_SetNone(PyExc_StopIteration);
-            return NULL;
+            return nullptr;
         }
         return result_converter_type()(self->impl_());
     }
@@ -82,7 +82,7 @@ public:
         catch (std::exception const&) {}
 
         PyErr_SetNone(PyExc_TypeError);
-        return NULL;
+        return nullptr;
     }
 
     static PyTypeObject* __class_init__(const char* name, PyObject* mod)
@@ -124,7 +124,7 @@ std::string generator_wrapper<Tgen_, Trcg_>::__name__;
 template<typename Tgen_, typename Trcg_>
 PyMethodDef generator_wrapper<Tgen_, Trcg_>::__methods__[] = {
     { "__length_hint__", (PyCFunction)generator_wrapper::__length_hint__, METH_NOARGS, "" },
-    { NULL, NULL }
+    { nullptr, nullptr }
 };
 
 template<typename Tgen_, typename Trcg_>

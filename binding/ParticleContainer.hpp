@@ -170,17 +170,11 @@ namespace binding {
 
             static void* convert(PyObject* pyo)
             {
-                if (pyo == Py_None)
-                {
-                    return 0;
-                }
+                if (pyo == Py_None) return nullptr;
 
                 Py_ssize_t hint(-1);
                 hint = PyObject_Size(pyo);
-                if (hint < 0)
-                {
-                    PyErr_Clear();
-                }
+                if (hint < 0) PyErr_Clear();
 
                 boost::python::handle<> iter(PyObject_GetIter(pyo));
                 if (!iter)
@@ -276,17 +270,11 @@ namespace binding {
 
             static void* convert(PyObject* pyo)
             {
-                if (pyo == Py_None)
-                {
-                    return 0;
-                }
+                if (pyo == Py_None) return nullptr;
 
                 Py_ssize_t hint(-1);
                 hint = PyObject_Size(pyo);
-                if (hint < 0)
-                {
-                    PyErr_Clear();
-                }
+                if (hint < 0) PyErr_Clear();
 
                 boost::python::handle<> iter(PyObject_GetIter(pyo));
                 if (!iter)

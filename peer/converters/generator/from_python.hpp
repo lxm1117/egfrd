@@ -10,19 +10,13 @@ struct pyiterator_to_generator_converter
 
     static void* convertible(PyObject* pyo)
     {
-        if (!PyObject_TypeCheck(pyo, &native_type::__class__))
-        {
-            return 0;
-        }
+        if (!PyObject_TypeCheck(pyo, &native_type::__class__)) return nullptr;
         return pyo;
     }
 
-    static void construct(PyObject* pyo, 
-                          boost::python::converter::rvalue_from_python_stage1_data* data)
+    static void construct(PyObject* pyo, boost::python::converter::rvalue_from_python_stage1_data* data)
     {
-        void* storage(reinterpret_cast<
-            boost::python::converter::rvalue_from_python_storage<Tgen_>* >(
-                data)->storage.bytes);
+        void* storage(reinterpret_cast<boost::python::converter::rvalue_from_python_storage<Tgen_>* >(data)->storage.bytes);
         new (storage) Tgen_(reinterpret_cast<native_type*>(pyo)->impl_);
         data->convertible = storage;
     }

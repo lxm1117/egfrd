@@ -17,24 +17,24 @@ static PyObject* reconstruct(PyObject* self, PyObject* args)
     PyObject* state;
 
     if (!PyArg_ParseTuple(args, "OOO", &klass, &base, &state))
-        return NULL;
+        return nullptr;
 
     if (!PyType_Check(klass)) {
         PyErr_SetString(PyExc_TypeError, "argument 1 must be a type object");
-        return NULL;
+        return nullptr;
     }
 
     if (!PyType_Check(base)) {
         PyErr_SetString(PyExc_TypeError, "argument 2 must be a type object");
-        return NULL;
+        return nullptr;
     }
 
     if (!PyTuple_Check(state)) {
         PyErr_SetString(PyExc_TypeError, "argument 3 must be a tuple");
-        return NULL;
+        return nullptr;
     }
 
-    return klass->tp_new(klass, state, NULL);
+    return klass->tp_new(klass, state, nullptr);
 }
 
 
@@ -61,7 +61,7 @@ static PyObject* reduce(PyObject* self) try
 }
 catch (boost::python::error_already_set const&)
 {
-    return NULL;
+    return nullptr;
 }
 
 static inline void register_reconstructor()
@@ -75,7 +75,7 @@ static inline void register_reconstructor()
             METH_VARARGS, const_cast<char*>("")
         };
         scope().attr(reconstruct_func_name) = borrowed(PyCFunction_NewEx(
-            &def, NULL, getattr(scope(), "__name__").ptr()));
+            &def, nullptr, getattr(scope(), "__name__").ptr()));
     }
 }
 

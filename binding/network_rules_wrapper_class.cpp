@@ -7,120 +7,114 @@
 
 namespace binding {
 
-static boost::python::object species_info_class;
+    static boost::python::object species_info_class;
 
-template<typename Timpl_>
-struct reaction_rule_vector_converter
-{
-    typedef Timpl_ native_type;
-
-    struct instance_holder
+    template<typename Timpl_>
+    struct reaction_rule_vector_converter
     {
-        instance_holder(native_type const& instance): instance_(instance) {}
+        typedef Timpl_ native_type;
 
-        native_type const& operator*() const
+        struct instance_holder
         {
-            return instance_;
-        }
+            instance_holder(native_type const& instance) : instance_(instance) {}
 
-        native_type const* operator->() const
+            native_type const& operator*() const
+            {
+                return instance_;
+            }
+
+            native_type const* operator->() const
+            {
+                return &(**this);
+            }
+
+            native_type& operator*()
+            {
+                PyErr_SetString(PyExc_RuntimeError, "object is immutable");
+                boost::python::throw_error_already_set();
+                return *static_cast<native_type*>(0);
+            }
+
+            native_type* operator->()
+            {
+                return &(**this);
+            }
+
+            native_type const& instance_;
+        };
+
+        typedef peer::wrappers::stl_container_wrapper<native_type, instance_holder> wrapper_type;
+
+        struct to_python_converter
         {
-            return &(**this);
-        }
+            static PyObject* convert(native_type const& v)
+            {
+                return reinterpret_cast<PyObject*>(wrapper_type::create(instance_holder(v)));
+            }
+        };
 
-        native_type& operator*()
+        struct to_native_converter
         {
-            PyErr_SetString(PyExc_RuntimeError, "object is immutable");
-            boost::python::throw_error_already_set();
-            return *static_cast<native_type*>(0);
-        }
+            static void* convert(PyObject* ptr)
+            {
+                return const_cast<native_type*>(&*reinterpret_cast<wrapper_type const*>(ptr)->ptr());
+            }
 
-        native_type* operator->()
+            static PyTypeObject const* expected_pytype()
+            {
+                return &wrapper_type::__class__;
+            }
+        };
+
+        static void __register()
         {
-            return &(**this);
+            wrapper_type::__class_init__("ReactionRuleInfoVector", boost::python::scope().ptr());
+            boost::python::to_python_converter<native_type, to_python_converter>();
+            peer::util::to_native_lvalue_converter<native_type, to_native_converter>();
         }
-
-        native_type const& instance_;
     };
 
-    typedef peer::wrappers::stl_container_wrapper<native_type, instance_holder> wrapper_type;
-
-    struct to_python_converter
+    template<typename Tsid_, typename Tsinfo_>
+    struct species_info_to_species_id_converter
     {
-        static PyObject* convert(native_type const& v)
+        typedef Tsinfo_ species_info_type;
+        typedef Tsid_ native_type;
+
+        static void* convertible(PyObject* pyo)
         {
-            return reinterpret_cast<PyObject*>(wrapper_type::create(instance_holder(v)));
+            if (!PyObject_TypeCheck(pyo, reinterpret_cast<PyTypeObject*>(species_info_class.ptr())))
+                return nullptr;
+            return pyo;
+        }
+
+        static void construct(PyObject* pyo, boost::python::converter::rvalue_from_python_stage1_data* data)
+        {
+            using namespace boost::python;
+            void* storage(reinterpret_cast<converter::rvalue_from_python_storage<native_type>*>(data)->storage.bytes);
+            new (storage)native_type(static_cast<species_info_type*>(extract<species_info_type*>(object(borrowed(pyo))))->id());
+            data->convertible = storage;
         }
     };
 
-    struct to_native_converter
+    static void register_reaction_rule_info_class()
     {
-        static void* convert(PyObject* ptr)
-        {
-            return const_cast<native_type*>(&*reinterpret_cast<wrapper_type const*>(ptr)->ptr());
-        }
-
-        static PyTypeObject const* expected_pytype()
-        {
-            return &wrapper_type::__class__;
-        }
-    };
-
-    static void __register()
-    {
-        wrapper_type::__class_init__("ReactionRuleInfoVector", boost::python::scope().ptr());
-        boost::python::to_python_converter<native_type, to_python_converter>();
-        peer::util::to_native_lvalue_converter<native_type, to_native_converter>();
+        register_reaction_rule_info_class<ReactionRuleInfo>("ReactionRuleInfo");
     }
-};
 
-template<typename Tsid_, typename Tsinfo_>
-struct species_info_to_species_id_converter
-{
-    typedef Tsinfo_ species_info_type;
-    typedef Tsid_ native_type;
-
-    static void* convertible(PyObject* pyo)
+    static void register_species_info_class()
     {
-        if (!PyObject_TypeCheck(pyo, reinterpret_cast<PyTypeObject*>(
-                species_info_class.ptr())))
-        {
-            return 0;
-        }
-        return pyo;
+        species_info_class = register_species_info_class<SpeciesInfo>("SpeciesInfo");
+        peer::util::to_native_converter<SpeciesID, species_info_to_species_id_converter<SpeciesID, SpeciesInfo> >();
     }
 
-    static void construct(PyObject* pyo, 
-                          boost::python::converter::rvalue_from_python_stage1_data* data)
+    void register_network_rules_wrapper_class()
     {
         using namespace boost::python;
-        void* storage(reinterpret_cast<
-            converter::rvalue_from_python_storage<native_type>* >(
-                data)->storage.bytes);
-        new (storage) native_type(static_cast<species_info_type*>(extract<species_info_type*>(object(borrowed(pyo))))->id());
-        data->convertible = storage;
+
+        register_network_rules_wrapper_class<NetworkRulesWrapper>("NetworkRulesWrapper");
+        register_reaction_rule_info_class();
+        reaction_rule_vector_converter<NetworkRulesWrapper::reaction_rules>::__register();
+        register_species_info_class();
     }
-};
-
-static void register_reaction_rule_info_class()
-{
-    register_reaction_rule_info_class<ReactionRuleInfo>("ReactionRuleInfo");
-}
-
-static void register_species_info_class()
-{
-    species_info_class = register_species_info_class<SpeciesInfo>("SpeciesInfo");
-    peer::util::to_native_converter<SpeciesID, species_info_to_species_id_converter<SpeciesID, SpeciesInfo> >();
-}
-
-void register_network_rules_wrapper_class()
-{
-    using namespace boost::python;
-
-    register_network_rules_wrapper_class<NetworkRulesWrapper>("NetworkRulesWrapper");
-    register_reaction_rule_info_class();
-    reaction_rule_vector_converter<NetworkRulesWrapper::reaction_rules>::__register();
-    register_species_info_class();
-}
 
 } // namespace binding

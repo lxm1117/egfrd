@@ -54,9 +54,9 @@ namespace util
                 }
                 PyObject* retval = PyArray_New(&PyArray_Type, N_,
                         const_cast<npy_intp*>(dims),
-                        get_numpy_typecode<T_>::value, NULL,
+                        get_numpy_typecode<T_>::value, nullptr,
                         const_cast<source_type&>(val).origin(), 0,
-                        NPY_CARRAY, NULL);
+                        NPY_CARRAY, nullptr);
                 reinterpret_cast<PyArrayObject*>(retval)->flags |= NPY_OWNDATA;
                 return retval;
             }
@@ -73,10 +73,10 @@ namespace util
 
                 PyObject* retval = PyArray_New(&PyArray_Type, 1,
                         const_cast<npy_intp*>(dims),
-                        get_numpy_typecode<T_>::value, NULL,
+                        get_numpy_typecode<T_>::value, nullptr,
                         //const_cast<source_type&>(val).data(), 0,
                         &const_cast<source_type&>(val)[0], 0,
-                        NPY_CARRAY, NULL);
+                        NPY_CARRAY, nullptr);
                 reinterpret_cast<PyArrayObject*>(retval)->flags |= NPY_OWNDATA;
                 return retval;
             }
@@ -117,14 +117,14 @@ namespace util
                 {
                     std::for_each(converted_data, di, destruct_ptr<
                             pyobject_array_allocator_type>(alloc));
-                    return NULL; 
+                    return nullptr; 
                 }
 
                 PyObject* retval = PyArray_New(&PyArray_Type, 1,
                         const_cast<npy_intp*>(dims),
                         get_numpy_typecode<boost::python::object>::value,
-                        NULL, converted_data, 0,
-                        NPY_CARRAY, NULL);
+                        nullptr, converted_data, 0,
+                        NPY_CARRAY, nullptr);
                  reinterpret_cast<PyArrayObject*>(retval)->flags |= NPY_OWNDATA;
                  return retval;
             }
@@ -145,7 +145,7 @@ namespace util
                                              const_cast<npy_intp*>(dims),
                                              peer::util::get_numpy_typecode<
                                                  Telem_>::value,
-                                             NULL, data, 0, NPY_CARRAY, NULL));
+                                             nullptr, data, 0, NPY_CARRAY, nullptr));
                 reinterpret_cast<PyArrayObject*>(array)->flags |= NPY_OWNDATA;
                 return array;
             }

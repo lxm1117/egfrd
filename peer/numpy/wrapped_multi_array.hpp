@@ -128,7 +128,7 @@ public:
     {
         if (!PyArray_Check(ptr))
         {
-            return NULL;
+            return nullptr;
         }
 
         PyObject* retval(
@@ -139,13 +139,13 @@ public:
                         typename native_type::element>::value), 0));
         if (!retval)
         {
-            return NULL;
+            return nullptr;
         }
 
         if (PyArray_NDIM(reinterpret_cast<PyArrayObject*>(retval)) != Ndims_)
         {
             boost::python::decref(retval);
-            return NULL;
+            return nullptr;
         }
 
         return retval;
@@ -190,7 +190,7 @@ public:
     {
         if (!PySequence_Check(ptr))
         {
-            return NULL;
+            return nullptr;
         }
 
         return ptr;

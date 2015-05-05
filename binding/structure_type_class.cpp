@@ -5,40 +5,34 @@
 
 namespace binding {
 
-static boost::python::object structure_type_class;
+    static boost::python::object structure_type_class;
 
-template<typename Tsid_, typename Tst_>
-struct structure_type_to_structure_id_converter
-{
-    typedef Tst_ structure_type_type;
-    typedef Tsid_ native_type;
-
-    static void* convertible(PyObject* pyo)
+    template<typename Tsid_, typename Tst_>
+    struct structure_type_to_structure_id_converter
     {
-        if (!PyObject_TypeCheck(pyo, reinterpret_cast<PyTypeObject*>(
-                structure_type_class.ptr())))
+        typedef Tst_ structure_type_type;
+        typedef Tsid_ native_type;
+
+        static void* convertible(PyObject* pyo)
         {
-            return 0;
+            if (!PyObject_TypeCheck(pyo, reinterpret_cast<PyTypeObject*>(structure_type_class.ptr())))
+                return nullptr;
+            return pyo;
         }
-        return pyo;
-    }
 
-    static void construct(PyObject* pyo, 
-                          boost::python::converter::rvalue_from_python_stage1_data* data)
+        static void construct(PyObject* pyo, boost::python::converter::rvalue_from_python_stage1_data* data)
+        {
+            using namespace boost::python;
+            void* storage(reinterpret_cast<converter::rvalue_from_python_storage<native_type>*>(data)->storage.bytes);
+            new (storage)native_type(extract<structure_type_type const*>(object(borrowed(pyo)))()->id());
+            data->convertible = storage;
+        }
+    };
+
+    void register_structure_type_class()
     {
-        using namespace boost::python;
-        void* storage(reinterpret_cast<
-            converter::rvalue_from_python_storage<native_type>* >(
-                data)->storage.bytes);
-        new (storage) native_type(extract<structure_type_type const*>(object(borrowed(pyo)))()->id());
-        data->convertible = storage;
+        structure_type_class = register_structure_type_class<StructureType>("StructureType");
+        peer::util::to_native_converter<StructureTypeID, structure_type_to_structure_id_converter<StructureTypeID, StructureType> >();
     }
-};
-
-void register_structure_type_class()
-{
-    structure_type_class = register_structure_type_class<StructureType>("StructureType");
-    peer::util::to_native_converter<StructureTypeID, structure_type_to_structure_id_converter<StructureTypeID, StructureType> >();
-}
 
 } // namespace binding

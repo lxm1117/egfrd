@@ -18,25 +18,21 @@ struct pyiterable_to_container_converter
         if (!retval)
         {
             PyErr_Clear();
-            return 0;
+            return nullptr;
         }
         return retval;
     }
 
-    static void construct(PyObject* pyo,
-                          boost::python::converter::rvalue_from_python_stage1_data* data)
+    static void construct(PyObject* pyo, boost::python::converter::rvalue_from_python_stage1_data* data)
     {
-        void* storage(reinterpret_cast<
-            boost::python::converter::rvalue_from_python_storage<native_type>*>(data)->storage.bytes);
-        boost::python::handle<> iter(
-                reinterpret_cast<PyObject*>(data->convertible));
+        void* storage(reinterpret_cast<boost::python::converter::rvalue_from_python_storage<native_type>*>(data)->storage.bytes);
+        boost::python::handle<> iter(reinterpret_cast<PyObject*>(data->convertible));
 
         data->convertible = new (storage) native_type();
         native_type& retval(*reinterpret_cast<native_type*>(data->convertible));
         for (;;)
         {
-            boost::python::handle<> i(
-                    boost::python::allow_null(PyIter_Next(iter.get())));
+            boost::python::handle<> i(boost::python::allow_null(PyIter_Next(iter.get())));
             if (!i)
             {
                 if (PyErr_Occurred())
@@ -45,10 +41,7 @@ struct pyiterable_to_container_converter
                 }
                 break;
             }
-            retval.insert(boost::end(retval),
-                boost::python::extract<
-                    typename boost::range_value<native_type>::type>(
-                        i.get())());
+            retval.insert(boost::end(retval),boost::python::extract<typename boost::range_value<native_type>::type>(i.get())());
         }
     }
 };
@@ -64,7 +57,7 @@ struct pyiterable_to_ra_container_converter
         if (!retval)
         {
             PyErr_Clear();
-            return 0;
+            return nullptr;
         }
         return retval;
     }
@@ -116,9 +109,7 @@ struct pyiterable_range_converter
     static void* convertible(PyObject* pyo)
     {
         if (!PyType_HasFeature(Py_TYPE(pyo), Py_TPFLAGS_HAVE_ITER))
-        {
-            return 0;
-        }
+            return nullptr;
         return pyo;
     }
 
