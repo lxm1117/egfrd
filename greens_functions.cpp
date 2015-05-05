@@ -201,8 +201,8 @@ BOOST_PYTHON_MODULE(_greens_functions)
         ;
 
     enum_<GreensFunction::EventKind>("PairEventKind")
-        .value("IV_ESCAPE", GreensFunction::IV_ESCAPE)
-        .value("IV_REACTION", GreensFunction::IV_REACTION)
+        .value("IV_ESCAPE", GreensFunction::EventKind::IV_ESCAPE)
+        .value("IV_REACTION", GreensFunction::EventKind::IV_REACTION)
         //        .value( "IV_ESCAPE", GreensFunction1DRadAbs::IV_ESCAPE )
         //       .value( "IV_REACTION", GreensFunction1DRadAbs::IV_REACTION )
         ;

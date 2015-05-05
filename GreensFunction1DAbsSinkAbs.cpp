@@ -491,7 +491,7 @@ GreensFunction::EventKind GreensFunction1DAbsSinkAbs::drawEventType(Real rnd, Re
 
     /* If the sink is impermeable (k==0) or
        the particle is at one the absorbing boundaries (sigma or a) => IV_ESCAPE event */
-    if (k == 0 || fabs(a - r0) < EPSILON * L || fabs(sigma - r0) < EPSILON * L) return IV_ESCAPE;
+    if (k == 0 || fabs(a - r0) < EPSILON * L || fabs(sigma - r0) < EPSILON * L) return EventKind::IV_ESCAPE;
 
     /* The event is sampled from the flux ratios.
        Two possibilities:
@@ -507,11 +507,11 @@ GreensFunction::EventKind GreensFunction1DAbsSinkAbs::drawEventType(Real rnd, Re
 
     if (L0 > maxDist) //Sink not in sight
     {
-        if (distToAbs < maxDist) return IV_ESCAPE;
+        if (distToAbs < maxDist) return EventKind::IV_ESCAPE;
     }
     else
     {
-        if (distToAbs > maxDist) return IV_REACTION; //Only sink in sight.
+        if (distToAbs > maxDist) return EventKind::IV_REACTION; //Only sink in sight.
     }
 
     /* Already fill rootList with needed roots. */
@@ -522,7 +522,7 @@ GreensFunction::EventKind GreensFunction1DAbsSinkAbs::drawEventType(Real rnd, Re
     calculate_n_roots(maxi);
     rnd *= flux_tot(t);
     const Real p_sink(flux_sink(t));
-    return rnd < p_sink ? IV_REACTION : IV_ESCAPE;
+    return rnd < p_sink ? EventKind::IV_REACTION : EventKind::IV_ESCAPE;
 }
 
 Real GreensFunction1DAbsSinkAbs::drawTime(Real rnd) const

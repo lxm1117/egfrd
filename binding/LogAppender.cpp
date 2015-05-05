@@ -4,7 +4,7 @@
 namespace binding {
 
 template<typename Timpl>
-static void log_appender_call(Timpl& self, enum Logger::level lv, char const* name, PyObject* _chunks)
+static void log_appender_call(Timpl& self, enum class Logger::loglevel lv, char const* name, PyObject* _chunks)
 {
     using namespace boost::python;
 

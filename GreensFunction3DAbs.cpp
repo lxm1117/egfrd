@@ -581,7 +581,7 @@ Real GreensFunction3DAbs::drawTheta(Real rnd, Real r, Real t) const
 GreensFunction::EventKind GreensFunction3DAbs::drawEventType(Real rnd, Real t) const
 {
     assert(0);
-    return IV_ESCAPE;
+    return EventKind::IV_ESCAPE;
 }
 
 std::string GreensFunction3DAbs::dump() const

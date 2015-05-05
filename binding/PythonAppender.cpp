@@ -6,7 +6,7 @@
 
 namespace binding {
 
-    typedef std::map<enum Logger::level, boost::python::object> loglevel_map_type;
+    typedef std::map<enum class Logger::loglevel, boost::python::object> loglevel_map_type;
 
     static boost::python::object logging_module;
     static loglevel_map_type loglevel_map;
@@ -22,12 +22,12 @@ namespace binding {
             boost::python::throw_error_already_set();
         }
 
-        loglevel_map[Logger::L_OFF] = getattr(logging_module, "NOTSET");
-        loglevel_map[Logger::L_DEBUG] = getattr(logging_module, "DEBUG");
-        loglevel_map[Logger::L_INFO] = getattr(logging_module, "INFO");
-        loglevel_map[Logger::L_WARNING] = getattr(logging_module, "WARNING");
-        loglevel_map[Logger::L_ERROR] = getattr(logging_module, "ERROR");
-        loglevel_map[Logger::L_FATAL] = getattr(logging_module, "CRITICAL");
+        loglevel_map[Logger::loglevel::L_OFF] = getattr(logging_module, "NOTSET");
+        loglevel_map[Logger::loglevel::L_DEBUG] = getattr(logging_module, "DEBUG");
+        loglevel_map[Logger::loglevel::L_INFO] = getattr(logging_module, "INFO");
+        loglevel_map[Logger::loglevel::L_WARNING] = getattr(logging_module, "WARNING");
+        loglevel_map[Logger::loglevel::L_ERROR] = getattr(logging_module, "ERROR");
+        loglevel_map[Logger::loglevel::L_FATAL] = getattr(logging_module, "CRITICAL");
     }
 
     class PythonAppender : public LogAppender
@@ -35,7 +35,7 @@ namespace binding {
     public:
         virtual ~PythonAppender() {}
 
-        virtual void operator()(enum Logger::level lv,
+        virtual void operator()(enum class Logger::loglevel lv,
             char const* name, char const** chunks)
         {
             std::string msg;
@@ -167,8 +167,8 @@ namespace binding {
         {
             CppLoggerHandler* const self(get_self(_self));
             if (!self) return nullptr;
-            enum Logger::level const level(translate_level(_level));
-            if (level == Logger::L_OFF)
+            enum class Logger::loglevel const level(translate_level(_level));
+            if (level == Logger::loglevel::L_OFF)
             {
                 PyErr_SetString(PyExc_ValueError, "invalid loglevel");
                 return nullptr;
@@ -246,9 +246,9 @@ namespace binding {
         CppLoggerHandler(Logger& impl) : __weakreflist__(0), __dict__(PyDict_New()), impl_(impl) {}
 
     protected:
-        static enum Logger::level translate_level(PyObject* _level)
+        static enum class Logger::loglevel translate_level(PyObject* _level)
         {
-            enum Logger::level retval(Logger::L_OFF);
+            enum class Logger::loglevel retval(Logger::loglevel::L_OFF);
             boost::python::object level(boost::python::borrowed(_level));
             boost::python::object closest;
 

@@ -2,7 +2,7 @@
 #include <cstring>
 #include "ConsoleAppender.hpp"
 
-void ConsoleAppender::operator()(enum Logger::level lv, char const* name, char const** chunks)
+void ConsoleAppender::operator()(enum class Logger::loglevel lv, char const* name, char const** chunks)
 {
     std::fprintf(stderr, "%s: %-8s ", name, Logger::stringize_error_level(lv));
     for (char const** p = chunks; *p; ++p)

@@ -112,7 +112,7 @@ Logger& Logger::get_logger(char const* name)
     return *(*i.first).second;
 }
 
-char const* Logger::stringize_error_level(enum level lv)
+char const* Logger::stringize_error_level(enum class Logger::loglevel lv)
 {
     static char const* names[] =
     {
@@ -123,7 +123,7 @@ char const* Logger::stringize_error_level(enum level lv)
         "ERROR",
         "FATAL"
     };
-    return static_cast<std::size_t>(lv) >= sizeof(names) / sizeof(*names) ? "???" : names[lv];
+    return static_cast<std::size_t>(lv) >= sizeof(names) / sizeof(*names) ? "???" : names[static_cast<std::size_t>(lv)];
 }
 
 struct invoke_appender
@@ -134,26 +134,26 @@ struct invoke_appender
         (*appender)(level, name, chunks);
     }
 
-    invoke_appender(enum Logger::level level, const char* name, char const *formatted_msg) : level(level), name(name), formatted_msg(formatted_msg) {}
+    invoke_appender(enum class Logger::loglevel level, const char* name, char const *formatted_msg) : level(level), name(name), formatted_msg(formatted_msg) {}
 
-    enum Logger::level const level;
+    enum class Logger::loglevel const level;
     char const* const name;
     char const* const formatted_msg;
 };
 
-void Logger::level(enum Logger::level level)
+void Logger::level(enum class Logger::loglevel level)
 {
     ensure_initialized();
     level_ = level;
 }
 
-enum Logger::level Logger::level() const
+enum class Logger::loglevel Logger::level() const
 {
     const_cast<Logger*>(this)->ensure_initialized();
     return level_;
 }
 
-void Logger::logv(enum level lv, char const* format, va_list ap)
+void Logger::logv(enum class loglevel lv, char const* format, va_list ap)
 {
     ensure_initialized();
 
@@ -186,7 +186,7 @@ inline void Logger::ensure_initialized()
 
 Logger::Logger(LoggerManagerRegistry const& registry, char const* name) : registry_(registry), name_(name), manager_() {}
 
-void LoggerManager::level(enum Logger::level level)
+void LoggerManager::level(enum class Logger::loglevel level)
 {
     /* synchronized { */
     level_ = level;
@@ -194,7 +194,7 @@ void LoggerManager::level(enum Logger::level level)
     /* } */
 }
 
-enum Logger::level LoggerManager::level() const
+enum class Logger::loglevel LoggerManager::level() const
 {
     return level_;
 }
@@ -218,7 +218,7 @@ void LoggerManager::add_appender(boost::shared_ptr<LogAppender> const& appender)
     /* } */
 }
 
-LoggerManager::LoggerManager(char const* name, enum Logger::level level) : name_(name), level_(level) {}
+LoggerManager::LoggerManager(char const* name, enum class Logger::loglevel level) : name_(name), level_(level) {}
 
 void LoggerManager::manage(Logger* logger)
 {

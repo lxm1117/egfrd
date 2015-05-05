@@ -227,7 +227,7 @@ public:
     typedef typename traits_type::event_id_pair_type event_id_pair_type;
     typedef boost::variant<boost::none_t, spherical_shell_type, cylindrical_shell_type> shell_variant_type;
 
-    enum domain_kind
+    enum class domain_kind
     {
         NONE = 0,
         SPHERICAL_SINGLE,
@@ -238,14 +238,14 @@ public:
         NUM_DOMAIN_KINDS
     };
 
-    enum single_event_kind
+    enum class single_event_kind
     {
         SINGLE_EVENT_REACTION,
         SINGLE_EVENT_ESCAPE,
         NUM_SINGLE_EVENT_KINDS
     };
 
-    enum pair_event_kind
+    enum class pair_event_kind
     {
         PAIR_EVENT_SINGLE_REACTION_0,
         PAIR_EVENT_SINGLE_REACTION_1,
@@ -1007,26 +1007,25 @@ public:
 
     int num_domains_per_type(domain_kind kind) const
     {
-        return domain_count_per_type_[kind];
+        return domain_count_per_type_[static_cast<size_t>(kind)];
     }
 
     int num_single_steps_per_type(single_event_kind kind) const
     {
-        return single_step_count_[kind];
+        return single_step_count_[static_cast<size_t>(kind)];
     }
 
     int num_pair_steps_per_type(pair_event_kind kind) const
     {
-        return pair_step_count_[kind];
+        return pair_step_count_[static_cast<size_t>(kind)];
     }
 
     int num_multi_steps_per_type(typename multi_type::event_kind kind) const
     {
-        return multi_step_count_[kind];
+        return multi_step_count_[static_cast<size_t>(kind)];
     }
 
-    std::vector<domain_id_type>*
-        get_neighbor_domains(particle_shape_type const& p)
+    std::vector<domain_id_type>* get_neighbor_domains(particle_shape_type const& p)
     {
         typedef domain_collector<no_filter> collector_type;
         no_filter f;
@@ -1035,8 +1034,7 @@ public:
         return col.neighbors.container().get();
     }
 
-    std::vector<domain_id_type>*
-        get_neighbor_domains(particle_shape_type const& p, domain_id_type const& ignore)
+    std::vector<domain_id_type>* get_neighbor_domains(particle_shape_type const& p, domain_id_type const& ignore)
     {
         typedef domain_collector<one_id_filter> collector_type;
         one_id_filter f(ignore);
@@ -1055,7 +1053,7 @@ public:
             (*base_type::world_).get_particles_range())
         {
             boost::shared_ptr<single_type> single(create_single(pp));
-            add_event(*single, SINGLE_EVENT_ESCAPE);
+            add_event(*single, single_event_kind::SINGLE_EVENT_ESCAPE);
         }
         dirty_ = false;
     }
@@ -1272,26 +1270,26 @@ protected:
     template<typename T>
     void remove_domain_but_shell(AnalyticalSingle<traits_type, T>& domain)
     {
-        --domain_count_per_type_[get_domain_kind(domain)];
+        --domain_count_per_type_[static_cast<size_t>(get_domain_kind(domain))];
         _remove_domain_but_shell(domain);
     }
 
     template<typename T>
     void remove_domain_but_shell(AnalyticalPair<traits_type, T>& domain)
     {
-        --domain_count_per_type_[get_domain_kind(domain)];
+        --domain_count_per_type_[static_cast<size_t>(get_domain_kind(domain))];
         _remove_domain_but_shell(domain);
     }
 
     void remove_domain_but_shell(multi_type& domain)
     {
-        --domain_count_per_type_[get_domain_kind(domain)];
+        --domain_count_per_type_[static_cast<size_t>(get_domain_kind(domain))];
         _remove_domain_but_shell(domain);
     }
 
     void remove_domain_but_shell(domain_type& domain)
     {
-        --domain_count_per_type_[get_domain_kind(domain)];
+        --domain_count_per_type_[static_cast<size_t>(get_domain_kind(domain))];
         _remove_domain_but_shell(domain);
     }
 
@@ -1439,7 +1437,7 @@ protected:
     // create_single {{{
     boost::shared_ptr<single_type> create_single(particle_id_pair const& p)
     {
-        domain_kind kind(NONE);
+        domain_kind kind(domain_kind::NONE);
         single_type* new_single(0);
         domain_id_type did(didgen_());
 
@@ -1470,7 +1468,7 @@ protected:
                     structure.shape().unit_z(),
                     p.second.radius())));
                 new_single = new cylindrical_single_type(did, p, new_shell);
-                kind = CYLINDRICAL_SINGLE;
+                kind = domain_kind::CYLINDRICAL_SINGLE;
             }
 
             virtual void operator()(disk_surface_type const& structure) const
@@ -1485,7 +1483,7 @@ protected:
                     structure.shape().unit_z(),
                     p.second.radius())));
                 new_single = new cylindrical_single_type(did, p, new_shell);
-                kind = CYLINDRICAL_SINGLE;
+                kind = domain_kind::CYLINDRICAL_SINGLE;
             }
 
             virtual void operator()(planar_surface_type const& structure) const
@@ -1498,7 +1496,7 @@ protected:
                     structure.shape().unit_y())),
                     p.second.radius())));
                 new_single = new cylindrical_single_type(did, p, new_shell);
-                kind = CYLINDRICAL_SINGLE;
+                kind = domain_kind::CYLINDRICAL_SINGLE;
             }
 
             virtual void operator()(cuboidal_region_type const& structure) const
@@ -1506,7 +1504,7 @@ protected:
                 spherical_shell_id_pair new_shell(
                     _this->new_shell(did, ::shape(p.second)));
                 new_single = new spherical_single_type(did, p, new_shell);
-                kind = SPHERICAL_SINGLE;
+                kind = domain_kind::SPHERICAL_SINGLE;
             }
 
             factory(EGFRDSimulator* _this, particle_id_pair const& p,
@@ -1526,8 +1524,8 @@ protected:
         dynamic_cast<particle_simulation_structure_type const&>(*(*base_type::world_).get_structure(p.second.structure_id())).accept(factory(this, p, did, new_single, kind));
         boost::shared_ptr<domain_type> const retval(new_single);
         domains_.insert(std::make_pair(did, retval));
-        BOOST_ASSERT(kind != NONE);
-        ++domain_count_per_type_[kind];
+        BOOST_ASSERT(kind != domain_kind::NONE);
+        ++domain_count_per_type_[static_cast<size_t>(kind)];
         return boost::dynamic_pointer_cast<single_type>(retval);
     }
     // }}}
@@ -1539,7 +1537,7 @@ protected:
         position_type const& iv,
         length_type shell_size)
     {
-        domain_kind kind(NONE);
+        domain_kind kind(domain_kind::NONE);
         pair_type* new_pair(0);
         domain_id_type did(didgen_());
 
@@ -1566,7 +1564,7 @@ protected:
                     std::max(p0.second.radius(), p1.second.radius()))));
                 new_pair = new cylindrical_pair_type(did, p0, p1, new_shell,
                     iv, rules);
-                kind = CYLINDRICAL_PAIR;
+                kind = domain_kind::CYLINDRICAL_PAIR;
             }
 
             virtual void operator()(disk_surface_type const& structure) const
@@ -1582,7 +1580,7 @@ protected:
                     std::max(p0.second.radius(), p1.second.radius()))));
                 new_pair = new cylindrical_pair_type(did, p0, p1, new_shell,
                     iv, rules);
-                kind = CYLINDRICAL_PAIR;
+                kind = domain_kind::CYLINDRICAL_PAIR;
             }
 
             virtual void operator()(planar_surface_type const& structure) const
@@ -1597,7 +1595,7 @@ protected:
                     std::max(p0.second.radius(), p1.second.radius()))));
                 new_pair = new cylindrical_pair_type(did, p0, p1, new_shell,
                     iv, rules);
-                kind = CYLINDRICAL_PAIR;
+                kind = domain_kind::CYLINDRICAL_PAIR;
             }
 
             virtual void operator()(cuboidal_region_type const& structure) const
@@ -1607,7 +1605,7 @@ protected:
                     sphere_type(com, shell_size)));
                 new_pair = new spherical_pair_type(did, p0, p1, new_shell,
                     iv, rules);
-                kind = SPHERICAL_PAIR;
+                kind = domain_kind::SPHERICAL_PAIR;
             }
 
             factory(EGFRDSimulator* _this, particle_id_pair const& p0,
@@ -1638,8 +1636,8 @@ protected:
 
         boost::shared_ptr<domain_type> const retval(new_pair);
         domains_.insert(std::make_pair(did, retval));
-        BOOST_ASSERT(kind != NONE);
-        ++domain_count_per_type_[kind];
+        BOOST_ASSERT(kind != domain_kind::NONE);
+        ++domain_count_per_type_[static_cast<size_t>(kind)];
         return boost::dynamic_pointer_cast<pair_type>(retval);
     }
     // }}}
@@ -1651,7 +1649,7 @@ protected:
         multi_type* new_multi(new multi_type(did, *this, bd_dt_factor_));
         boost::shared_ptr<domain_type> const retval(new_multi);
         domains_.insert(std::make_pair(did, retval));
-        ++domain_count_per_type_[MULTI];
+        ++domain_count_per_type_[static_cast<size_t>(domain_kind::MULTI)];
         return boost::dynamic_pointer_cast<multi_type>(retval);
     }
     // }}}
@@ -1913,7 +1911,7 @@ protected:
                 create_single(new_particles[1])
             } };
 
-        if (log_.level() == Logger::L_DEBUG)
+        if (log_.level() == Logger::loglevel::L_DEBUG)
         {
             for (int i = 0; i < 2; i++)
             {
@@ -1959,7 +1957,7 @@ protected:
         try
         {
             remove_event(domain);
-            add_event(domain, SINGLE_EVENT_ESCAPE);
+            add_event(domain, single_event_kind::SINGLE_EVENT_ESCAPE);
         }
         catch (std::out_of_range const&)
         {
@@ -1983,8 +1981,8 @@ protected:
         boost::array<boost::shared_ptr<single_type>, 2> const singles(
             propagate(domain, draw_new_positions<draw_on_burst>(domain, dt)));
 
-        add_event(*singles[0], SINGLE_EVENT_ESCAPE);
-        add_event(*singles[1], SINGLE_EVENT_ESCAPE);
+        add_event(*singles[0], single_event_kind::SINGLE_EVENT_ESCAPE);
+        add_event(*singles[1], single_event_kind::SINGLE_EVENT_ESCAPE);
 
         return singles;
     }
@@ -1994,7 +1992,7 @@ protected:
         BOOST_FOREACH(particle_id_pair p, domain.get_particles_range())
         {
             boost::shared_ptr<single_type> s(create_single(p));
-            add_event(*s, SINGLE_EVENT_ESCAPE);
+            add_event(*s, single_event_kind::SINGLE_EVENT_ESCAPE);
             if (result)
             {
                 result.get().push_back(boost::dynamic_pointer_cast<domain_type>(s));
@@ -2135,7 +2133,7 @@ protected:
                 (*base_type::world_).new_particle(
                 product_species.id(), reactant.second.structure_id(), reactant.second.position()));
             boost::shared_ptr<single_type> new_domain(create_single(product));
-            add_event(*new_domain, SINGLE_EVENT_ESCAPE);
+            add_event(*new_domain, single_event_kind::SINGLE_EVENT_ESCAPE);
             if (base_type::rrec_)
             {
                 (*base_type::rrec_)(reaction_record_type(
@@ -2218,8 +2216,8 @@ protected:
             };
             // create domains for two particles and add them to
             // the event queue
-            add_event(*create_single(pp[0]), SINGLE_EVENT_ESCAPE);
-            add_event(*create_single(pp[1]), SINGLE_EVENT_ESCAPE);
+            add_event(*create_single(pp[0]), single_event_kind::SINGLE_EVENT_ESCAPE);
+            add_event(*create_single(pp[1]), single_event_kind::SINGLE_EVENT_ESCAPE);
 
             if (base_type::rrec_)
             {
@@ -2298,11 +2296,11 @@ protected:
             domain.r0(), domain.sigma(), domain.a_r()).drawTime(base_type::rng_.uniform(0., 1.)));
         if (dt_com < dt_iv)
         {
-            return std::make_pair(dt_com, PAIR_EVENT_COM_ESCAPE);
+            return std::make_pair(dt_com, pair_event_kind::PAIR_EVENT_COM_ESCAPE);
         }
         else
         {
-            return std::make_pair(dt_iv, PAIR_EVENT_IV_UNDETERMINED);
+            return std::make_pair(dt_iv, pair_event_kind::PAIR_EVENT_IV_UNDETERMINED);
         }
     }
 
@@ -2316,11 +2314,11 @@ protected:
         };
         if (dt[0] < dt[1])
         {
-            return std::make_pair(dt[0], PAIR_EVENT_SINGLE_REACTION_0);
+            return std::make_pair(dt[0], pair_event_kind::PAIR_EVENT_SINGLE_REACTION_0);
         }
         else
         {
-            return std::make_pair(dt[1], PAIR_EVENT_SINGLE_REACTION_1);
+            return std::make_pair(dt[1], pair_event_kind::PAIR_EVENT_SINGLE_REACTION_1);
         }
     }
 
@@ -2338,12 +2336,12 @@ protected:
         if (dt_reaction < dt_escape_or_interaction)
         {
             domain.dt() = dt_reaction;
-            event_kind = SINGLE_EVENT_REACTION;
+            event_kind = single_event_kind::SINGLE_EVENT_REACTION;
         }
         else
         {
             domain.dt() = dt_escape_or_interaction;
-            event_kind = SINGLE_EVENT_ESCAPE;
+            event_kind = single_event_kind::SINGLE_EVENT_ESCAPE;
         }
 
         domain.last_time() = base_type::t_;
@@ -3052,11 +3050,11 @@ protected:
     {
         single_type& domain(event.domain());
         //BOOST_ASSERT(std::abs(domain.dt() + domain.last_time() - base_type::t_) <= 1e-18 * base_type::t_);
-        ++single_step_count_[event.kind()];
+        ++single_step_count_[static_cast<size_t>(event.kind())];
         switch (event.kind())
         {
         default: /* never get here */ BOOST_ASSERT(0); break;
-        case SINGLE_EVENT_REACTION:
+        case single_event_kind::SINGLE_EVENT_REACTION:
             LOG_DEBUG(("fire_single: single reaction (%s)", boost::lexical_cast<std::string>(domain).c_str()));
             propagate(domain, draw_new_position(domain, domain.dt()), false);
             try
@@ -3069,11 +3067,11 @@ protected:
                 ++rejected_moves_;
                 domain.dt() = 0.;
                 domain.last_time() = base_type::t_;
-                add_event(domain, SINGLE_EVENT_ESCAPE);
+                add_event(domain, single_event_kind::SINGLE_EVENT_ESCAPE);
             }
             break;
 
-        case SINGLE_EVENT_ESCAPE:
+        case single_event_kind::SINGLE_EVENT_ESCAPE:
             LOG_DEBUG(("fire_single: single escape (%s)", boost::lexical_cast<std::string>(domain).c_str()));
 
             // handle immobile case
@@ -3185,21 +3183,21 @@ protected:
     template<typename T>
     void fire_event(AnalyticalPair<traits_type, T>& domain, pair_event_kind kind)
     {
-        if (kind == PAIR_EVENT_IV_UNDETERMINED)
+        if (kind == pair_event_kind::PAIR_EVENT_IV_UNDETERMINED)
         {
             // Draw actual pair event for iv at very last minute.
             switch (draw_iv_event_type(domain))
             {
-            case GreensFunction3DRadAbs::IV_ESCAPE:
-                kind = PAIR_EVENT_IV_ESCAPE;
+            case GreensFunction::EventKind::IV_ESCAPE:
+                kind = pair_event_kind::PAIR_EVENT_IV_ESCAPE;
                 break;
-            case GreensFunction3DRadAbs::IV_REACTION:
-                kind = PAIR_EVENT_IV_REACTION;
+            case GreensFunction::EventKind::IV_REACTION:
+                kind = pair_event_kind::PAIR_EVENT_IV_REACTION;
                 break;
             }
         }
 
-        ++pair_step_count_[kind];
+        ++pair_step_count_[static_cast<size_t>(kind)];
         LOG_DEBUG(("fire_pair: %s", stringize_event_kind(kind).c_str()));
 
         //  1. Single reaction
@@ -3210,10 +3208,10 @@ protected:
         switch (kind)
         {
         default: /* never get here */ BOOST_ASSERT(0); break;
-        case PAIR_EVENT_SINGLE_REACTION_0:
-        case PAIR_EVENT_SINGLE_REACTION_1:
+        case pair_event_kind::PAIR_EVENT_SINGLE_REACTION_0:
+        case pair_event_kind::PAIR_EVENT_SINGLE_REACTION_1:
         {
-            int const index(kind == PAIR_EVENT_SINGLE_REACTION_0 ? 0 : 1);
+            int const index(kind == pair_event_kind::PAIR_EVENT_SINGLE_REACTION_0 ? 0 : 1);
             // TODO.
             //int const theother_index(1 - index);
             position_type const old_CoM(domain.position());
@@ -3233,7 +3231,7 @@ protected:
         }
         break;
 
-        case PAIR_EVENT_COM_ESCAPE:
+        case pair_event_kind::PAIR_EVENT_COM_ESCAPE:
         {
             LOG_DEBUG(("=> com_escape"));
             time_type const dt(domain.dt());
@@ -3243,12 +3241,12 @@ protected:
             boost::array<boost::shared_ptr<single_type>, 2> const new_single(
                 propagate(domain, new_pos));
 
-            add_event(*new_single[0], SINGLE_EVENT_ESCAPE);
-            add_event(*new_single[1], SINGLE_EVENT_ESCAPE);
+            add_event(*new_single[0], single_event_kind::SINGLE_EVENT_ESCAPE);
+            add_event(*new_single[1], single_event_kind::SINGLE_EVENT_ESCAPE);
         }
         break;
 
-        case PAIR_EVENT_IV_REACTION:
+        case pair_event_kind::PAIR_EVENT_IV_REACTION:
         {
             LOG_DEBUG(("=> iv_reaction"));
             BOOST_ASSERT(::size(domain.reactions()) == 1);
@@ -3280,7 +3278,7 @@ protected:
                     new_species.id(), domain.particles()[0].second.structure_id(), new_com));
                 boost::shared_ptr<single_type> new_single(
                     create_single(new_particle));
-                add_event(*new_single, SINGLE_EVENT_ESCAPE);
+                add_event(*new_single, single_event_kind::SINGLE_EVENT_ESCAPE);
 
                 if (base_type::rrec_)
                 {
@@ -3298,7 +3296,7 @@ protected:
             remove_domain(domain);
         }
         break;
-        case PAIR_EVENT_IV_ESCAPE:
+        case pair_event_kind::PAIR_EVENT_IV_ESCAPE:
         {
             LOG_DEBUG(("=> iv_escape"));
             time_type const dt(domain.dt());
@@ -3308,8 +3306,8 @@ protected:
             boost::array<boost::shared_ptr<single_type>, 2> const new_single(
                 propagate(domain, new_pos));
 
-            add_event(*new_single[0], SINGLE_EVENT_ESCAPE);
-            add_event(*new_single[1], SINGLE_EVENT_ESCAPE);
+            add_event(*new_single[0], single_event_kind::SINGLE_EVENT_ESCAPE);
+            add_event(*new_single[1], single_event_kind::SINGLE_EVENT_ESCAPE);
         }
         break;
         }
@@ -3319,20 +3317,19 @@ protected:
     {
         multi_type& domain(event.domain());
         domain.step();
-        LOG_DEBUG(("fire_multi: last_event=%s", boost::lexical_cast<std::string>(domain.last_event()).c_str()));
-        multi_step_count_[domain.last_event()]++;
+        LOG_DEBUG(("fire_multi: last_event=%s", boost::lexical_cast<std::string>(static_cast<size_t>(domain.last_event())).c_str()));
+        multi_step_count_[static_cast<size_t>(domain.last_event())]++;
         switch (domain.last_event())
         {
         default: /* never get here */ BOOST_ASSERT(0); break;
-        case multi_type::REACTION:
-            if (base_type::rrec_)
-                (*base_type::rrec_)(domain.last_reaction());
+        case multi_type::event_kind::REACTION:
+            if (base_type::rrec_)(*base_type::rrec_)(domain.last_reaction());
             burst(domain);
             break;
-        case multi_type::ESCAPE:
+        case multi_type::event_kind::ESCAPE:
             burst(domain);
             break;
-        case multi_type::NONE:
+        case multi_type::event_kind::NONE:
             add_event(domain);
             break;
         }
@@ -3412,27 +3409,27 @@ protected:
 
             virtual void operator()(multi_type const&) const
             {
-                retval = MULTI;
+                retval = domain_kind::MULTI;
             }
 
             virtual void operator()(spherical_single_type const&) const
             {
-                retval = SPHERICAL_SINGLE;
+                retval = domain_kind::SPHERICAL_SINGLE;
             }
 
             virtual void operator()(cylindrical_single_type const&) const
             {
-                retval = CYLINDRICAL_SINGLE;
+                retval = domain_kind::CYLINDRICAL_SINGLE;
             }
 
             virtual void operator()(spherical_pair_type const&) const
             {
-                retval = SPHERICAL_PAIR;
+                retval = domain_kind::SPHERICAL_PAIR;
             }
 
             virtual void operator()(cylindrical_pair_type const&) const
             {
-                retval = CYLINDRICAL_PAIR;
+                retval = domain_kind::CYLINDRICAL_PAIR;
             }
 
             domain_kind_visitor(domain_kind& retval) : retval(retval) {}
@@ -3440,34 +3437,34 @@ protected:
             domain_kind& retval;
         };
 
-        domain_kind retval = NONE;
+        domain_kind retval = domain_kind::NONE;
         domain.accept(domain_kind_visitor(retval));
         return retval;
     }
 
     static domain_kind get_domain_kind(spherical_single_type const&)
     {
-        return SPHERICAL_SINGLE;
+        return domain_kind::SPHERICAL_SINGLE;
     }
 
     static domain_kind get_domain_kind(cylindrical_single_type const&)
     {
-        return CYLINDRICAL_SINGLE;
+        return domain_kind::CYLINDRICAL_SINGLE;
     }
 
     static domain_kind get_domain_kind(spherical_pair_type const&)
     {
-        return SPHERICAL_PAIR;
+        return domain_kind::SPHERICAL_PAIR;
     }
 
     static domain_kind get_domain_kind(cylindrical_pair_type const&)
     {
-        return CYLINDRICAL_PAIR;
+        return domain_kind::CYLINDRICAL_PAIR;
     }
 
     static domain_kind get_domain_kind(multi_type const&)
     {
-        return MULTI;
+        return domain_kind::MULTI;
     }
 
     void dump_events() const
@@ -3505,40 +3502,40 @@ protected:
         return (boost::format("Event(t=%.16g)") % ev.time()).str();
     }
 
-    static std::string stringize_event_kind(enum single_event_kind kind)
+    static std::string stringize_event_kind(enum class single_event_kind kind)
     {
         switch (kind)
         {
         default: /* never get here */ throw not_implemented("unsupported event kind");
-        case SINGLE_EVENT_ESCAPE:
+        case single_event_kind::SINGLE_EVENT_ESCAPE:
             return "escape";
 
-        case SINGLE_EVENT_REACTION:
+        case single_event_kind::SINGLE_EVENT_REACTION:
             return "reaction";
         }
     }
 
-    static std::string stringize_event_kind(enum pair_event_kind kind)
+    static std::string stringize_event_kind(enum class pair_event_kind kind)
     {
         switch (kind)
         {
         default: /* never get here */ throw not_implemented("unsupported event kind");
-        case PAIR_EVENT_SINGLE_REACTION_0:
+        case pair_event_kind::PAIR_EVENT_SINGLE_REACTION_0:
             return "reaction(0)";
 
-        case PAIR_EVENT_SINGLE_REACTION_1:
+        case pair_event_kind::PAIR_EVENT_SINGLE_REACTION_1:
             return "reaction(1)";
 
-        case PAIR_EVENT_COM_ESCAPE:
+        case pair_event_kind::PAIR_EVENT_COM_ESCAPE:
             return "com_escape";
 
-        case PAIR_EVENT_IV_UNDETERMINED:
+        case pair_event_kind::PAIR_EVENT_IV_UNDETERMINED:
             return "iv_undetermined";
 
-        case PAIR_EVENT_IV_ESCAPE:
+        case pair_event_kind::PAIR_EVENT_IV_ESCAPE:
             return "iv_escape";
 
-        case PAIR_EVENT_IV_REACTION:
+        case pair_event_kind::PAIR_EVENT_IV_REACTION:
             return "iv_reaction";
         }
     }
@@ -3696,7 +3693,7 @@ protected:
 
     void dump_overlapped(particle_id_pair_and_distance_list const& list)const
     {
-        if (log_.level() == Logger::L_DEBUG)
+        if (log_.level() == Logger::loglevel::L_DEBUG)
         {
             BOOST_FOREACH(particle_id_pair_and_distance const& i, list)
             {
@@ -3872,10 +3869,10 @@ protected:
     shell_id_generator shidgen_;
     domain_id_generator didgen_;
     event_scheduler_type scheduler_;
-    boost::array<int, NUM_SINGLE_EVENT_KINDS> single_step_count_;
-    boost::array<int, NUM_PAIR_EVENT_KINDS> pair_step_count_;
-    boost::array<int, multi_type::NUM_MULTI_EVENT_KINDS> multi_step_count_;
-    boost::array<int, NUM_DOMAIN_KINDS> domain_count_per_type_;
+    boost::array<int, static_cast<size_t>(single_event_kind::NUM_SINGLE_EVENT_KINDS)> single_step_count_;
+    boost::array<int, static_cast<size_t>(pair_event_kind::NUM_PAIR_EVENT_KINDS)> pair_step_count_;
+    boost::array<int, static_cast<size_t>(multi_type::event_kind::NUM_MULTI_EVENT_KINDS)> multi_step_count_;
+    boost::array<int, static_cast<size_t>(domain_kind::NUM_DOMAIN_KINDS)> domain_count_per_type_;
     length_type single_shell_factor_;
     length_type multi_shell_factor_;
     unsigned int rejected_moves_;

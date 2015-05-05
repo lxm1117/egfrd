@@ -13,7 +13,7 @@ boost::python::objects::class_base register_logger_class(char const* name)
 
     // defining the python class
     return class_<impl_type, boost::noncopyable>(name, no_init)
-        .add_property("level",static_cast<enum impl_type::level(impl_type::*)() const>(&impl_type::level),static_cast<void (impl_type::*)(enum impl_type::level)>(&impl_type::level))
+        .add_property("level", static_cast<enum class impl_type::loglevel(impl_type::*)() const>(&impl_type::level), static_cast<void (impl_type::*)(enum class impl_type::loglevel)>(&impl_type::level))
         .add_property("name", &impl_type::name)
         .add_property("manager",make_function(&impl_type::manager,return_value_policy<return_by_value>()))
         .def("flush", &impl_type::flush)

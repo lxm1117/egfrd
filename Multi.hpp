@@ -627,7 +627,7 @@ public:
     typedef sized_iterator_range<typename spherical_shell_map::const_iterator>  spherical_shell_id_pair_range;
     typedef MultiParticleContainer<traits_type>                                 multi_particle_container_type;
 
-    enum event_kind
+    enum class event_kind
     {
         NONE,
         ESCAPE,
@@ -658,7 +658,7 @@ private:
         {
             if (!outer_.within_shell(shape))
             {
-                outer_.last_event_ = ESCAPE;
+                outer_.last_event_ = event_kind::ESCAPE;
                 return outer_.clear_volume(shape, ignore);
             }
             return true;
@@ -668,7 +668,7 @@ private:
         {
             if (!outer_.within_shell(shape))
             {
-                outer_.last_event_ = ESCAPE;
+                outer_.last_event_ = event_kind::ESCAPE;
                 return outer_.clear_volume(shape, ignore0, ignore1);
             }
             return true;
@@ -704,7 +704,7 @@ public:
 
     Multi(identifier_type const& id, simulator_type& main, Real dt_factor)
         : base_type(id), main_(main), pc_(*main.world()), dt_factor_(dt_factor),
-        shells_(), last_event_(NONE)
+        shells_(), last_event_(event_kind::NONE)
     {
         //TODO Do not base dt and rl on all particles in the world but only those in the multi.
         BOOST_ASSERT(dt_factor > 0.);
@@ -823,13 +823,13 @@ public:
             1 /* FIXME: dissociation_retry_moves */, &rs, &vc,
             make_select_first_range(pc_.get_particles_range()));
 
-        last_event_ = NONE;
+        last_event_ = event_kind::NONE;
 
         while (ppg())
         {
             if (last_reaction_)
             {
-                last_event_ = REACTION;
+                last_event_ = event_kind::REACTION;
                 break;
             }
         }

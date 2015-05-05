@@ -397,7 +397,7 @@ GreensFunction::EventKind GreensFunction1DRadAbs::drawEventType(Real rnd, Real t
 
     // if the radiative boundary is impermeable (k==0) or
     // the particle is at the absorbing boundary (at a) => IV_ESCAPE event
-    if (k == 0 || fabs(a - r0) < EPSILON*L) return IV_ESCAPE;
+    if (k == 0 || fabs(a - r0) < EPSILON*L) return EventKind::IV_ESCAPE;
 
     /* First check if we need to compare flux ratio's.
        If only one boundary is 'visible' to the particle, use this boudnary as escape.*/
@@ -408,18 +408,18 @@ GreensFunction::EventKind GreensFunction1DRadAbs::drawEventType(Real rnd, Real t
     if (distToa > maxDist) //Absorbing boundary 'not in sight'.
     {
         if (distTos < maxDist) //Only radiation boundary 'in sight'.
-            return IV_REACTION;
+            return EventKind::IV_REACTION;
     }
     else
     {
         if (distTos > maxDist) //Only absorbing boundary 'in sight'.
-            return IV_ESCAPE;
+            return EventKind::IV_ESCAPE;
     }
 
     // Else the event is sampled from the flux ratio
     const Real fluxratio(fluxRatioRadTot(t));
 
-    return rnd > fluxratio ? IV_ESCAPE : IV_REACTION;
+    return rnd > fluxratio ? EventKind::IV_ESCAPE : EventKind::IV_REACTION;
 }
 
 /* This function is needed to cast the math. form of the function

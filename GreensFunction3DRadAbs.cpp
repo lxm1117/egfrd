@@ -988,7 +988,7 @@ GreensFunction::EventKind GreensFunction3DRadAbs::drawEventType(Real rnd, Real t
         throw std::invalid_argument((boost::format("GreensFunction3DRadAbs: t > 0.0 : t=%.16g") % t).str());
     }
 
-    if (kf == 0) return IV_ESCAPE;
+    if (kf == 0) return EventKind::IV_ESCAPE;
 
     // First, check if r0 is close only either to a or sigma relative
     // to Dt.  In such cases, the event type is always IV_ESCAPE or 
@@ -1005,21 +1005,21 @@ GreensFunction::EventKind GreensFunction3DRadAbs::drawEventType(Real rnd, Real t
     {
         if (s_dist < max_dist)
         {
-            return IV_REACTION;
+            return EventKind::IV_REACTION;
         }
     }
     else // a_dist < max_dist
     {
         if (s_dist > max_dist)
         {
-            return IV_ESCAPE;
+            return EventKind::IV_ESCAPE;
         }
     }
 
     const Real reaction(leaves(t) * 4.0 * M_PI * sigma * sigma);
     const Real escape(leavea(t) * 4.0 * M_PI * a * a);
     const Real value(reaction / (reaction + escape));
-    return rnd <= value ? IV_REACTION : IV_ESCAPE;
+    return rnd <= value ? EventKind::IV_REACTION : EventKind::IV_ESCAPE;
 }
 
 Real GreensFunction3DRadAbs::drawPleavea(gsl_function const& F, gsl_root_fsolver* solver, Real t_guess, RealVector& pleaveFactorTable, RealVector& pleaveaTable) const

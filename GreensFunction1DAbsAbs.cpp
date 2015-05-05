@@ -273,18 +273,15 @@ GreensFunction::EventKind GreensFunction1DAbsAbs::drawEventType(Real rnd, Real t
 
     // For particles at the boundaries
     if (fabs(a - r0) < EPSILON*L)
-    {
-        // if the particle started on the right boundary
-        return IV_ESCAPE;
-    }
+        return EventKind::IV_ESCAPE;        // if the particle started on the right boundary
     if (fabs(r0 - sigma) < EPSILON*L)
-        return IV_REACTION;     // if the particle started on the left boundary
+        return EventKind::IV_REACTION;         // if the particle started on the left boundary
 
     const Real leaves_s(leaves(t));
     const Real leaves_a(leavea(t));
     const Real flux_total(leaves_s + leaves_a);
     const Real fluxratio(leaves_s / flux_total);
-    return rnd > fluxratio ? IV_ESCAPE : IV_REACTION;
+    return rnd > fluxratio ? EventKind::IV_ESCAPE : EventKind::IV_REACTION;
 }
 
 Real GreensFunction1DAbsAbs::drawTime(Real rnd) const

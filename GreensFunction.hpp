@@ -6,7 +6,7 @@
 class GF_CLASS GreensFunction
 {
 public:
-    enum EventKind { IV_ESCAPE, IV_REACTION };
+    enum class EventKind { IV_ESCAPE, IV_REACTION };
 
     GreensFunction(const Real D) : D(D) {}
     virtual ~GreensFunction() { }

@@ -15,7 +15,7 @@ class LoggerManagerRegistry;
 class Logger : boost::noncopyable
 {
 public:
-    enum level
+    enum class loglevel
     {
         L_OFF = 0,
         L_DEBUG = 1,
@@ -29,9 +29,9 @@ public:
 
     LoggerManager const& logging_manager() const;
 
-    void level(enum level level);
+    void level(loglevel level);
 
-    enum level level() const;
+    enum class loglevel level() const;
 
     char const* name() const
     {
@@ -44,7 +44,7 @@ public:
     {
         va_list ap;
         va_start(ap, format);
-        logv(L_DEBUG, format, ap);
+        logv(loglevel::L_DEBUG, format, ap);
         va_end(ap);
     }
 
@@ -52,7 +52,7 @@ public:
     {
         va_list ap;
         va_start(ap, format);
-        logv(L_INFO, format, ap);
+        logv(loglevel::L_INFO, format, ap);
         va_end(ap);
     }
 
@@ -60,7 +60,7 @@ public:
     {
         va_list ap;
         va_start(ap, format);
-        logv(L_WARNING, format, ap);
+        logv(loglevel::L_WARNING, format, ap);
         va_end(ap);
     }
 
@@ -68,7 +68,7 @@ public:
     {
         va_list ap;
         va_start(ap, format);
-        logv(L_ERROR, format, ap);
+        logv(loglevel::L_ERROR, format, ap);
         va_end(ap);
     }
 
@@ -76,11 +76,11 @@ public:
     {
         va_list ap;
         va_start(ap, format);
-        logv(L_FATAL, format, ap);
+        logv(loglevel::L_FATAL, format, ap);
         va_end(ap);
     }
 
-    void log(enum level lv, char const* format, ...)
+    void log(enum class loglevel lv, char const* format, ...)
     {
         va_list ap;
         va_start(ap, format);
@@ -88,7 +88,7 @@ public:
         va_end(ap);
     }
 
-    void logv(enum level lv, char const* format, va_list ap);
+    void logv(enum class loglevel lv, char const* format, va_list ap);
 
     void flush();
 
@@ -96,7 +96,7 @@ public:
 
     static Logger& get_logger(char const* name);
 
-    static char const* stringize_error_level(enum level lv);
+    static char const* stringize_error_level(enum class loglevel lv);
 
 private:
     void ensure_initialized();
@@ -105,7 +105,7 @@ protected:
     LoggerManagerRegistry const& registry_;
     std::string const name_;
     boost::shared_ptr<LoggerManager> manager_;
-    enum level level_;
+    enum class loglevel level_;
     std::vector<boost::shared_ptr<LogAppender> > appenders_;
 };
 
@@ -114,9 +114,9 @@ class LoggerManager : boost::noncopyable
     friend class Logger;
 
 public:
-    void level(enum Logger::level level);
+    void level(enum class Logger::loglevel level);
 
-    enum Logger::level level() const;
+    enum class Logger::loglevel level() const;
 
     char const* name() const;
 
@@ -124,7 +124,7 @@ public:
 
     void add_appender(boost::shared_ptr<LogAppender> const& appender);
 
-    LoggerManager(char const* name, enum Logger::level level = Logger::L_INFO);
+    LoggerManager(char const* name, enum class Logger::loglevel level = Logger::loglevel::L_INFO);
 
     static void register_logger_manager(char const* logger_name_pattern, boost::shared_ptr<LoggerManager> const& manager);
 
@@ -135,7 +135,7 @@ protected:
 
 protected:
     std::string const name_;
-    enum Logger::level level_;
+    enum class Logger::loglevel level_;
     std::set<Logger*> managed_loggers_;
     std::vector<boost::shared_ptr<LogAppender> > appenders_;
 };
@@ -147,13 +147,13 @@ public:
 
     virtual void flush() = 0;
 
-    virtual void operator()(enum Logger::level lv, char const* name, char const** chunks) = 0;
+    virtual void operator()(enum class Logger::loglevel lv, char const* name, char const** chunks) = 0;
 };
 
-#define LOG_DEBUG(args) if (log_.level() == Logger::L_DEBUG) log_.debug args
+#define LOG_DEBUG(args) if (log_.level() == Logger::loglevel::L_DEBUG) log_.debug args
 
-#define LOG_INFO(args) if (enum Logger::level const level = log_.level()) if (level <= Logger::L_INFO) log_.info args
+#define LOG_INFO(args) if (log_.level() <= Logger::loglevel::L_INFO) log_.info args
 
-#define LOG_WARNING(args) if (enum Logger::level const level = log_.level()) if (level <= Logger::L_WARNING) log_.warn args
+#define LOG_WARNING(args) if (log_.level() <= Logger::loglevel::L_WARNING) log_.warn args
 
 #endif /* LOGGER_HPP */

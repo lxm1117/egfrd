@@ -836,7 +836,7 @@ GreensFunction::EventKind GreensFunction2DRadAbs::drawEventType(const Real rnd, 
 
     if (kf == 0.0) // if there cannot be any flow through the radiating boundary it is always an escape
     {
-        return IV_ESCAPE;
+        return EventKind::IV_ESCAPE;
     }
 
     // First, check if r0 is close only either to a or sigma relative
@@ -854,14 +854,14 @@ GreensFunction::EventKind GreensFunction2DRadAbs::drawEventType(const Real rnd, 
     {
         if (s_dist < max_dist)
         {
-            return IV_REACTION;
+            return EventKind::IV_REACTION;
         }
     }
     else // a_dist < max_dist
     {
         if (s_dist > max_dist)
         {
-            return IV_ESCAPE;
+            return EventKind::IV_ESCAPE;
         }
     }
 
@@ -869,7 +869,7 @@ GreensFunction::EventKind GreensFunction2DRadAbs::drawEventType(const Real rnd, 
     const Real escape(leavea(t));	// flux through abs boundary
     const Real value(reaction / (reaction + escape));
 
-    return rnd <= value ? IV_REACTION : IV_ESCAPE;
+    return rnd <= value ? EventKind::IV_REACTION : EventKind::IV_ESCAPE;
 }
 
 // This draws a radius R at a given time, provided that the particle was at r0 at t=0
