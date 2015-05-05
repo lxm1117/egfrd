@@ -2,6 +2,7 @@
 #define DEFS_HPP
 
 #include <vector>
+#include <gsl/gsl_math.h>
 
 typedef double Real;
 typedef unsigned int uint;

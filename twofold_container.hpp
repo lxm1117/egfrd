@@ -106,15 +106,15 @@ public:
 
     twofold_container(value_type const& one)
     {
-        BOOST_ASSERT(one);
+        //BOOST_ASSERT(one);
         items_[0] = one;
         items_[1] = value_type();
     }
 
     twofold_container(value_type const& one, value_type const& two)
     {
-        BOOST_ASSERT(one);
-        BOOST_ASSERT(two);
+        //BOOST_ASSERT(one);
+        //BOOST_ASSERT(two);
         if (one <= two)
         {
             items_[0] = one;
