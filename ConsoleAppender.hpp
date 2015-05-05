@@ -12,7 +12,7 @@ public:
     virtual ~ConsoleAppender() {};
 
     virtual void flush();
-    virtual void operator()(enum class Logger::loglevel lv, char const* name, char const** chunks);
+    virtual void operator()(Logger::loglevel lv, char const* name, char const** chunks);
 };
 
 #endif /* CONSOLEAPPENDER_HPP */

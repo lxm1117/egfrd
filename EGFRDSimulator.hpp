@@ -3502,7 +3502,7 @@ protected:
         return (boost::format("Event(t=%.16g)") % ev.time()).str();
     }
 
-    static std::string stringize_event_kind(enum class single_event_kind kind)
+    static std::string stringize_event_kind(single_event_kind kind)
     {
         switch (kind)
         {
@@ -3515,7 +3515,7 @@ protected:
         }
     }
 
-    static std::string stringize_event_kind(enum class pair_event_kind kind)
+    static std::string stringize_event_kind(pair_event_kind kind)
     {
         switch (kind)
         {

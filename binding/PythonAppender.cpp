@@ -6,21 +6,17 @@
 
 namespace binding {
 
-    typedef std::map<enum class Logger::loglevel, boost::python::object> loglevel_map_type;
+    typedef std::map<Logger::loglevel, boost::python::object> loglevel_map_type;
 
     static boost::python::object logging_module;
     static loglevel_map_type loglevel_map;
 
     static void import_logging_module()
     {
-        if (logging_module.ptr() != Py_None)
-            return;
+        if (logging_module.ptr() != Py_None) return;
 
         logging_module = boost::python::object(boost::python::borrowed(PyImport_Import(boost::python::handle<>(PyString_FromString("logging")).get())));
-        if (PyErr_Occurred())
-        {
-            boost::python::throw_error_already_set();
-        }
+        if (PyErr_Occurred()) boost::python::throw_error_already_set();
 
         loglevel_map[Logger::loglevel::L_OFF] = getattr(logging_module, "NOTSET");
         loglevel_map[Logger::loglevel::L_DEBUG] = getattr(logging_module, "DEBUG");
@@ -35,8 +31,7 @@ namespace binding {
     public:
         virtual ~PythonAppender() {}
 
-        virtual void operator()(enum class Logger::loglevel lv,
-            char const* name, char const** chunks)
+        virtual void operator()(Logger::loglevel lv, char const* name, char const** chunks)
         {
             std::string msg;
             for (char const** p = chunks; *p; ++p)
@@ -81,10 +76,7 @@ namespace binding {
             __name__ = static_cast<std::string>(extract<std::string>(object(borrowed(mod)).attr("__name__"))) + "." + name;
             __class__.tp_name = const_cast<char*>(__name__.c_str());
             __class__.tp_base = reinterpret_cast<PyTypeObject*>(getattr(logging_module, "Handler").ptr());
-            if (PyType_Ready(&__class__) < 0)
-            {
-                return nullptr;
-            }
+            if (PyType_Ready(&__class__) < 0) return nullptr;
             return reinterpret_cast<PyObject*>(&__class__);
         }
 
@@ -94,25 +86,24 @@ namespace binding {
         }
 
         static PyObject* __new__(PyTypeObject* klass, PyObject* arg, PyObject* kwarg)
+        {
             try
-        {
-            if (PyTuple_Size(arg) != 1)
             {
-                PyErr_SetString(PyExc_TypeError, "the number of arguments must be 1");
-                return nullptr;
-            }
+                if (PyTuple_Size(arg) != 1)
+                {
+                    PyErr_SetString(PyExc_TypeError, "the number of arguments must be 1");
+                    return nullptr;
+                }
 
-            CppLoggerHandler* retval(new CppLoggerHandler(*boost::python::extract<Logger*>(PyTuple_GetItem(arg, 0))()));
-
-            if (PyErr_Occurred())
-            {
-                boost::python::decref(reinterpret_cast<PyObject*>(retval));
-                return nullptr;
+                CppLoggerHandler* retval(new CppLoggerHandler(*boost::python::extract<Logger*>(PyTuple_GetItem(arg, 0))()));
+                if (PyErr_Occurred())
+                {
+                    boost::python::decref(reinterpret_cast<PyObject*>(retval));
+                    return nullptr;
+                }
+                return reinterpret_cast<PyObject*>(retval);
             }
-            return reinterpret_cast<PyObject*>(retval);
-        }
-        catch (boost::python::error_already_set const&)
-        {
+            catch (boost::python::error_already_set const&) { }
             return nullptr;
         }
 
@@ -167,7 +158,7 @@ namespace binding {
         {
             CppLoggerHandler* const self(get_self(_self));
             if (!self) return nullptr;
-            enum class Logger::loglevel const level(translate_level(_level));
+            Logger::loglevel const level(translate_level(_level));
             if (level == Logger::loglevel::L_OFF)
             {
                 PyErr_SetString(PyExc_ValueError, "invalid loglevel");
@@ -219,12 +210,12 @@ namespace binding {
         }
 
         static PyObject* translateLevelValue(PyObject* _self, PyObject* arg)
+        {
             try
-        {
-            return boost::python::incref(boost::python::object(translate_level(arg)).ptr());
-        }
-        catch (boost::python::error_already_set const&)
-        {
+            {
+                return boost::python::incref(boost::python::object(translate_level(arg)).ptr());
+            }
+            catch (boost::python::error_already_set const&) { }
             return nullptr;
         }
 
@@ -246,9 +237,9 @@ namespace binding {
         CppLoggerHandler(Logger& impl) : __weakreflist__(0), __dict__(PyDict_New()), impl_(impl) {}
 
     protected:
-        static enum class Logger::loglevel translate_level(PyObject* _level)
+        static Logger::loglevel translate_level(PyObject* _level)
         {
-            enum class Logger::loglevel retval(Logger::loglevel::L_OFF);
+            Logger::loglevel retval(Logger::loglevel::L_OFF);
             boost::python::object level(boost::python::borrowed(_level));
             boost::python::object closest;
 
@@ -265,8 +256,7 @@ namespace binding {
 
 
     protected:
-        PyObject_VAR_HEAD
-            static PyTypeObject __class__;
+        PyObject_VAR_HEAD static PyTypeObject __class__;
         static std::string __name__;
         PyObject *__weakreflist__;
         boost::python::handle<> __dict__;

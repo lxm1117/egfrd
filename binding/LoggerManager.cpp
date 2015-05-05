@@ -8,7 +8,7 @@ namespace binding {
     boost::python::objects::enum_base register_logger_level_enum(char const* name)
     {
         using namespace boost::python;
-        return enum_<enum class Logger::loglevel>(name)
+        return enum_<Logger::loglevel>(name)
             .value("OFF", Logger::loglevel::L_OFF)
             .value("DEBUG", Logger::loglevel::L_DEBUG)
             .value("INFO", Logger::loglevel::L_INFO)
@@ -29,7 +29,7 @@ namespace binding {
 
         // defining the python class
         return class_<impl_type, boost::shared_ptr<impl_type>, boost::noncopyable>(name, no_init)
-            .add_property("level", static_cast<enum class Logger::loglevel(impl_type::*)() const>(&impl_type::level), static_cast<void(impl_type::*)(enum class Logger::loglevel)>(&impl_type::level))
+            .add_property("level", static_cast<Logger::loglevel(impl_type::*)() const>(&impl_type::level), static_cast<void(impl_type::*)(Logger::loglevel)>(&impl_type::level))
             .add_property("name", &impl_type::name)
             .add_property("appenders", make_function(&impl_type::appenders, return_value_policy<return_by_value>()))
             .def("add_appender", &impl_type::add_appender)

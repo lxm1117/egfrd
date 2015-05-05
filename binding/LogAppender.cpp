@@ -4,7 +4,7 @@
 namespace binding {
 
 template<typename Timpl>
-static void log_appender_call(Timpl& self, enum class Logger::loglevel lv, char const* name, PyObject* _chunks)
+static void log_appender_call(Timpl& self, Logger::loglevel lv, char const* name, PyObject* _chunks)
 {
     using namespace boost::python;
 
@@ -12,7 +12,7 @@ static void log_appender_call(Timpl& self, enum class Logger::loglevel lv, char 
     if (!iter)
     {
         PyErr_SetString(PyExc_TypeError, "chunks must be iterable");
-        throw_error_already_set();    
+        throw_error_already_set();
     }
 
     std::vector<char const*> chunks;

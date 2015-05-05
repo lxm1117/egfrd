@@ -31,7 +31,7 @@ public:
 
     void level(loglevel level);
 
-    enum class loglevel level() const;
+    loglevel level() const;
 
     char const* name() const
     {
@@ -80,7 +80,7 @@ public:
         va_end(ap);
     }
 
-    void log(enum class loglevel lv, char const* format, ...)
+    void log(loglevel lv, char const* format, ...)
     {
         va_list ap;
         va_start(ap, format);
@@ -88,7 +88,7 @@ public:
         va_end(ap);
     }
 
-    void logv(enum class loglevel lv, char const* format, va_list ap);
+    void logv(loglevel lv, char const* format, va_list ap);
 
     void flush();
 
@@ -96,7 +96,7 @@ public:
 
     static Logger& get_logger(char const* name);
 
-    static char const* stringize_error_level(enum class loglevel lv);
+    static char const* stringize_error_level(loglevel lv);
 
 private:
     void ensure_initialized();
@@ -105,7 +105,7 @@ protected:
     LoggerManagerRegistry const& registry_;
     std::string const name_;
     boost::shared_ptr<LoggerManager> manager_;
-    enum class loglevel level_;
+    loglevel level_;
     std::vector<boost::shared_ptr<LogAppender> > appenders_;
 };
 
@@ -114,9 +114,9 @@ class LoggerManager : boost::noncopyable
     friend class Logger;
 
 public:
-    void level(enum class Logger::loglevel level);
+    void level(Logger::loglevel level);
 
-    enum class Logger::loglevel level() const;
+    Logger::loglevel level() const;
 
     char const* name() const;
 
@@ -124,7 +124,7 @@ public:
 
     void add_appender(boost::shared_ptr<LogAppender> const& appender);
 
-    LoggerManager(char const* name, enum class Logger::loglevel level = Logger::loglevel::L_INFO);
+    LoggerManager(char const* name, Logger::loglevel level = Logger::loglevel::L_INFO);
 
     static void register_logger_manager(char const* logger_name_pattern, boost::shared_ptr<LoggerManager> const& manager);
 
@@ -135,7 +135,7 @@ protected:
 
 protected:
     std::string const name_;
-    enum class Logger::loglevel level_;
+    Logger::loglevel level_;
     std::set<Logger*> managed_loggers_;
     std::vector<boost::shared_ptr<LogAppender> > appenders_;
 };
@@ -147,7 +147,7 @@ public:
 
     virtual void flush() = 0;
 
-    virtual void operator()(enum class Logger::loglevel lv, char const* name, char const** chunks) = 0;
+    virtual void operator()(Logger::loglevel lv, char const* name, char const** chunks) = 0;
 };
 
 #define LOG_DEBUG(args) if (log_.level() == Logger::loglevel::L_DEBUG) log_.debug args
