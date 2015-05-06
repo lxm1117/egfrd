@@ -126,7 +126,7 @@ public:
 
     LoggerManager() = delete;
     LoggerManager(const LoggerManager&) = delete;
-    LoggerManager::LoggerManager(char const* name, Logger::loglevel level = Logger::loglevel::L_INFO) : name_(name), level_(level) {}
+    LoggerManager(char const* name, Logger::loglevel level = Logger::loglevel::L_INFO) : name_(name), level_(level) {}
 
     //static void register_logger_manager(char const* logger_name_pattern, std::shared_ptr<LoggerManager> const& manager);  // NOT USED
 
