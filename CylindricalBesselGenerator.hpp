@@ -1,9 +1,6 @@
 #ifndef CYLINDRICALBESSELGENERATOR_HPP
 #define CYLINDRICALBESSELGENERATOR_HPP
 
-#include <cmath>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_sf_bessel.h>
 #include "Defs.hpp"
 
 class CylindricalBesselGenerator

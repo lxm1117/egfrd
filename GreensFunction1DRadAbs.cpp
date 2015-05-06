@@ -2,7 +2,8 @@
 #include <exception>
 #include <vector>
 #include <cmath>
-#include <boost/bind.hpp>
+#include <algorithm>
+#include <functional>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_roots.h>
 #include "findRoot.hpp"
@@ -218,7 +219,7 @@ Real GreensFunction1DRadAbs::p_survival_table(Real t, RealVector& psurvTable) co
         createPsurvTable(psurvTable);
     }
 
-    Real p = funcSum_all(boost::bind(&GreensFunction1DRadAbs::p_survival_i, this, _1, t, psurvTable), maxi);
+    Real p = funcSum_all(std::bind(&GreensFunction1DRadAbs::p_survival_i, this, std::placeholders::_1, t, psurvTable), maxi);
     if (v == 0.0)
     {
         p *= 2.0;
@@ -577,7 +578,7 @@ Real GreensFunction1DRadAbs::p_int_r_table(Real const& r, Real const& t, RealVec
         create_p_int_r_Table(t, table);
     }
 
-    Real p = funcSum(boost::bind(&GreensFunction1DRadAbs::p_int_r_i, this, _1, r, t, table), MAX_TERMS);
+    Real p = funcSum(std::bind(&GreensFunction1DRadAbs::p_int_r_i, this, std::placeholders::_1, r, t, table), MAX_TERMS);
     return prefac * p;
 }
 

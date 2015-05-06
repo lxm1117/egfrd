@@ -1,10 +1,6 @@
-#ifndef __SPHERICALBESSELGENERATOR_HPP
-#define __SPHERICALBESSELGENERATOR_HPP
+#ifndef SPHERICALBESSELGENERATOR_HPP
+#define SPHERICALBESSELGENERATOR_HPP
 
-#include <cmath>
-#include <gsl/gsl_errno.h>
-#include <gsl/gsl_spline.h>
-#include <gsl/gsl_sf_bessel.h>
 #include "Defs.hpp"
 
 class SphericalBesselGenerator
@@ -23,4 +19,4 @@ public:
     static SphericalBesselGenerator const& instance();
 };
 
-#endif /* __SPHERICALBESSELGENERATOR_HPP */
+#endif /* SPHERICALBESSELGENERATOR_HPP */

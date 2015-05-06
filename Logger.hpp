@@ -5,14 +5,17 @@
 #include <set>
 #include <vector>
 #include <string>
-#include <boost/noncopyable.hpp>
-#include <boost/shared_ptr.hpp>
+#include <memory>
+
+// --------------------------------------------------------------------------------------------------------------------------------
 
 class LogAppender;
 class LoggerManager;
 class LoggerManagerRegistry;
 
-class Logger : boost::noncopyable
+// --------------------------------------------------------------------------------------------------------------------------------
+
+class Logger
 {
 public:
     enum class loglevel
@@ -25,20 +28,13 @@ public:
         L_FATAL = 5
     };
 
-public:
-
-    LoggerManager const& logging_manager() const;
-
     void level(loglevel level);
 
     loglevel level() const;
 
-    char const* name() const
-    {
-        return name_.c_str();
-    }
+    char const* name() const { return name_.c_str(); }
 
-    boost::shared_ptr<LoggerManager> manager() const;
+    std::shared_ptr<LoggerManager> manager() const;
 
     void debug(char const* format, ...)
     {
@@ -92,7 +88,9 @@ public:
 
     void flush();
 
-    Logger(LoggerManagerRegistry const& registry, char const* name);
+    Logger() = delete;
+    Logger(const Logger&) = delete;
+    Logger(LoggerManagerRegistry const& registry, char const* name) : registry_(registry), name_(name), manager_() {}
 
     static Logger& get_logger(char const* name);
 
@@ -104,41 +102,46 @@ private:
 protected:
     LoggerManagerRegistry const& registry_;
     std::string const name_;
-    boost::shared_ptr<LoggerManager> manager_;
+    std::shared_ptr<LoggerManager> manager_;
     loglevel level_;
-    std::vector<boost::shared_ptr<LogAppender> > appenders_;
+    std::vector<std::shared_ptr<LogAppender> > appenders_;
 };
 
-class LoggerManager : boost::noncopyable
+// --------------------------------------------------------------------------------------------------------------------------------
+
+class LoggerManager
 {
     friend class Logger;
 
 public:
     void level(Logger::loglevel level);
 
-    Logger::loglevel level() const;
+    Logger::loglevel level() const { return level_;  };
 
-    char const* name() const;
+    char const* name() const { return name_.c_str(); }
 
-    std::vector<boost::shared_ptr<LogAppender> > const& appenders() const;
+    std::vector<std::shared_ptr<LogAppender> > const& appenders() const;
 
-    void add_appender(boost::shared_ptr<LogAppender> const& appender);
+    void add_appender(std::shared_ptr<LogAppender> const& appender);
 
-    LoggerManager(char const* name, Logger::loglevel level = Logger::loglevel::L_INFO);
+    LoggerManager() = delete;
+    LoggerManager(const LoggerManager&) = delete;
+    LoggerManager::LoggerManager(char const* name, Logger::loglevel level = Logger::loglevel::L_INFO) : name_(name), level_(level) {}
 
-    static void register_logger_manager(char const* logger_name_pattern, boost::shared_ptr<LoggerManager> const& manager);
+    //static void register_logger_manager(char const* logger_name_pattern, std::shared_ptr<LoggerManager> const& manager);  // NOT USED
 
-    static boost::shared_ptr<LoggerManager> get_logger_manager(char const* logger_name_patern);
+    static std::shared_ptr<LoggerManager> get_logger_manager(char const* logger_name_patern);
 
 protected:
     void manage(Logger* logger);
 
-protected:
     std::string const name_;
     Logger::loglevel level_;
     std::set<Logger*> managed_loggers_;
-    std::vector<boost::shared_ptr<LogAppender> > appenders_;
+    std::vector<std::shared_ptr<LogAppender> > appenders_;
 };
+
+// --------------------------------------------------------------------------------------------------------------------------------
 
 class LogAppender
 {
@@ -150,10 +153,14 @@ public:
     virtual void operator()(Logger::loglevel lv, char const* name, char const** chunks) = 0;
 };
 
+// --------------------------------------------------------------------------------------------------------------------------------
+
 #define LOG_DEBUG(args) if (log_.level() == Logger::loglevel::L_DEBUG) log_.debug args
 
 #define LOG_INFO(args) if (log_.level() <= Logger::loglevel::L_INFO) log_.info args
 
 #define LOG_WARNING(args) if (log_.level() <= Logger::loglevel::L_WARNING) log_.warn args
+
+// --------------------------------------------------------------------------------------------------------------------------------
 
 #endif /* LOGGER_HPP */

@@ -1,6 +1,7 @@
 #ifndef GREENSFUNCTION1DABSSINKABS_HPP
 #define GREENSFUNCTION1DABSSINKABS_HPP
 
+#include <cassert>
 #include "Defs.hpp"
 #include "Logger.hpp"
 #include "GreensFunction.hpp"
@@ -16,8 +17,8 @@ class GF_CLASS GreensFunction1DAbsSinkAbs : public GreensFunction
 
 public:
     GreensFunction1DAbsSinkAbs(Real D, Real k, Real r0, Real rsink, Real sigma, Real a)
-        : GreensFunction(D), k(k), r0(r0), sigma(sigma), a(a), rsink(rsink), t_scale(T_TYPICAL), 
-            L0(fabs(r0 - rsink)), Lr(r0 >= rsink ? a - rsink : rsink - sigma), Ll(r0 >= rsink ? rsink - sigma : a - rsink)
+        : GreensFunction(D), k(k), r0(r0), sigma(sigma), a(a), rsink(rsink), t_scale(T_TYPICAL),
+        L0(fabs(r0 - rsink)), Lr(r0 >= rsink ? a - rsink : rsink - sigma), Ll(r0 >= rsink ? rsink - sigma : a - rsink)
     {
         /* Set variables which define a domain with the sink at the origin.
            Furthermore r0 is assumed to be right from the sink. */

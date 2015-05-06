@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <vector>
 #include <sstream>
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/format.hpp>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_math.h>
@@ -37,7 +37,7 @@ GreensFunction3DRadAbs::GreensFunction3DRadAbs(Real D, Real kf, Real r0, Real Si
 
 void GreensFunction3DRadAbs::clearAlphaTable() const
 {
-    std::for_each(alphaTable.begin(), alphaTable.end(), boost::mem_fn(&RealVector::clear));
+    std::for_each(alphaTable.begin(), alphaTable.end(), [](RealVector rv){ rv.clear(); });
     alphaOffsetTable[0] = 0;
     std::fill(alphaOffsetTable.begin() + 1, alphaOffsetTable.end(), -1);
 }
@@ -93,7 +93,7 @@ Real GreensFunction3DRadAbs::alpha0_i(int i) const
     gsl_root_fsolver_set(solver, &F, low, high);
 
     const uint maxIter(100);
-    for (uint j(0);;++j)
+    for (uint j(0);; ++j)
     {
         gsl_root_fsolver_iterate(solver);
 
@@ -351,7 +351,7 @@ Real GreensFunction3DRadAbs::alpha_i(int i, int n, gsl_root_fsolver* solver) con
     gsl_root_fsolver_set(solver, &F, low, high);
 
     const uint maxIter(100);
-    for (uint k(0);;++k)
+    for (uint k(0);; ++k)
     {
         gsl_root_fsolver_iterate(solver);
 
@@ -578,7 +578,7 @@ void GreensFunction3DRadAbs::createPsurvTable(RealVector& table) const
     const RealVector& alphaTable_0(getAlphaTable(0));
     table.clear();
     table.reserve(alphaTable_0.size());
-    std::transform(alphaTable_0.begin(), alphaTable_0.end(), std::back_inserter(table), boost::bind(&GreensFunction3DRadAbs::p_survival_i, this, _1));
+    std::transform(alphaTable_0.begin(), alphaTable_0.end(), std::back_inserter(table), std::bind(&GreensFunction3DRadAbs::p_survival_i, this, std::placeholders::_1));
 }
 
 void GreensFunction3DRadAbs::createNum_r0Table(RealVector& table) const
@@ -586,7 +586,7 @@ void GreensFunction3DRadAbs::createNum_r0Table(RealVector& table) const
     const RealVector& alphaTable_0(alphaTable[0]);
     table.clear();
     table.reserve(alphaTable_0.size());
-    std::transform(alphaTable_0.begin(), alphaTable_0.end(), std::back_inserter(table), boost::bind(&GreensFunction3DRadAbs::num_r0, this, _1));
+    std::transform(alphaTable_0.begin(), alphaTable_0.end(), std::back_inserter(table), std::bind(&GreensFunction3DRadAbs::num_r0, this, std::placeholders::_1));
 }
 
 void GreensFunction3DRadAbs::createPleaveFactorTable(RealVector& table) const
@@ -594,7 +594,7 @@ void GreensFunction3DRadAbs::createPleaveFactorTable(RealVector& table) const
     const RealVector& alphaTable_0(alphaTable[0]);
     table.clear();
     table.reserve(alphaTable_0.size());
-    std::transform(alphaTable_0.begin(), alphaTable_0.end(), std::back_inserter(table), boost::bind(&GreensFunction3DRadAbs::pleaveFactor, this, _1));
+    std::transform(alphaTable_0.begin(), alphaTable_0.end(), std::back_inserter(table), std::bind(&GreensFunction3DRadAbs::pleaveFactor, this, std::placeholders::_1));
 }
 
 void GreensFunction3DRadAbs::createPleavesTable(RealVector& table, RealVector const& pleaveFactorTable) const
@@ -712,7 +712,7 @@ Real GreensFunction3DRadAbs::p_int_r_i_exp_table(uint i, Real t, Real r, RealVec
 
 Real GreensFunction3DRadAbs::p_0(Real t, Real r) const
 {
-    return funcSum(boost::bind(&GreensFunction3DRadAbs::p_0_i_exp, this, _1, t, r), MAX_ALPHA_SEQ);
+    return funcSum(std::bind(&GreensFunction3DRadAbs::p_0_i_exp, this, std::placeholders::_1, t, r), MAX_ALPHA_SEQ);
 }
 
 uint GreensFunction3DRadAbs::guess_maxi(Real t) const
@@ -772,7 +772,7 @@ Real GreensFunction3DRadAbs::p_survival_table(Real t, RealVector& psurvTable) co
                 createPsurvTable(psurvTable);
             }
 
-            p = funcSum_all(boost::bind(&GreensFunction3DRadAbs::p_survival_i_exp_table, this, _1, t, psurvTable), maxi);
+            p = funcSum_all(std::bind(&GreensFunction3DRadAbs::p_survival_i_exp_table, this, std::placeholders::_1, t, psurvTable), maxi);
         }
     }
 
@@ -781,42 +781,42 @@ Real GreensFunction3DRadAbs::p_survival_table(Real t, RealVector& psurvTable) co
 
 Real GreensFunction3DRadAbs::p_leave_table(Real t, RealVector const& table) const
 {
-    return funcSum(boost::bind(&GreensFunction3DRadAbs::p_leave_i_exp_table, this, _1, t, table), table.size());
+    return funcSum(std::bind(&GreensFunction3DRadAbs::p_leave_i_exp_table, this, std::placeholders::_1, t, table), table.size());
 }
 
 Real GreensFunction3DRadAbs::dp_survival(Real t) const
 {
-    return funcSum(boost::bind(&GreensFunction3DRadAbs::dp_survival_i_exp, this, _1, t), MAX_ALPHA_SEQ);
+    return funcSum(std::bind(&GreensFunction3DRadAbs::dp_survival_i_exp, this, std::placeholders::_1, t), MAX_ALPHA_SEQ);
 }
 
 Real GreensFunction3DRadAbs::leaves(Real t) const
 {
-    return funcSum(boost::bind(&GreensFunction3DRadAbs::leaves_i_exp, this, _1, t), MAX_ALPHA_SEQ);
+    return funcSum(std::bind(&GreensFunction3DRadAbs::leaves_i_exp, this, std::placeholders::_1, t), MAX_ALPHA_SEQ);
 }
 
 Real GreensFunction3DRadAbs::leavea(Real t) const
 {
-    return funcSum(boost::bind(&GreensFunction3DRadAbs::leavea_i_exp, this, _1, t), MAX_ALPHA_SEQ);
+    return funcSum(std::bind(&GreensFunction3DRadAbs::leavea_i_exp, this, std::placeholders::_1, t), MAX_ALPHA_SEQ);
 }
 
 Real GreensFunction3DRadAbs::p_leaves(Real t) const
 {
-    return funcSum_all(boost::bind(&GreensFunction3DRadAbs::p_leaves_i_exp, this, _1, t), guess_maxi(t));
+    return funcSum_all(std::bind(&GreensFunction3DRadAbs::p_leaves_i_exp, this, std::placeholders::_1, t), guess_maxi(t));
 }
 
 Real GreensFunction3DRadAbs::p_leavea(Real t) const
 {
-    return funcSum_all(boost::bind(&GreensFunction3DRadAbs::p_leavea_i_exp, this, _1, t), guess_maxi(t));
+    return funcSum_all(std::bind(&GreensFunction3DRadAbs::p_leavea_i_exp, this, std::placeholders::_1, t), guess_maxi(t));
 }
 
 Real GreensFunction3DRadAbs::p_int_r(Real r, Real t) const
 {
-    return funcSum(boost::bind(&GreensFunction3DRadAbs::p_int_r_i_exp, this, _1, t, r), MAX_ALPHA_SEQ);
+    return funcSum(std::bind(&GreensFunction3DRadAbs::p_int_r_i_exp, this, std::placeholders::_1, t, r), MAX_ALPHA_SEQ);
 }
 
 Real GreensFunction3DRadAbs::p_int_r_table(Real r, Real t, RealVector const& num_r0Table) const
 {
-    return funcSum(boost::bind(&GreensFunction3DRadAbs::p_int_r_i_exp_table, this, _1, t, r, num_r0Table), num_r0Table.size());
+    return funcSum(std::bind(&GreensFunction3DRadAbs::p_int_r_i_exp_table, this, std::placeholders::_1, t, r, num_r0Table), num_r0Table.size());
 }
 
 struct p_survival_table_params
@@ -1216,7 +1216,7 @@ Real GreensFunction3DRadAbs::drawR(Real rnd, Real t) const
     gsl_root_fsolver_set(solver, &F, low, high);
 
     const uint maxIter(100);
-    for (uint i(0);;++i)
+    for (uint i(0);; ++i)
     {
         gsl_root_fsolver_iterate(solver);
         low = gsl_root_fsolver_x_lower(solver);
@@ -1489,7 +1489,7 @@ Real GreensFunction3DRadAbs::p_theta_table(Real theta, Real r, Real t, RealVecto
     const uint tableSize(p_nTable.size());
     RealVector lgndTable(tableSize);
     gsl_sf_legendre_Pl_array(tableSize - 1, cos(theta), &lgndTable[0]);
-    return funcSum_all(boost::bind(&p_theta_n, _1, p_nTable, lgndTable), tableSize) * sin(theta);
+    return funcSum_all(std::bind(&p_theta_n, std::placeholders::_1, p_nTable, lgndTable), tableSize) * sin(theta);
 }
 
 void GreensFunction3DRadAbs::make_p_thetaTable(RealVector& pTable, Real r, Real t, uint n, RealVector const& p_nTable) const
@@ -1610,7 +1610,7 @@ Real GreensFunction3DRadAbs::ip_theta_table(Real theta, Real r, Real t, RealVect
     lgndTable[0] = 1.0;  // n = -1
     gsl_sf_legendre_Pl_array(tableSize, cos_theta, &lgndTable[1]);
 
-    return funcSum_all(boost::bind(&ip_theta_n, _1, p_nTable, lgndTable), tableSize);
+    return funcSum_all(std::bind(&ip_theta_n, std::placeholders::_1, p_nTable, lgndTable), tableSize);
 }
 
 struct GreensFunction3DRadAbs::ip_theta_params
@@ -1672,7 +1672,7 @@ Real GreensFunction3DRadAbs::drawTheta(Real rnd, Real r, Real t) const
     gsl_root_fsolver_set(solver, &F, 0.0, high);
 
     const uint maxIter(100);
-    for (uint i(0);;++i)
+    for (uint i(0);; ++i)
     {
         gsl_root_fsolver_iterate(solver);
         const Real low(gsl_root_fsolver_x_lower(solver));

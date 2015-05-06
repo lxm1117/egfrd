@@ -2,146 +2,100 @@
 #include <map>
 #include <utility>
 #include <cstdio>
-#include <functional>
-#include <boost/regex.hpp>
-#include <boost/foreach.hpp>
-#include <boost/type_traits/remove_pointer.hpp>
-#include <boost/ptr_container/ptr_map.hpp>
-#include <boost/bind.hpp>
+#include <cassert>
+#include <algorithm>
 #include "Logger.hpp"
 #include "ConsoleAppender.hpp"
+#include <iostream>
 
-#include "utils/range.hpp"
-#include "utils/pair.hpp"
-#include "utils/fun_composition.hpp"
-#include "utils/fun_wrappers.hpp"
-#include "utils/assoc_container_traits.hpp"
-#include "utils/map_adapter.hpp"
-
-struct map_adapter_handler
-{
-    template<typename Tadapter_>
-    void destroy(Tadapter_& cntnr) const
-    {
-        std::for_each(boost::begin(cntnr), boost::end(cntnr), compose_unary(delete_ptr<typename boost::remove_pointer<typename Tadapter_::mapped_type>::type>(), select_second<typename Tadapter_::value_type>()));
-    }
-
-    template<typename Tadapter_, typename Titer_>
-    void insert(Titer_ const& b, Titer_ const& e) const
-    {
-    }
-
-    template<typename Tadapter_>
-    void insert(typename Tadapter_::value_type const& val) const
-    {
-    }
-};
+// --------------------------------------------------------------------------------------------------------------------------------
 
 class LoggerManagerRegistry
 {
-private:
-    typedef std::pair<boost::regex, boost::shared_ptr<LoggerManager> > entry_type;
-public:
-    void register_logger_manager(char const* logger_name_pattern, boost::shared_ptr<LoggerManager> const& manager)
-    {
-        managers_.push_back(entry_type(boost::regex(logger_name_pattern), manager));
-    }
+    //typedef std::pair<std::regex, std::shared_ptr<LoggerManager> > entry_type;
 
-    boost::shared_ptr<LoggerManager> get_default_logger_manager() const
+public:
+    //void register_logger_manager(char const* logger_name_pattern, std::shared_ptr<LoggerManager> const& manager)
+    //{
+    //    managers_.push_back(entry_type(std::regex(logger_name_pattern), manager));
+    //}
+
+    std::shared_ptr<LoggerManager> get_default_logger_manager() const
     {
         return default_manager_;
     }
 
-    boost::shared_ptr<LoggerManager> operator()(char const* logger_name) const
+    std::shared_ptr<LoggerManager> operator()(char const* logger_name) const
     {
         if (!logger_name) return default_manager_;
 
-        char const* const logger_name_end(logger_name + std::strlen(logger_name));
-        BOOST_FOREACH(entry_type const& i, managers_)
-        {
-            if (boost::regex_match(logger_name, logger_name_end, i.first))
-                return i.second;
-        }
+        //char const* const logger_name_end(logger_name + std::strlen(logger_name));
+        //BOOST_FOREACH(entry_type const& i, managers_)
+        //{
+        //    if (boost::regex_match(logger_name, logger_name_end, i.first))
+        //        return i.second;
+        //}
 
-        BOOST_ASSERT(default_manager_.get());
+        assert(default_manager_.get());
         return default_manager_;
     }
 
     LoggerManagerRegistry() : default_manager_(new LoggerManager("default"))
     {
-        default_manager_->add_appender(boost::shared_ptr<LogAppender>(new ConsoleAppender()));
+        default_manager_->add_appender(std::make_shared<ConsoleAppender>());
     }
 
 private:
-    std::vector<entry_type> managers_;
-    boost::shared_ptr<LoggerManager> default_manager_;
+    //    std::vector<entry_type> managers_;
+    std::shared_ptr<LoggerManager> default_manager_;
 };
+
+// --------------------------------------------------------------------------------------------------------------------------------
 
 static LoggerManagerRegistry registry;
 
-void LoggerManager::register_logger_manager(char const* logger_name_pattern, boost::shared_ptr<LoggerManager> const& manager)
-{
-    registry.register_logger_manager(logger_name_pattern, manager);
-}
+// --------------------------------------------------------------------------------------------------------------------------------
 
-boost::shared_ptr<LoggerManager> LoggerManager::get_logger_manager(char const* logger_name_pattern)
+//void LoggerManager::register_logger_manager(char const* logger_name_pattern, std::shared_ptr<LoggerManager> const& manager)
+//{
+//    registry.register_logger_manager(logger_name_pattern, manager);
+//}
+
+std::shared_ptr<LoggerManager> LoggerManager::get_logger_manager(char const* logger_name_pattern)
 {
     return registry(logger_name_pattern);
 }
 
-boost::shared_ptr<LoggerManager> Logger::manager() const
+std::shared_ptr<LoggerManager> Logger::manager() const
 {
     const_cast<Logger*>(this)->ensure_initialized();
     return manager_;
 }
 
+// --------------------------------------------------------------------------------------------------------------------------------
+
 Logger& Logger::get_logger(char const* name)
 {
-    typedef map_adapter<std::map<std::string, Logger*>, map_adapter_handler> loggers_type;
-    static map_adapter_handler hdlr;
-    static loggers_type loggers(hdlr);
-    std::string _name(name);
-    std::pair<loggers_type::iterator, bool> i(loggers.insert(loggers_type::value_type(_name, 0)));
+    typedef std::map<std::string, std::unique_ptr<Logger>> loggers_map;
+    static loggers_map loggers;
 
-    if (i.second)
-    {
-        Logger* const log(new Logger(registry, name));
-        (*i.first).second = log;
-    }
+    std::string _name(name);
+    auto i(loggers.insert(loggers_map::value_type(_name, nullptr)));
+
+    if (i.second) (*i.first).second = std::unique_ptr<Logger>(new Logger(registry, name));
 
     return *(*i.first).second;
 }
 
-char const* Logger::stringize_error_level(Logger::loglevel lv)
+char const* Logger::stringize_error_level(loglevel lv)
 {
-    static char const* names[] =
-    {
-        "OFF",
-        "DEBUG",
-        "INFO",
-        "WARN",
-        "ERROR",
-        "FATAL"
-    };
+    static char const* names[] = { "OFF", "DEBUG", "INFO", "WARN", "ERROR", "FATAL" };
     return static_cast<std::size_t>(lv) >= sizeof(names) / sizeof(*names) ? "???" : names[static_cast<std::size_t>(lv)];
 }
 
-struct invoke_appender
-{
-    void operator()(boost::shared_ptr<LogAppender> const& appender) const
-    {
-        const char* chunks[] = { formatted_msg, nullptr };
-        (*appender)(level, name, chunks);
-    }
+// --------------------------------------------------------------------------------------------------------------------------------
 
-    invoke_appender(Logger::loglevel level, const char* name, char const *formatted_msg) : level(level), name(name), formatted_msg(formatted_msg) {}
-
-    Logger::loglevel const level;
-    char const* const name;
-    char const* const formatted_msg;
-};
-
-void Logger::level(Logger::loglevel level)
+void Logger::level(loglevel level)
 {
     ensure_initialized();
     level_ = level;
@@ -153,7 +107,7 @@ Logger::loglevel Logger::level() const
     return level_;
 }
 
-void Logger::logv(Logger::loglevel lv, char const* format, va_list ap)
+void Logger::logv(loglevel lv, char const* format, va_list ap)
 {
     ensure_initialized();
 
@@ -161,64 +115,58 @@ void Logger::logv(Logger::loglevel lv, char const* format, va_list ap)
 
     char buf[1024];
     std::vsnprintf(buf, sizeof(buf), format, ap);
-    std::for_each(appenders_.begin(), appenders_.end(), invoke_appender(lv, name_.c_str(), buf));
+
+    const char* chunks[] = { buf, nullptr };
+    char const* const name = name_.c_str();
+    std::for_each(appenders_.begin(), appenders_.end(), [lv, name, &chunks](std::shared_ptr<LogAppender> const& app){ (*app)(lv, name, chunks); });
 }
 
 void Logger::flush()
 {
     ensure_initialized();
-
-    std::for_each(appenders_.begin(), appenders_.end(), boost::bind(&LogAppender::flush, _1));
+    std::for_each(appenders_.begin(), appenders_.end(), [](std::shared_ptr<LogAppender> pla){ pla->flush(); });
 }
 
 inline void Logger::ensure_initialized()
 {
-    if (!manager_)
-    {
-        boost::shared_ptr<LoggerManager> manager(registry_(name_.c_str()));
-        std::vector<boost::shared_ptr<LogAppender> > appenders(manager->appenders());
-        level_ = manager->level();
-        appenders_.swap(appenders);
-        manager->manage(this);
-        manager_ = manager;
-    }
+    if (manager_) return;
+
+    std::shared_ptr<LoggerManager> manager(registry_(name_.c_str()));
+    std::vector<std::shared_ptr<LogAppender> > appenders(manager->appenders());
+    level_ = manager->level();
+    appenders_.swap(appenders);
+    manager->manage(this);
+    manager_ = manager;
+
 }
 
-Logger::Logger(LoggerManagerRegistry const& registry, char const* name) : registry_(registry), name_(name), manager_() {}
+// --------------------------------------------------------------------------------------------------------------------------------
 
 void LoggerManager::level(Logger::loglevel level)
 {
     /* synchronized { */
     level_ = level;
-    std::for_each(managed_loggers_.begin(), managed_loggers_.end(), boost::bind(&Logger::level, _1, level));
+    std::for_each(managed_loggers_.begin(), managed_loggers_.end(), [level](Logger* const log){ log->level(level); });
     /* } */
 }
 
-Logger::loglevel LoggerManager::level() const
-{
-    return level_;
-}
-
-char const* LoggerManager::name() const
-{
-    return name_.c_str();
-}
-
-std::vector<boost::shared_ptr<LogAppender> > const& LoggerManager::appenders() const
+std::vector<std::shared_ptr<LogAppender>> const& LoggerManager::appenders() const
 {
     /* synchronized() { */
     return appenders_;
     /* } */
 }
 
-void LoggerManager::add_appender(boost::shared_ptr<LogAppender> const& appender)
+// --------------------------------------------------------------------------------------------------------------------------------
+
+void LoggerManager::add_appender(std::shared_ptr<LogAppender> const& appender)
 {
     /* synchronized() { */
     appenders_.push_back(appender);
     /* } */
 }
 
-LoggerManager::LoggerManager(char const* name, Logger::loglevel level) : name_(name), level_(level) {}
+//LoggerManager::LoggerManager(char const* name, Logger::loglevel level) : name_(name), level_(level) {}
 
 void LoggerManager::manage(Logger* logger)
 {
@@ -226,3 +174,5 @@ void LoggerManager::manage(Logger* logger)
     managed_loggers_.insert(logger);
     /* }} */
 }
+
+// --------------------------------------------------------------------------------------------------------------------------------

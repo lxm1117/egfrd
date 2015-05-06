@@ -2,7 +2,7 @@
 #include <vector>
 #include <sstream>
 #include <cmath>
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/format.hpp>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_errno.h>
@@ -186,7 +186,7 @@ Real GreensFunction3DRadInf::drawTime(Real rnd) const
     gsl_root_fsolver_set(solver, &F, low, high);
 
     const uint maxIter(100);
-    for (uint i(0);;++i)
+    for (uint i(0);; ++i)
     {
         gsl_root_fsolver_iterate(solver);
 
@@ -276,7 +276,7 @@ Real GreensFunction3DRadInf::drawR(Real rnd, Real t) const
     gsl_root_fsolver_set(solver, &F, low, high);
 
     const uint maxIter(100);
-    for (uint i(0);;++i)
+    for (uint i(0);; ++i)
     {
         gsl_root_fsolver_iterate(solver);
         low = gsl_root_fsolver_x_lower(solver);
@@ -325,7 +325,7 @@ Real GreensFunction3DRadInf::p_corr_table(Real theta, Real r, Real t, RealVector
     RealVector lgndTable(tableSize);
     gsl_sf_legendre_Pl_array(tableSize - 1, cos(theta), &lgndTable[0]);
 
-    const Real p(funcSum_all(boost::bind(&GreensFunction3DRadInf::p_corr_n, this, _1, RnTable, lgndTable), tableSize));
+    const Real p(funcSum_all(std::bind(&GreensFunction3DRadInf::p_corr_n, this, std::placeholders::_1, RnTable, lgndTable), tableSize));
     Real result = -p * sin(theta);
     result /= 4.0 * M_PI * sqrt(r * r0);
     return result;
@@ -344,7 +344,7 @@ Real GreensFunction3DRadInf::ip_corr_table(Real theta, Real r, Real t, RealVecto
     lgndTable[0] = 1.0; // n = -1
     gsl_sf_legendre_Pl_array(tableSize, cos_theta, &lgndTable[1]);
 
-    const Real p(funcSum_all(boost::bind(&GreensFunction3DRadInf::ip_corr_n, this, _1, RnTable, lgndTable), tableSize));
+    const Real p(funcSum_all(std::bind(&GreensFunction3DRadInf::ip_corr_n, this, std::placeholders::_1, RnTable, lgndTable), tableSize));
     const Real result(-p / (4.0 * M_PI * sqrt(r * r0)));
     return result;
 }
@@ -493,7 +493,7 @@ Real GreensFunction3DRadInf::drawTheta(Real rnd, Real r, Real t) const
     gsl_root_fsolver_set(solver, &F, 0.0, M_PI);
 
     const uint maxIter(100);
-    for (uint i(0);;++i)
+    for (uint i(0);; ++i)
     {
         gsl_root_fsolver_iterate(solver);
         const Real low(gsl_root_fsolver_x_lower(solver));

@@ -2,7 +2,9 @@
 #include <exception>
 #include <vector>
 #include <cmath>
-#include <boost/bind.hpp>
+#include <cassert>
+#include <algorithm>
+#include <functional>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_roots.h>
 #include "findRoot.hpp"
@@ -283,7 +285,7 @@ Real GreensFunction1DAbsSinkAbs::p_survival_table(Real t, RealVector& psurvTable
         createPsurvTable(psurvTable);
     }
 
-    Real p = funcSum_all(boost::bind(&GreensFunction1DAbsSinkAbs::p_survival_i, this, _1, t, psurvTable), maxi);
+    Real p = funcSum_all(std::bind(&GreensFunction1DAbsSinkAbs::p_survival_i, this, std::placeholders::_1, t, psurvTable), maxi);
     return p;
 }
 
@@ -372,11 +374,11 @@ Real GreensFunction1DAbsSinkAbs::prob_r(Real r, Real t) const
     /* Determine wether rr lies in the same sub-domain as r0. A different function is calculated when this is the case. */
     if (rr >= 0)
     {
-        p = funcSum(boost::bind(&GreensFunction1DAbsSinkAbs::prob_r_r0_i, this, _1, rr, t), MAX_TERMS);
+        p = funcSum(std::bind(&GreensFunction1DAbsSinkAbs::prob_r_r0_i, this, std::placeholders::_1, rr, t), MAX_TERMS);
     }
     else
     {
-        p = funcSum(boost::bind(&GreensFunction1DAbsSinkAbs::prob_r_nor0_i, this, _1, rr, t), MAX_TERMS);
+        p = funcSum(std::bind(&GreensFunction1DAbsSinkAbs::prob_r_nor0_i, this, std::placeholders::_1, rr, t), MAX_TERMS);
     }
 
     return p;
@@ -421,7 +423,7 @@ Real GreensFunction1DAbsSinkAbs::flux_tot(Real t) const
     if (t == 0 || (D == 0 && r0 != rsink)) return 0.0;
 
     Real p;
-    p = funcSum(boost::bind(&GreensFunction1DAbsSinkAbs::flux_tot_i, this, _1, t), MAX_TERMS);
+    p = funcSum(std::bind(&GreensFunction1DAbsSinkAbs::flux_tot_i, this, std::placeholders::_1, t), MAX_TERMS);
     return D * p;
 }
 
@@ -437,7 +439,7 @@ Real GreensFunction1DAbsSinkAbs::flux_tot_i(uint i, Real const& t) const
 Real GreensFunction1DAbsSinkAbs::flux_abs_Lr(Real t, uint const& maxi) const
 {
     Real p;
-    p = funcSum(boost::bind(&GreensFunction1DAbsSinkAbs::flux_abs_Lr_i, this, _1, t), MAX_TERMS);
+    p = funcSum(std::bind(&GreensFunction1DAbsSinkAbs::flux_abs_Lr_i, this, std::placeholders::_1, t), MAX_TERMS);
     return -D * 2 * p;
 }
 
@@ -457,7 +459,7 @@ Real GreensFunction1DAbsSinkAbs::flux_abs_Ll(Real t, uint const& maxi) const
 {
     const Real D2(gsl_pow_2(D));
     Real p;
-    p = funcSum(boost::bind(&GreensFunction1DAbsSinkAbs::flux_abs_Ll_i, this, _1, t), MAX_TERMS);
+    p = funcSum(std::bind(&GreensFunction1DAbsSinkAbs::flux_abs_Ll_i, this, std::placeholders::_1, t), MAX_TERMS);
     return 2 * D2 * p;
 }
 
@@ -675,7 +677,7 @@ Real GreensFunction1DAbsSinkAbs::p_int_r_table(Real const& r, Real const& t, Rea
     else
         p_int_r_i = &GreensFunction1DAbsSinkAbs::p_int_r_rightdomainB;
 
-    p = funcSum(boost::bind(p_int_r_i, this, _1, rr, t, table), MAX_TERMS);
+    p = funcSum(std::bind(p_int_r_i, this, std::placeholders::_1, rr, t, table), MAX_TERMS);
 
     return 2.0 * p;
 }

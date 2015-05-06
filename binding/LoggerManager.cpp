@@ -33,8 +33,8 @@ namespace binding {
             .add_property("name", &impl_type::name)
             .add_property("appenders", make_function(&impl_type::appenders, return_value_policy<return_by_value>()))
             .def("add_appender", &impl_type::add_appender)
-            .def("register_logger_manager", &impl_type::register_logger_manager)
-            .staticmethod("register_logger_manager")
+            //.def("register_logger_manager", &impl_type::register_logger_manager)
+            //.staticmethod("register_logger_manager")
             .def("get_logger_manager", &impl_type::get_logger_manager)
             .staticmethod("get_logger_manager")
             ;

@@ -2,8 +2,8 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
-#include <boost/bind.hpp>
-#include <boost/tuple/tuple.hpp>
+#include <functional>
+#include <tuple>
 #include <boost/format.hpp>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_math.h>
@@ -67,7 +67,7 @@ void GreensFunction2DRadAbs::clearAlphaTable() const
     const Real estimated_alpha_root_distance(getestimated_alpha_root_distance_());
 
     // Clears all vectors in the alphaTable
-    std::for_each(alphaTable.begin(), alphaTable.end(), boost::mem_fn(&RealVector::clear));
+    std::for_each(alphaTable.begin(), alphaTable.end(), [](RealVector rv){ rv.clear(); });
 
     // Sets all values of the alpha_x_scan_table_ to zero.
     std::fill(alpha_x_scan_table_.begin(), alpha_x_scan_table_.end(), SCAN_START*estimated_alpha_root_distance);
@@ -149,19 +149,15 @@ Real GreensFunction2DRadAbs::f_alpha(const Real alpha, const int n) const
 // Simply a wrapper for f_alpha().
 Real GreensFunction2DRadAbs::f_alpha_aux_F(const Real alpha, const f_alpha_aux_params* const params)
 {
-    // Params contains pointer to gf object (params.gf), which has f_alpha() as 
-    // a member.
+    // Params contains pointer to gf object (params.gf), which has f_alpha() as a member.
     const GreensFunction2DRadAbs* const gf(params->gf);
-    const int n(params->n);
-    return gf->f_alpha(alpha, n);
+    return gf->f_alpha(alpha, params->n);
 }
 
 // calculates the constant part of the i-th term for the survival probability
 Real GreensFunction2DRadAbs::p_survival_i(const Real alpha) const
 {
     // get the needed parameters
-
-
     const Real s_An(sigma*alpha);
     const Real a_An(a*alpha);
     const Real alpha_sq(alpha*alpha);
@@ -252,7 +248,7 @@ void GreensFunction2DRadAbs::createPsurvTable(RealVector& table) const
     table.clear();                              // empty the table
     table.reserve(alphaTable_0.size());       // and get the necessary memory
 
-    std::transform(alphaTable_0.begin(), alphaTable_0.end(), std::back_inserter(table), boost::bind(&GreensFunction2DRadAbs::p_survival_i, this, _1));
+    std::transform(alphaTable_0.begin(), alphaTable_0.end(), std::back_inserter(table), std::bind(&GreensFunction2DRadAbs::p_survival_i, this, std::placeholders::_1));
     // This gets all the roots from 'begin' to 'end'
     // passes them as an argument to p_survival_i and
     // the result is passed to back_inserter
@@ -267,24 +263,24 @@ void GreensFunction2DRadAbs::createY0J0Tables(RealVector& Y0_Table, RealVector& 
     J0_Table.clear();
     Y0J1J0Y1_Table.clear();
 
-    Y0_Table.reserve(alphaTable_0.size());    // and get the nescessary memory
+    Y0_Table.reserve(alphaTable_0.size());    // and get the necessary memory
     J0_Table.reserve(alphaTable_0.size());
     Y0J1J0Y1_Table.reserve(alphaTable_0.size());
 
-    boost::tuple<Real, Real, Real> result;
+    std::tuple<Real, Real, Real> result;
 
     for (uint count = 0; count < alphaTable_0.size(); count++)
     {
         result = Y0J0J1_constants(alphaTable_0[count], t);
 
-        Y0_Table.push_back(result.get<0>());
-        J0_Table.push_back(result.get<1>());
-        Y0J1J0Y1_Table.push_back(result.get<2>());
+        Y0_Table.push_back(std::get<0>(result));
+        J0_Table.push_back(std::get<1>(result));
+        Y0J1J0Y1_Table.push_back(std::get<2>(result));
     }
 }
 
 // Creates the values for in the tables Y0, J0 and Y0J1J0Y1
-boost::tuple<Real, Real, Real> GreensFunction2DRadAbs::Y0J0J1_constants(const Real alpha, const Real t) const
+std::tuple<Real, Real, Real> GreensFunction2DRadAbs::Y0J0J1_constants(const Real alpha, const Real t) const
 {
     const Real s_An(sigma*alpha);
     const Real a_An(a*alpha);
@@ -307,7 +303,7 @@ boost::tuple<Real, Real, Real> GreensFunction2DRadAbs::Y0J0J1_constants(const Re
     // calculate the large constant term in the intergral of Bn,0
     const Real Y0J1_J0Y1(Y0_aAn*sigma*J1_sAn - J0_aAn*sigma*Y1_sAn);
 
-    return boost::make_tuple(Ai0_expT*Y0_aAn, Ai0_expT*J0_aAn, Ai0_expT*Y0J1_J0Y1);
+    return std::make_tuple(Ai0_expT*Y0_aAn, Ai0_expT*J0_aAn, Ai0_expT*Y0J1_J0Y1);
 }
 
 // =============================================================================
@@ -323,10 +319,7 @@ boost::tuple<Real, Real, Real> GreensFunction2DRadAbs::Y0J0J1_constants(const Re
 
 // Scans for next interval where a sign change is observed, and thus where a 
 // root is expected. 
-void GreensFunction2DRadAbs::GiveRootInterval(
-    Real& low,             // Variable to return left boundary interval
-    Real& high,            // Variable to return right boundary interval
-    const int n) const // Order of Bessel functions
+void GreensFunction2DRadAbs::GiveRootInterval(Real& low, Real& high, const int n) const     // Order of Bessel functions
 {
     THROW_UNLESS(std::invalid_argument, static_cast<uint>(n) < alpha_x_scan_table_.size());
 
@@ -467,21 +460,9 @@ Real GreensFunction2DRadAbs::getAlphaRootN(const Real low, const Real high, cons
 
 // Simply calls the correct function to call the rootfinder (either 
 // getAlphaRoot0 or getAlphaRootN).
-Real GreensFunction2DRadAbs::getAlphaRoot(const Real low,   // root lies between low
-    const Real high,  // .. and high 
-    const int n   // nth order Bessel
-    ) const
+Real GreensFunction2DRadAbs::getAlphaRoot(const Real low, const Real high, const int n) const
 {
-    Real alpha;
-
-    if (n == 0) {
-        alpha = getAlphaRoot0(low, high);
-    }
-    else {
-        alpha = getAlphaRootN(low, high, n);
-    }
-
-    return alpha;
+    return n == 0 ? getAlphaRoot0(low, high) : getAlphaRootN(low, high, n);
 }
 
 // Subfunction of getAlpha
@@ -691,7 +672,7 @@ Real GreensFunction2DRadAbs::p_survival_table(const Real t, RealVector& psurvTab
     // A sum over terms is performed, where convergence is assumed. It is not 
     // clear if this is a just assumption.
     // TODO!
-    p = funcSum_all(boost::bind(&GreensFunction2DRadAbs::p_survival_i_exp_table, this, _1, t, psurvTable), maxi);
+    p = funcSum_all(std::bind(&GreensFunction2DRadAbs::p_survival_i_exp_table, this, std::placeholders::_1, t, psurvTable), maxi);
     // calculate the sum at time t
     return p*M_PI*M_PI_2;
 }
@@ -700,7 +681,7 @@ Real GreensFunction2DRadAbs::p_survival_table(const Real t, RealVector& psurvTab
 // FIXME: This is inaccurate for small t's!!
 Real GreensFunction2DRadAbs::leaves(const Real t) const
 {
-    const Real p(funcSum(boost::bind(&GreensFunction2DRadAbs::leaves_i_exp, this, _1, t), MAX_ALPHA_SEQ));
+    const Real p(funcSum(std::bind(&GreensFunction2DRadAbs::leaves_i_exp, this, std::placeholders::_1, t), MAX_ALPHA_SEQ));
     return M_PI_2*M_PI*D*sigma*p; // The minus is not there because the flux is in the negative r
     // direction, and the direction is already accounted for in the derivative of B0,n(r)
     // See also leaves_i
@@ -709,14 +690,14 @@ Real GreensFunction2DRadAbs::leaves(const Real t) const
 // calculates the flux leaving through the outer interface at a given moment
 Real GreensFunction2DRadAbs::leavea(const Real t) const
 {
-    const Real p(funcSum(boost::bind(&GreensFunction2DRadAbs::leavea_i_exp, this, _1, t), MAX_ALPHA_SEQ));
+    const Real p(funcSum(std::bind(&GreensFunction2DRadAbs::leavea_i_exp, this, std::placeholders::_1, t), MAX_ALPHA_SEQ));
     return M_PI*D*p;
 }
 
 // calculates the sum of the sequence for drawR based upon the values in the tables and r
 Real GreensFunction2DRadAbs::p_int_r_table(const Real r, const RealVector& Y0_aAnTable, const RealVector& J0_aAnTable, const RealVector& Y0J1J0Y1Table) const
 {
-    const Real p(funcSum(boost::bind(&GreensFunction2DRadAbs::p_int_r_i_exp_table, this, _1, r, Y0_aAnTable, J0_aAnTable, Y0J1J0Y1Table), Y0_aAnTable.size()));
+    const Real p(funcSum(std::bind(&GreensFunction2DRadAbs::p_int_r_i_exp_table, this, std::placeholders::_1, r, Y0_aAnTable, J0_aAnTable, Y0J1J0Y1Table), Y0_aAnTable.size()));
     return p*M_PI*M_PI_2;
 }
 
@@ -1016,7 +997,7 @@ Real GreensFunction2DRadAbs::p_m_alpha(const uint n, const uint m, const Real r,
 Real GreensFunction2DRadAbs::p_m(const int m, const Real r, const Real t) const
 {
     // The m-th factor is a summation over n
-    return funcSum(boost::bind(&GreensFunction2DRadAbs::p_m_alpha, this, _1, m, r, t), MAX_ALPHA_SEQ, EPSILON);
+    return funcSum(std::bind(&GreensFunction2DRadAbs::p_m_alpha, this, std::placeholders::_1, m, r, t), MAX_ALPHA_SEQ, EPSILON);
 }
 
 // this should make the table of constants used in the iteration for finding the root for drawTheta
@@ -1052,7 +1033,7 @@ void GreensFunction2DRadAbs::makep_mTable(RealVector& p_mTable, const Real r, co
         }
 
         p_m_prev_abs = p_m_abs;                             // store the previous term
-        const Real p_m( this->p_m(m, r, t) / p_0);       // get the next term
+        const Real p_m(this->p_m(m, r, t) / p_0);       // get the next term
 
         if (!std::isfinite(p_m))                        // if the calculated value is not valid->exit
         {
@@ -1103,25 +1084,13 @@ Real GreensFunction2DRadAbs::dp_m_alpha_at_a(const uint n, const uint m, const R
 
     // calculating the result
     const Real result(A_n_m * exp(-D*alpha_sq*t));
-
     return result;
 }
 
 // Makes the sum over n for order m for the constants for the drawtheta Method
 Real GreensFunction2DRadAbs::dp_m_at_a(const int m, const Real t) const
 {
-    const Real p(funcSum(boost::bind(&GreensFunction2DRadAbs::dp_m_alpha_at_a, this, _1, m, t), MAX_ALPHA_SEQ, EPSILON));
-
-    // boost::bind 
-    // explanation by example:
-    // "bind(f, _1, 5)(x)"  is equivalent to "f(x, 5)"
-    // this means funcsum receives f(x, m=.., t=..) as
-    // input, with m and t already determined.
-
-    // Arguments of dp_m_alpha_at_a:
-    // n, m, t
-
-    return p;
+    return  funcSum(std::bind(&GreensFunction2DRadAbs::dp_m_alpha_at_a, this, std::placeholders::_1, m, t), MAX_ALPHA_SEQ, EPSILON);
 }
 
 // creates a tables of constants for drawTheta when the particle is at the edge of the domain
@@ -1135,8 +1104,7 @@ void GreensFunction2DRadAbs::makedp_m_at_aTable(RealVector& p_mTable, const Real
     const Real p_1(dp_m_at_a(1, t) / p_0);
     p_mTable.push_back(p_1);                  // put the first result in the table
 
-    if (p_1 == 0)
-        return; // apparently all the terms are zero? We are finished
+    if (p_1 == 0) return; // apparently all the terms are zero? We are finished
 
     const Real threshold(fabs(EPSILON * p_1)); // get a measure for the allowed error
 
@@ -1194,7 +1162,7 @@ Real GreensFunction2DRadAbs::ip_theta_table(const Real theta, const RealVector& 
     // it is shifted one because the first entry should
     // be used (m=0)
 
-    const Real p(funcSum_all(boost::bind(&GreensFunction2DRadAbs::ip_theta_n, this, _1, theta, p_nTable), maxm));
+    const Real p(funcSum_all(std::bind(&GreensFunction2DRadAbs::ip_theta_n, this, std::placeholders::_1, theta, p_nTable), maxm));
     return p;
 }
 
@@ -1332,7 +1300,7 @@ const uint maxm( p_nTable.size()-1 );	// get the length of the sum
 // it is shifted one because the first entry should
 // be used (m=0)
 
-const Real p( funcSum_all( boost::bind( &GreensFunction2DRadAbs::ip_theta_n, this, _1, theta, p_nTable ), maxm ) );
+const Real p( funcSum_all( std::bind( &GreensFunction2DRadAbs::ip_theta_n, this, std::placeholders::_1, theta, p_nTable ), maxm ) );
 return p;
 }
 */

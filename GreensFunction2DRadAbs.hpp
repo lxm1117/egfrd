@@ -101,7 +101,7 @@ public:
 
     Real leaves_i(const Real alpha) const;
 
-    boost::tuple<Real, Real, Real> Y0J0J1_constants(const Real alpha, const Real t) const;
+    std::tuple<Real, Real, Real> Y0J0J1_constants(const Real alpha, const Real t) const;
 
     Real givePDFTheta(const Real theta, const Real r, const Real t) const;
 

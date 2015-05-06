@@ -2,7 +2,7 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/format.hpp>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_math.h>
@@ -54,7 +54,7 @@ Real GreensFunction3DAbs::p_int_r(Real r, Real t) const
     const uint i_max(std::max(static_cast<uint>(ceil(sqrt(1.0 - asq / M_PI / M_PI * log(TOLERANCE) / Dt))), 2u));
 
     Real p(0.0);
-    for (uint i(1);;++i)
+    for (uint i(1);; ++i)
     {
         const Real isq(i * i);
         const Real term1(exp(exp_factor * isq) * sin(r0_angle_factor * i));
@@ -99,7 +99,7 @@ Real GreensFunction3DAbs::p_n_alpha(uint i, uint n, Real r, Real t) const
     const Real mDt(-D * t);
 
     // j = a alpha -> alpha = j / a
-    const Real aalpha(gsl_sf_bessel_zero_Jnu(n+0.5, i + 1));
+    const Real aalpha(gsl_sf_bessel_zero_Jnu(n + 0.5, i + 1));
     const Real alpha(aalpha / a);
 
     const Real term1(exp(mDt * alpha * alpha));
@@ -118,7 +118,7 @@ Real GreensFunction3DAbs::p_n_alpha(uint i, uint n, Real r, Real t) const
 
 Real GreensFunction3DAbs::p_n(int n, Real r, Real t) const
 {
-    return funcSum(boost::bind(&GreensFunction3DAbs::p_n_alpha, this, _1, n, r, t), MAX_ALPHA_SEQ);
+    return funcSum(std::bind(&GreensFunction3DAbs::p_n_alpha, this, std::placeholders::_1, n, r, t), MAX_ALPHA_SEQ);
 }
 
 void GreensFunction3DAbs::makep_nTable(RealVector& p_nTable, Real r, Real t) const
@@ -166,7 +166,7 @@ Real GreensFunction3DAbs::p_theta_table(Real theta, Real r, Real t, RealVector c
     const uint tableSize(p_nTable.size());
     RealVector lgndTable(tableSize);
     gsl_sf_legendre_Pl_array(tableSize - 1, cos(theta), &lgndTable[0]);
-    return funcSum_all(boost::bind(&p_theta_i, _1, p_nTable, lgndTable), tableSize) * sin(theta);
+    return funcSum_all(std::bind(&p_theta_i, std::placeholders::_1, p_nTable, lgndTable), tableSize) * sin(theta);
 }
 
 Real GreensFunction3DAbs::p_theta(Real theta, Real r, Real t) const
@@ -252,7 +252,7 @@ Real GreensFunction3DAbs::ip_theta_table(Real theta, Real r, Real t, RealVector 
     RealVector lgndTable1(tableSize + 2);
     lgndTable1[0] = 1.0;  // n = -1
     gsl_sf_legendre_Pl_array(tableSize, cos_theta, &lgndTable1[1]);
-    return funcSum_all(boost::bind(&ip_theta_i, _1, p_nTable, lgndTable1), tableSize);
+    return funcSum_all(std::bind(&ip_theta_i, std::placeholders::_1, p_nTable, lgndTable1), tableSize);
 }
 
 struct GreensFunction3DAbs::ip_theta_params
@@ -274,7 +274,7 @@ Real GreensFunction3DAbs::dp_n_alpha(uint i, uint n, Real t) const
 {
     const Real mDt(-D * t);
 
-    const Real aalpha(gsl_sf_bessel_zero_Jnu(n+0.5, i + 1));
+    const Real aalpha(gsl_sf_bessel_zero_Jnu(n + 0.5, i + 1));
     const Real alpha(aalpha / a);
     const Real term1(exp(mDt * alpha * alpha) * alpha);
 
@@ -287,7 +287,7 @@ Real GreensFunction3DAbs::dp_n_alpha(uint i, uint n, Real t) const
 
 Real GreensFunction3DAbs::dp_n(int n, Real t) const
 {
-    return funcSum(boost::bind(&GreensFunction3DAbs::dp_n_alpha, this, _1, n, t), MAX_ALPHA_SEQ);
+    return funcSum(std::bind(&GreensFunction3DAbs::dp_n_alpha, this, std::placeholders::_1, n, t), MAX_ALPHA_SEQ);
 }
 
 void GreensFunction3DAbs::makedp_nTable(RealVector& p_nTable, Real t) const
@@ -499,7 +499,7 @@ Real GreensFunction3DAbs::drawR(Real rnd, Real t) const
     gsl_root_fsolver_set(solver, &F, low, high);
 
     const uint maxIter(100);
-    for (uint i(0);;++i)
+    for (uint i(0);; ++i)
     {
         gsl_root_fsolver_iterate(solver);
         low = gsl_root_fsolver_x_lower(solver);
@@ -562,7 +562,7 @@ Real GreensFunction3DAbs::drawTheta(Real rnd, Real r, Real t) const
     gsl_root_fsolver_set(solver, &F, 0.0, M_PI);
 
     const uint maxIter(100);
-    for (uint i(0);;++i)
+    for (uint i(0);; ++i)
     {
         gsl_root_fsolver_iterate(solver);
         const Real low(gsl_root_fsolver_x_lower(solver));

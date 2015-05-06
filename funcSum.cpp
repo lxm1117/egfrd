@@ -4,53 +4,24 @@
 #include "Logger.hpp"
 #include "funcSum.hpp"
 
+// --------------------------------------------------------------------------------------------------------------------------------
+
 static Logger& _log(Logger::get_logger("funcSum"));
 
-Real funcSum_all(boost::function<Real(uint i)> f, size_t max_i)
+// --------------------------------------------------------------------------------------------------------------------------------
+
+Real funcSum_all(std::function<Real(uint i)> f, size_t max_i)
 {
     const Real p_0(f(0));
     if (p_0 == 0.0) return 0.0;
+
     Real sum = p_0;
-
-    RealVector::size_type i(1);
-    while (i < max_i)
-    {
-        const Real p_i(f(i));
-        sum += p_i;
-        ++i;
-    }
+    for (uint i(1); i < max_i; ++i)
+        sum += f(i);
     return sum;
 }
 
-Real funcSum_all_accel(boost::function<Real(uint i)> f, size_t max_i, Real tolerance)
-{
-    RealVector pTable;
-    pTable.reserve(max_i);
-
-    const Real p_0(f(0));
-    if (p_0 == 0.0) return 0.0;
-    pTable.push_back(p_0);
-
-    RealVector::size_type i(1);
-    for (; i < max_i; ++i)
-    {
-        const Real p_i(f(i));
-        pTable.push_back(p_i);
-    }
-
-    Real sum;
-    Real error;
-    gsl_sum_levin_utrunc_workspace* workspace(gsl_sum_levin_utrunc_alloc(i));
-    gsl_sum_levin_utrunc_accel(&pTable[0], pTable.size(), workspace, &sum, &error);
-    if (fabs(error) >= fabs(sum * tolerance))
-    {
-        _log.error("series acceleration error: %.16g (rel error: %.16g), terms_used = %d (%d given)", fabs(error), fabs(error / sum), workspace->terms_used, pTable.size());
-        // TODO look into this crashing behavior
-    }
-
-    gsl_sum_levin_utrunc_free(workspace);
-    return sum;
-}
+// --------------------------------------------------------------------------------------------------------------------------------
 
 // Will simply calculate the sum over a certain function f, until it converges
 // (i.e. the sum > tolerance*current_term for a CONVERGENCE_CHECK number of 
@@ -60,23 +31,24 @@ Real funcSum_all_accel(boost::function<Real(uint i)> f, size_t max_i, Real toler
 // - f: A       function object
 // - max_i:     maximum number of terms it will evaluate
 // - tolerance: convergence condition, default value 1-e8 (see .hpp)
-Real funcSum(boost::function<Real(uint i)> f, size_t max_i, Real tolerance)
+Real funcSum(std::function<Real(uint i)> f, size_t max_i, Real tolerance)
 {
     const uint CONVERGENCE_CHECK(4);
     const Real p_0(f(0));
     if (p_0 == 0.0) return 0.0;
 
-    RealVector pTable;
-    pTable.push_back(p_0);
-    Real sum = p_0;
+    RealVector table;
+    table.push_back(p_0);
 
+    Real sum = p_0;
     bool extrapolationNeeded(true);
     uint convergenceCounter(0);
+
     uint i(1);
-    while (i < max_i)
+    for (; i < max_i;)
     {
         const Real p_i(f(i));
-        pTable.push_back(p_i);
+        table.push_back(p_i);
         sum += p_i;
         ++i;
 
@@ -96,11 +68,13 @@ Real funcSum(boost::function<Real(uint i)> f, size_t max_i, Real tolerance)
     {
         Real error;
         gsl_sum_levin_utrunc_workspace* workspace(gsl_sum_levin_utrunc_alloc(i));
-        gsl_sum_levin_utrunc_accel(&pTable[0], pTable.size(), workspace, &sum, &error);
+        gsl_sum_levin_utrunc_accel(&table[0], table.size(), workspace, &sum, &error);
         if (fabs(error) >= fabs(sum * tolerance * 10))
-            _log.error("series acceleration error: %.16g (rel error: %.16g), terms_used = %d (%d given)", fabs(error), fabs(error / sum), workspace->terms_used, pTable.size());
-
+            _log.error("series acceleration error: %.16g (rel error: %.16g), terms_used = %d (%d given)", fabs(error), fabs(error / sum), workspace->terms_used, table.size());
         gsl_sum_levin_utrunc_free(workspace);
     }
     return sum;
 }
+
+// --------------------------------------------------------------------------------------------------------------------------------
+

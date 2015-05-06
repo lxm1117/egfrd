@@ -2,7 +2,8 @@
 #include <exception>
 #include <vector>
 #include <cmath>
-#include <boost/bind.hpp>
+#include <functional>
+#include <algorithm>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_roots.h>
 #include "findRoot.hpp"
@@ -54,8 +55,8 @@ Real GreensFunction1DAbsAbs::p_survival_table(Real t, RealVector& psurvTable) co
     const Real L(a - sigma);
 
     if (fabs(r0 - sigma) < L*EPSILON || fabs(a - r0) < L*EPSILON || L < 0.0)
-        return 0.0; 
-    
+        return 0.0;
+
     if (t == 0.0 || (D == 0.0 && v == 0.0))
         return 1.0;     //particle can't escape.
 
@@ -81,7 +82,7 @@ Real GreensFunction1DAbsAbs::p_survival_table(Real t, RealVector& psurvTable) co
     if (psurvTable.size() < maxi)
         createPsurvTable(maxi, psurvTable);
 
-    Real p = funcSum_all(boost::bind(&GreensFunction1DAbsAbs::p_survival_i, this, _1, t, psurvTable), maxi);
+    Real p = funcSum_all(std::bind(&GreensFunction1DAbsAbs::p_survival_i, this, std::placeholders::_1, t, psurvTable), maxi);
     if (v == 0.0)
         p *= 2.0;
     else
@@ -306,7 +307,7 @@ Real GreensFunction1DAbsAbs::drawTime(Real rnd) const
     else
     {
         // When drifting towards the closest boundary...
-        if ((r0 - sigma >= L / 2.0 && v > 0.0) || (r0 - sigma <= L / 2.0 && v < 0.0)) 
+        if ((r0 - sigma >= L / 2.0 && v > 0.0) || (r0 - sigma <= L / 2.0 && v < 0.0))
             t_guess = sqrt(D*D / (v*v*v*v) + dist*dist / (v*v)) - D / (v*v);
 
         // When drifting away from the closest boundary...
@@ -326,7 +327,7 @@ Real GreensFunction1DAbsAbs::drawTime(Real rnd) const
         {
             if (fabs(high) >= t_guess * 1e6)
             {
-                log_.error("drawTime: couldn't adjust high. F( %.16g ) = %.16g" , high, value);
+                log_.error("drawTime: couldn't adjust high. F( %.16g ) = %.16g", high, value);
                 throw std::exception();
             }
             // keep increasing the upper boundary until the 
@@ -399,7 +400,7 @@ Real GreensFunction1DAbsAbs::p_int_r_table(Real const& r, Real const& t, RealVec
     if (maxi >= MAX_TERMS)
         log_.warn("p_int_r_table: maxi was cut to MAX_TERMS for t = %.16g", t);
 
-    Real p = funcSum(boost::bind(&GreensFunction1DAbsAbs::p_int_r_i, this, _1, r, t, table), MAX_TERMS);
+    Real p = funcSum(std::bind(&GreensFunction1DAbsAbs::p_int_r_i, this, std::placeholders::_1, r, t, table), MAX_TERMS);
     return prefac * p;
 }
 

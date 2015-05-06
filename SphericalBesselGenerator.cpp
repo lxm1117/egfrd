@@ -1,6 +1,7 @@
 #include <cassert>
 #include "SphericalBesselTable.hpp"
 #include "SphericalBesselGenerator.hpp"
+#include <gsl/gsl_sf_bessel.h>
 
 static inline double hermite_interp(double x, double x0, double dx, double const* y_array)
 {
