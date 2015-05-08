@@ -29,12 +29,12 @@
 #include "utils/range.hpp"
 #include "utils/reset.hpp"
 
+
 template<typename Tgen_>
 bool valid(Tgen_ const& t)
 {
     return true;
 }
-
 
 template<typename Tgen_>
 std::size_t count(Tgen_ const& t)
@@ -47,8 +47,7 @@ bool drop_while(Tgen_& gen, Tpred_& pred)
 {
     do
     {
-        if (!valid(gen))
-            return false;
+        if (!valid(gen)) return false;
     } while (pred(gen()));
     return true;
 }
@@ -58,8 +57,7 @@ bool drop_until(Tgen_& gen, Tpred_& pred)
 {
     do
     {
-        if (!valid(gen))
-            return false;
+        if (!valid(gen)) return false;
     } while (!pred(gen()));
     return true;
 }
@@ -70,8 +68,7 @@ bool cue(Tgen_& gen,
 {
     do
     {
-        if (!valid(gen))
-            return false;
+        if (!valid(gen)) return false;
     } while (val != gen());
 
     return true;
@@ -87,9 +84,8 @@ struct abstract_generator
     virtual Tretval_ operator()() = 0;
 };
 
-
 template<typename Tretval_>
-struct abstract_limited_generator: public abstract_generator<Tretval_>
+struct abstract_limited_generator : public abstract_generator < Tretval_ >
 {
     virtual ~abstract_limited_generator() {}
 
@@ -100,7 +96,7 @@ struct abstract_limited_generator: public abstract_generator<Tretval_>
 
     virtual bool valid() const = 0;
 
-    virtual Tretval_ operator()() = 0;
+    virtual Tretval_ operator()() override = 0;
 };
 
 
@@ -125,12 +121,12 @@ public:
     typedef typename generator_type::result_type result_type;
 
 public:
-    ptr_generator(Tpointer_ const& impl): impl_(impl)
+    ptr_generator(Tpointer_ const& impl) : impl_(impl)
     {
         BOOST_ASSERT(&*impl_);
     }
 
-    explicit ptr_generator(Tpointer_& impl): impl_(impl)
+    explicit ptr_generator(Tpointer_& impl) : impl_(impl)
     {
         BOOST_ASSERT(&*impl_);
     }
@@ -183,17 +179,11 @@ std::size_t count(ptr_generator<Tgen, Tpointer> const& gen)
     return gen.count();
 }
 
-
 template<typename Trange_,
-         typename Titer_ = typename boost::range_iterator<Trange_>::type,
-         typename Tresult_ = typename boost::iterator_reference<Titer_>::type,
-         bool Bra_ =
-            boost::is_convertible<
-                typename boost::iterator_category_to_traversal<
-                    typename boost::BOOST_ITERATOR_CATEGORY<Titer_>::type
-                    >::type,
-                boost::random_access_traversal_tag>::value>
-class range_generator: public abstract_limited_generator<Tresult_>
+    typename Titer_ = typename boost::range_iterator<Trange_>::type,
+    typename Tresult_ = typename boost::iterator_reference<Titer_>::type,
+    bool Bra_ = boost::is_convertible<typename boost::iterator_category_to_traversal<typename boost::BOOST_ITERATOR_CATEGORY<Titer_>::type>::type,boost::random_access_traversal_tag>::value>
+class range_generator : public abstract_limited_generator < Tresult_ >
 {
     template<typename Trange, typename Titer, typename Tresult, bool Bra>
     friend bool valid(range_generator<Trange, Titer, Tresult, Bra> const& gen);
@@ -206,32 +196,26 @@ public:
 
 public:
     template<typename Tanother_range_>
-    range_generator(Tanother_range_ const& range)
-        : i_(boost::begin(range)), end_(boost::end(range)),
-          count_(::size(range)) {}
+    range_generator(Tanother_range_ const& range) : i_(boost::begin(range)), end_(boost::end(range)), count_(::size(range)) {}
 
-    template<typename Tanother_range_>
-    range_generator(Tanother_range_& range)
-        : i_(boost::begin(range)), end_(boost::end(range)),
-          count_(::size(range)) {}
+    template<typename Tanother_range_> range_generator(Tanother_range_& range) : i_(boost::begin(range)), end_(boost::end(range)), count_(::size(range)) {}
 
-    range_generator(range_iterator const& begin, range_iterator const& end)
-        : i_(begin), end_(end), count_(::size(std::make_pair(begin, end))) {}
-
+    range_generator(range_iterator const& begin, range_iterator const& end) : i_(begin), end_(end), count_(::size(std::make_pair(begin, end))) {} 
+    
     virtual ~range_generator() {}
 
-    virtual result_type operator()()
+    virtual result_type operator()() override
     {
         --count_;
         return *i_++;
     }
 
-    virtual std::size_t count() const
+    virtual std::size_t count() const override
     {
         return count_;
     }
 
-    virtual bool valid() const
+    virtual bool valid() const override
     {
         return i_ != end_;
     }
@@ -242,8 +226,7 @@ private:
 };
 
 template<typename Trange_, typename Titer_, typename Tresult_>
-class range_generator<Trange_, Titer_, Tresult_, false>
-    : public abstract_limited_generator<Tresult_>
+class range_generator<Trange_, Titer_, Tresult_, false> : public abstract_limited_generator < Tresult_ >
 {
     template<typename Trange, typename Titer, typename Tresult, bool Bra>
     friend bool valid(range_generator<Trange, Titer, Tresult, Bra> const& gen);
@@ -256,33 +239,24 @@ public:
 
 public:
     template<typename Tanother_range_>
-    range_generator(Tanother_range_ const& range)
-        : i_(boost::begin(range)), end_(boost::end(range)) {}
+    range_generator(Tanother_range_ const& range) : i_(boost::begin(range)), end_(boost::end(range)) {}
+
+    template<typename Tanother_range_> 
+    range_generator(Tanother_range_& range) : i_(boost::begin(range)), end_(boost::end(range)) {}
+
+    range_generator(range_iterator const& begin, range_iterator const& end) : i_(begin), end_(end) {}
+
+    template<typename Tanother_range_> 
+    range_generator(Tanother_range_ const& range, std::size_t count) : i_(boost::begin(range)), end_(boost::end(range)), count_(count) {}
 
     template<typename Tanother_range_>
-    range_generator(Tanother_range_& range)
-        : i_(boost::begin(range)), end_(boost::end(range)) {}
+    range_generator(Tanother_range_& range, std::size_t count) : i_(boost::begin(range)), end_(boost::end(range)), count_(count) {}
 
-    range_generator(range_iterator const& begin, range_iterator const& end)
-        : i_(begin), end_(end) {}
-
-    template<typename Tanother_range_>
-    range_generator(Tanother_range_ const& range, std::size_t count)
-        : i_(boost::begin(range)), end_(boost::end(range)),
-          count_(count) {}
-
-    template<typename Tanother_range_>
-    range_generator(Tanother_range_& range, std::size_t count)
-        : i_(boost::begin(range)), end_(boost::end(range)),
-          count_(count) {}
-
-    range_generator(range_iterator const& begin, range_iterator const& end,
-                    std::size_t count)
-        : i_(begin), end_(end), count_(count) {}
+    range_generator(range_iterator const& begin, range_iterator const& end, std::size_t count) : i_(begin), end_(end), count_(count) {}
 
     virtual ~range_generator() {}
 
-    virtual result_type operator()()
+    virtual result_type operator()() override
     {
         if (count_.is_initialized())
         {
@@ -291,7 +265,7 @@ public:
         return *i_++;
     }
 
-    virtual std::size_t count() const
+    virtual std::size_t count() const override
     {
         if (count_.is_initialized())
         {
@@ -300,7 +274,7 @@ public:
         throw std::runtime_error("count not given through the constructor");
     }
 
-    virtual bool valid() const
+    virtual bool valid() const override
     {
         return i_ != end_;
     }
@@ -311,35 +285,31 @@ private:
 };
 
 template<bool, typename T_>
-inline abstract_limited_generator<typename boost::iterator_reference<typename boost::range_iterator<T_>::type>::type >*
-make_range_generator(T_& range)
+inline abstract_limited_generator<typename boost::iterator_reference<typename boost::range_iterator<T_>::type>::type >* make_range_generator(T_& range)
 {
     return new range_generator<T_, typename boost::range_iterator<T_>::type, typename boost::iterator_reference<typename boost::range_iterator<T_>::type>::type>(range);
 }
 
 template<typename Tresult_, typename T_>
-inline abstract_limited_generator<Tresult_>*
-make_range_generator(T_& range)
+inline abstract_limited_generator<Tresult_>* make_range_generator(T_& range)
 {
     return new range_generator<T_, typename boost::range_iterator<T_>::type, Tresult_>(range);
 }
 
 template<bool, typename T_>
-inline abstract_limited_generator<typename boost::iterator_reference<typename boost::range_const_iterator<T_>::type>::type >*
-make_range_generator(T_ const& range)
+inline abstract_limited_generator<typename boost::iterator_reference<typename boost::range_const_iterator<T_>::type>::type >* make_range_generator(T_ const& range)
 {
     return new range_generator<T_, typename boost::range_const_iterator<T_>::type, typename boost::iterator_reference<typename boost::range_const_iterator<T_>::type>::type>(range);
 }
 
 template<typename Tresult_, typename T_>
-inline abstract_limited_generator<Tresult_>*
-make_range_generator(T_ const& range)
+inline abstract_limited_generator<Tresult_>* make_range_generator(T_ const& range)
 {
     return new range_generator<T_, typename boost::range_const_iterator<T_>::type, Tresult_>(range);
 }
 
 template<typename Tgen_, typename Tfun_, typename Tpointer_ = Tgen_*>
-struct transform_generator: public abstract_limited_generator<typename Tfun_::result_type>
+struct transform_generator : public abstract_limited_generator < typename Tfun_::result_type >
 {
     typedef Tgen_ generator_type;
     typedef Tpointer_ pointer_type;
@@ -348,17 +318,17 @@ struct transform_generator: public abstract_limited_generator<typename Tfun_::re
 
     virtual ~transform_generator() {}
 
-    virtual std::size_t count() const
+    virtual std::size_t count() const override
     {
         return ::count(*gen_);
     }
 
-    virtual bool valid() const
+    virtual bool valid() const override
     {
         return ::valid(*gen_);
     }
 
-    virtual result_type operator()()
+    virtual result_type operator()() override
     {
         return fun_((*gen_)());
     }
@@ -367,15 +337,14 @@ struct transform_generator: public abstract_limited_generator<typename Tfun_::re
     {
         return fun_;
     }
- 
+
     transformer_type& functor()
     {
         return fun_;
     }
 
-    transform_generator(Tgen_* gen,
-                        typename boost::call_traits<Tfun_>::param_type fun)
-        : gen_(gen), fun_(fun) {}
+    transform_generator(Tgen_* gen, typename boost::call_traits<Tfun_>::param_type fun)
+        : fun_(fun), gen_(gen) {}
 
 public:
     Tfun_ fun_;
@@ -383,16 +352,12 @@ public:
 };
 
 template<typename Tgen_, typename Tfun_>
-inline transform_generator<Tgen_, Tfun_, boost::shared_ptr<Tgen_> >
-make_transform_generator(Tgen_* gen, Tfun_ const& fun)
+inline transform_generator<Tgen_, Tfun_, boost::shared_ptr<Tgen_> > make_transform_generator(Tgen_* gen, Tfun_ const& fun)
 {
     return transform_generator<Tgen_, Tfun_, boost::shared_ptr<Tgen_> >(gen, fun);
 }
 
-template<typename Tgen1_, typename Tgen2_,
-         bool Bvalid_ = boost::is_same<
-            typename Tgen1_::result_type,
-            typename Tgen2_::result_type>::value >
+template<typename Tgen1_, typename Tgen2_,bool Bvalid_ = boost::is_same< typename Tgen1_::result_type, typename Tgen2_::result_type>::value >
 struct chained_generator
 {
     struct two_generators_return_different_types;
@@ -400,8 +365,7 @@ struct chained_generator
 };
 
 template<typename Tgen1_, typename Tgen2_>
-struct chained_generator<Tgen1_, Tgen2_, true>
-    : abstract_limited_generator<typename Tgen1_::result_type>
+struct chained_generator<Tgen1_, Tgen2_, true> : abstract_limited_generator < typename Tgen1_::result_type >
 {
     typedef Tgen1_ first_generator_type;
     typedef Tgen2_ second_generator_type;
@@ -409,23 +373,21 @@ struct chained_generator<Tgen1_, Tgen2_, true>
 
     virtual ~chained_generator() {}
 
-    chained_generator(Tgen1_& gen1, Tgen2_& gen2)
-        : gen1_(gen1), gen2_(gen2) {}
+    chained_generator(Tgen1_& gen1, Tgen2_& gen2) : gen1_(gen1), gen2_(gen2) {}
 
-    virtual std::size_t count() const
+    virtual std::size_t count() const override
     {
         return ::count(gen1_) + ::count(gen2_);
     }
 
-    virtual bool valid() const
+    virtual bool valid() const override
     {
         return ::valid(gen1_) || ::valid(gen2_);
     }
 
-    virtual result_type operator()()
+    virtual result_type operator()() override
     {
-        if (::valid(gen1_))
-            return gen1_();
+        if (::valid(gen1_)) return gen1_();
         return gen2_();
     }
 
@@ -441,18 +403,10 @@ bool valid(chained_generator<Tgen1, Tgen2, true> const& gen)
 }
 
 template<typename Tgen_, typename Tpointer_ = Tgen_*>
-class generator_iterator:
-    public boost::iterator_facade<
-        generator_iterator<Tgen_, Tpointer_>,
-        typename boost::remove_reference<typename Tgen_::result_type>::type,
-        boost::single_pass_traversal_tag,
-        typename Tgen_::result_type>
+class generator_iterator : public boost::iterator_facade < generator_iterator<Tgen_, Tpointer_>, 
+        typename boost::remove_reference<typename Tgen_::result_type>::type, boost::single_pass_traversal_tag, typename Tgen_::result_type >
 {
-    typedef boost::iterator_facade<
-        generator_iterator<Tgen_, Tpointer_>,
-        typename boost::remove_reference<typename Tgen_::result_type>::type,
-        boost::single_pass_traversal_tag,
-        typename Tgen_::result_type> base_type;
+    typedef boost::iterator_facade < generator_iterator<Tgen_, Tpointer_>, typename boost::remove_reference<typename Tgen_::result_type>::type, boost::single_pass_traversal_tag, typename Tgen_::result_type > base_type;
 
 public:
     typedef Tgen_ generator_type;
@@ -460,11 +414,9 @@ public:
     typedef typename generator_type::result_type reference;
 
 public:
-    generator_iterator(): gen_(), advanced_(false) {}
+    generator_iterator() : gen_(), advanced_(false) {}
 
-    generator_iterator(Tpointer_ const& gen)
-        : gen_(valid(*gen) ? gen: Tpointer_()),
-          advanced_(false) {}
+    generator_iterator(Tpointer_ const& gen) : gen_(valid(*gen) ? gen : Tpointer_()), advanced_(false) {}
 
     void fetch()
     {
@@ -502,9 +454,9 @@ public:
     }
 
     typename base_type::difference_type distance_to(
-            generator_iterator const& rhs) const
+        generator_iterator const& rhs) const
     {
-        return (gen_ ? ::count(*gen_): 0) - (rhs.gen_ ? ::count(*rhs.gen_): 0);
+        return (gen_ ? ::count(*gen_) : 0) - (rhs.gen_ ? ::count(*rhs.gen_) : 0);
     }
 
 protected:
@@ -545,8 +497,7 @@ private:
 };
 
 template<typename Tgen, typename Tpointer>
-inline generator_range<Tgen, Tpointer>
-make_generator_range(Tpointer const& gen)
+inline generator_range<Tgen, Tpointer> make_generator_range(Tpointer const& gen)
 {
     return generator_range<Tgen, Tpointer>(gen);
 }

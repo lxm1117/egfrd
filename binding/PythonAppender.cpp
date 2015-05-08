@@ -1,6 +1,4 @@
 #include <map>
-#include <cstdio>
-#include <boost/foreach.hpp>
 #include "PythonAppender.hpp"
 #include "../Logger.hpp"
 
@@ -31,7 +29,7 @@ namespace binding {
     public:
         virtual ~PythonAppender() {}
 
-        virtual void operator()(Logger::loglevel lv, char const* name, char const** chunks)
+        virtual void operator()(Logger::loglevel lv, char const* name, char const** chunks) override
         {
             std::string msg;
             for (char const** p = chunks; *p; ++p)
@@ -39,7 +37,7 @@ namespace binding {
             handle_(makeRecord_(name, lv, "", 0, msg.c_str(), nullptr, nullptr, nullptr));
         }
 
-        virtual void flush()
+        virtual void flush() override
         {
             flush_();
         }
@@ -103,7 +101,7 @@ namespace binding {
                 }
                 return reinterpret_cast<PyObject*>(retval);
             }
-            catch (boost::python::error_already_set const&) { }
+            catch (boost::python::error_already_set const&) {}
             return nullptr;
         }
 
@@ -215,7 +213,7 @@ namespace binding {
             {
                 return boost::python::incref(boost::python::object(translate_level(arg)).ptr());
             }
-            catch (boost::python::error_already_set const&) { }
+            catch (boost::python::error_already_set const&) {}
             return nullptr;
         }
 
@@ -234,7 +232,7 @@ namespace binding {
             return boost::python::incref(self->__dict__.get());
         }
 
-        CppLoggerHandler(Logger& impl) : __weakreflist__(0), __dict__(PyDict_New()), impl_(impl) {}
+        CppLoggerHandler(Logger& impl) : __weakreflist__(nullptr), __dict__(PyDict_New()), impl_(impl) {}
 
     protected:
         static Logger::loglevel translate_level(PyObject* _level)
@@ -243,7 +241,7 @@ namespace binding {
             boost::python::object level(boost::python::borrowed(_level));
             boost::python::object closest;
 
-            BOOST_FOREACH(loglevel_map_type::value_type const& i, loglevel_map)
+            for (auto const& i : loglevel_map)
             {
                 if (i.second <= level && closest < i.second)
                 {

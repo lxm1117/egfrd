@@ -67,17 +67,7 @@ public:
     {
         try
         {
-#if PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION >= 5
             return PyInt_FromSize_t(count(self->impl_));
-#else
-            std::size_t i(count(self->impl_));
-            if (i >= static_cast<std::size_t>(LONG_MIN) &&
-                    i <= static_cast<std::size_t>(LONG_MAX))
-            {
-                return PyInt_FromLong((long)i);
-            }
-            return PyLong_FromUnsignedLongLong(i);
-#endif
         }
         catch (std::exception const&) {}
 

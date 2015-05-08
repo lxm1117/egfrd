@@ -8,8 +8,7 @@ BasicNetworkRulesImpl::~BasicNetworkRulesImpl()
 {
 }
 
-BasicNetworkRulesImpl::BasicNetworkRulesImpl()
-    : serial_(0)
+BasicNetworkRulesImpl::BasicNetworkRulesImpl() : serial_(0)
 {
 }
 

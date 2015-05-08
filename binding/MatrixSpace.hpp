@@ -102,12 +102,7 @@ namespace binding {
                     py::object(py::detail::new_reference(reinterpret_cast<PyObject*>(PyArray_DescrFromType(peer::util::get_numpy_typecode<typename result_element::second_type>::value)))),
                     offsetof(result_element, second));
                 result_type_descr_ = PyArray_DescrNewFromType(PyArray_VOID);
-
-#ifdef PYARRAY_DESCR_HAS_HASOBJECT
-                result_type_descr_->hasobject = NPY_ITEM_HASOBJECT; 
-#else
                 result_type_descr_->flags |= NPY_ITEM_HASOBJECT;
-#endif
                 result_type_descr_->fields = py::incref(fields.ptr());
                 result_type_descr_->names = py::incref(py::make_tuple(_pair, _distance).ptr());
                 result_type_descr_->elsize = sizeof(result_element);
