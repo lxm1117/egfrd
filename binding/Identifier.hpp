@@ -20,7 +20,14 @@ namespace binding
                 .def(self_ns::repr(self))
                 .def(self_ns::str(self))
                 .def("__hash__", &Timpl_::serial)
-                .def(self == self)
+                .def(self == self)          // !!! absolute required, silent fail of omitted !!!
+                .def(self > self)           // !!! absolute required, silent fail of omitted !!!
+
+                .def(self != self)          // this and other operator not required for sample/simple (maybe for more complex simulations?)
+                .def(self < self)
+                .def(self >= self)
+                .def(self <= self)
+                .def(self <= self)
                 ;
         }
     };

@@ -31,7 +31,7 @@ def constants():
     NC_max = 50 #Minimal number of C particles
     rnd_seed = 42 # seed for randomizer
     Nstep = int(1e8) # Number of steps simulation will last
-    tsim = 100 # Simulated time
+    tsim = 0.01 # Simulated time (seconds)
         
     
 # Define the model (m) with three particle species (A,B,C) and two reaction rules (r1,r2).

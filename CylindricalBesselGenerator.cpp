@@ -1,4 +1,5 @@
 #include <cassert>
+#include <gsl/gsl_sf_bessel.h>
 #include "CylindricalBesselTable.hpp"
 #include "CylindricalBesselGenerator.hpp"
 
