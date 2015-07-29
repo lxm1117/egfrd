@@ -26,12 +26,12 @@ public:
 
 public:
     // Constructor
-    ParticleModel();
+    GFRD_CLASS ParticleModel();
 
-    virtual ~ParticleModel();
+    GFRD_CLASS virtual ~ParticleModel();
 
     // Gets a structure type
-    boost::shared_ptr<structure_type_type> get_structure_type_by_id(structure_type_id_type const& id) const;
+    GFRD_CLASS boost::shared_ptr<structure_type_type> get_structure_type_by_id(structure_type_id_type const& id) const;
 
     // Add a structure type
     void add_structure_type(boost::shared_ptr<structure_type_type> const& structure_type);
@@ -40,7 +40,7 @@ public:
     structure_types_range get_structure_types() const;
 
     // Gets and sets the default structure_type
-    structure_type_id_type get_def_structure_type_id() const;
+    GFRD_CLASS structure_type_id_type get_def_structure_type_id() const;
 
 /////// Member variables
 public:

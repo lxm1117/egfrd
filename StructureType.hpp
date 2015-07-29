@@ -12,6 +12,7 @@
 
 #include "exceptions.hpp"
 #include "SpeciesTypeID.hpp"
+#include "Defs.hpp"
 
 class ParticleModel;
 
@@ -34,7 +35,7 @@ public:
     StructureType(): model_(0) {}
  
     // Get the id
-    identifier_type const& id() const;
+    GFRD_CLASS identifier_type const& id() const;
 
     // Get the id of the structure type the structure_type lives on/in
     structure_type_id_type const& structure_type_id() const;

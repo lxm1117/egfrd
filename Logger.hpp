@@ -6,6 +6,9 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <algorithm>
+
+#include "Defs.hpp"
 
 // --------------------------------------------------------------------------------------------------------------------------------
 
@@ -28,13 +31,13 @@ public:
         L_FATAL = 5
     };
 
-    void level(loglevel level);
+    void level(loglevel level) { ensure_initialized(); level_ = level; }
 
-    loglevel level() const;
+    loglevel level() const { const_cast<Logger*>(this)->ensure_initialized(); return level_; }
 
     char const* name() const { return name_.c_str(); }
 
-    std::shared_ptr<LoggerManager> manager() const;
+    std::shared_ptr<LoggerManager> manager() const { const_cast<Logger*>(this)->ensure_initialized(); return manager_; };
 
     void debug(char const* format, ...)
     {
@@ -84,20 +87,20 @@ public:
         va_end(ap);
     }
 
-    void logv(loglevel lv, char const* format, va_list ap);
+    GF_CLASS void logv(loglevel lv, char const* format, va_list ap);
 
-    void flush();
+    GF_CLASS void flush();
 
     Logger() = delete;
     Logger(const Logger&) = delete;
     Logger(LoggerManagerRegistry const& registry, char const* name) : registry_(registry), name_(name), manager_() {}
 
-    static Logger& get_logger(char const* name);
+    GF_CLASS static Logger& get_logger(char const* name);
 
-    static char const* stringize_error_level(loglevel lv);
+    GF_CLASS static char const* stringize_error_level(loglevel lv);
 
 private:
-    void ensure_initialized();
+    GF_CLASS void ensure_initialized();
 
 protected:
     LoggerManagerRegistry const& registry_;
@@ -114,26 +117,28 @@ class LoggerManager
     friend class Logger;
 
 public:
-    void level(Logger::loglevel level);
+    void level(Logger::loglevel level)
+    {
+        level_ = level;
+        std::for_each(managed_loggers_.begin(), managed_loggers_.end(), [level](Logger* const log){ log->level(level); });
+    }
 
-    Logger::loglevel level() const { return level_;  };
+    Logger::loglevel level() const { return level_; };
 
     char const* name() const { return name_.c_str(); }
 
-    std::vector<std::shared_ptr<LogAppender> > const& appenders() const;
+    std::vector<std::shared_ptr<LogAppender> > const& appenders() const { return appenders_; }
 
-    void add_appender(std::shared_ptr<LogAppender> const& appender);
+    void add_appender(std::shared_ptr<LogAppender> const& appender) { appenders_.push_back(appender); };
 
     LoggerManager() = delete;
     LoggerManager(const LoggerManager&) = delete;
     LoggerManager(char const* name, Logger::loglevel level = Logger::loglevel::L_INFO) : name_(name), level_(level) {}
 
-    //static void register_logger_manager(char const* logger_name_pattern, std::shared_ptr<LoggerManager> const& manager);  // NOT USED
-
-    static std::shared_ptr<LoggerManager> get_logger_manager(char const* logger_name_patern);
+    GF_CLASS static std::shared_ptr<LoggerManager> get_logger_manager(char const* logger_name_patern);
 
 protected:
-    void manage(Logger* logger);
+    void manage(Logger* logger) { managed_loggers_.insert(logger); }
 
     std::string const name_;
     Logger::loglevel level_;
