@@ -12,14 +12,7 @@
 
 class LoggerManagerRegistry
 {
-    //typedef std::pair<std::regex, std::shared_ptr<LoggerManager> > entry_type;
-
 public:
-    //void register_logger_manager(char const* logger_name_pattern, std::shared_ptr<LoggerManager> const& manager)
-    //{
-    //    managers_.push_back(entry_type(std::regex(logger_name_pattern), manager));
-    //}
-
     std::shared_ptr<LoggerManager> get_default_logger_manager() const
     {
         return default_manager_;
@@ -46,7 +39,6 @@ public:
     }
 
 private:
-    //    std::vector<entry_type> managers_;
     std::shared_ptr<LoggerManager> default_manager_;
 };
 
@@ -56,20 +48,9 @@ static LoggerManagerRegistry registry;
 
 // --------------------------------------------------------------------------------------------------------------------------------
 
-//void LoggerManager::register_logger_manager(char const* logger_name_pattern, std::shared_ptr<LoggerManager> const& manager)
-//{
-//    registry.register_logger_manager(logger_name_pattern, manager);
-//}
-
 std::shared_ptr<LoggerManager> LoggerManager::get_logger_manager(char const* logger_name_pattern)
 {
     return registry(logger_name_pattern);
-}
-
-std::shared_ptr<LoggerManager> Logger::manager() const
-{
-    const_cast<Logger*>(this)->ensure_initialized();
-    return manager_;
 }
 
 // --------------------------------------------------------------------------------------------------------------------------------
@@ -94,18 +75,6 @@ char const* Logger::stringize_error_level(loglevel lv)
 }
 
 // --------------------------------------------------------------------------------------------------------------------------------
-
-void Logger::level(loglevel level)
-{
-    ensure_initialized();
-    level_ = level;
-}
-
-Logger::loglevel Logger::level() const
-{
-    const_cast<Logger*>(this)->ensure_initialized();
-    return level_;
-}
 
 void Logger::logv(loglevel lv, char const* format, va_list ap)
 {
@@ -137,42 +106,6 @@ inline void Logger::ensure_initialized()
     appenders_.swap(appenders);
     manager->manage(this);
     manager_ = manager;
-
-}
-
-// --------------------------------------------------------------------------------------------------------------------------------
-
-void LoggerManager::level(Logger::loglevel level)
-{
-    /* synchronized { */
-    level_ = level;
-    std::for_each(managed_loggers_.begin(), managed_loggers_.end(), [level](Logger* const log){ log->level(level); });
-    /* } */
-}
-
-std::vector<std::shared_ptr<LogAppender>> const& LoggerManager::appenders() const
-{
-    /* synchronized() { */
-    return appenders_;
-    /* } */
-}
-
-// --------------------------------------------------------------------------------------------------------------------------------
-
-void LoggerManager::add_appender(std::shared_ptr<LogAppender> const& appender)
-{
-    /* synchronized() { */
-    appenders_.push_back(appender);
-    /* } */
-}
-
-//LoggerManager::LoggerManager(char const* name, Logger::loglevel level) : name_(name), level_(level) {}
-
-void LoggerManager::manage(Logger* logger)
-{
-    /* synchronized { */
-    managed_loggers_.insert(logger);
-    /* }} */
 }
 
 // --------------------------------------------------------------------------------------------------------------------------------
