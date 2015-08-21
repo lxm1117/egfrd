@@ -4,7 +4,7 @@
 #include <ostream>
 #include <string>
 #include <unordered_map>
-
+#include "Defs.hpp"
 #include <boost/format.hpp>
 #include <boost/range/value_type.hpp>
 #include <boost/range/const_iterator.hpp>
@@ -26,13 +26,29 @@ public:
     typedef boost::iterator_range<string_map_iterator>  attributes_range;
 
 public:
-    identifier_type const& id() const;
+    identifier_type const& id() const
+    {
+        if (!model_) throw illegal_state("not bound to Model");
+        return id_;
+    };
 
-    std::string const& operator[](std::string const& name) const;
 
-    std::string& operator[](std::string const& name);
+    std::string const& operator[](std::string const& name) const
+    {
+        string_map_type::const_iterator i(attrs_.find(name));
+        if (i == attrs_.end())
+            throw not_found((boost::format("key %s not found") % name).str());
+        return (*i).second;
+    };
 
-    attributes_range attributes() const;
+
+    std::string& operator[](std::string const& name)
+    {
+        return attrs_[name];
+    };
+
+
+    attributes_range attributes() const {         return attributes_range(attrs_.begin(), attrs_.end());     }    ;
 
     Model* model() const
     // The model with which this species type is associated?

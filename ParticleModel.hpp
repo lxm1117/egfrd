@@ -28,19 +28,24 @@ public:
     // Constructor
     GFRD_CLASS ParticleModel();
 
-    GFRD_CLASS virtual ~ParticleModel();
+    virtual ~ParticleModel() {};
 
     // Gets a structure type
     GFRD_CLASS boost::shared_ptr<structure_type_type> get_structure_type_by_id(structure_type_id_type const& id) const;
 
     // Add a structure type
-    void add_structure_type(boost::shared_ptr<structure_type_type> const& structure_type);
+    GFRD_CLASS void add_structure_type(boost::shared_ptr<structure_type_type> const& structure_type);
 
     // Get all structure types in the model
-    structure_types_range get_structure_types() const;
+    structure_types_range get_structure_types() const {
+        return structure_types_range(
+            structure_type_iterator(structure_type_map_.begin(), structure_type_second_selector_type()),
+            structure_type_iterator(structure_type_map_.end(), structure_type_second_selector_type()));
+    };
+
 
     // Gets and sets the default structure_type
-    GFRD_CLASS structure_type_id_type get_def_structure_type_id() const;
+    GFRD_CLASS structure_type_id_type get_def_structure_type_id() const { return default_structure_type_id_; };
 
 /////// Member variables
 public:

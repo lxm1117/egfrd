@@ -10,13 +10,16 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/range/iterator_range.hpp>
 
+#include "Defs.hpp"
 #include "SerialIDGenerator.hpp"
 #include "SpeciesTypeID.hpp"
 #include "SpeciesType.hpp"
 #include "utils/range.hpp"
 #include "utils/pair.hpp"
 
-class NetworkRules;
+#include "NetworkRules.hpp"
+
+//class NetworkRules;
 
 class Model: private boost::noncopyable
 {
@@ -44,27 +47,24 @@ public:
     // The network rules define the possible reactions between species.
 
     // Constructor
-    Model();
+    GFRD_CLASS Model();
 
-    virtual ~Model();
+    virtual ~Model() {};
 
-    NetworkRules& network_rules() const
-    {
-        return *network_rules_;
-    }
+    NetworkRules& network_rules() const { return *network_rules_; };
 
     // Add a species to the model
-    void add_species_type(boost::shared_ptr<species_type_type> const& species);
+    GFRD_CLASS void add_species_type(boost::shared_ptr<species_type_type> const& species);
 
     // Get a species by the species 'id'
-    boost::shared_ptr<species_type_type> get_species_type_by_id(species_id_type const& id) const;
+    GFRD_CLASS boost::shared_ptr<species_type_type> get_species_type_by_id(species_id_type const& id) const;
 
     // Get all the species in the model
-    species_type_range get_species_types() const;
+    GFRD_CLASS species_type_range get_species_types() const;
 
-    std::string const& operator[](std::string const& name) const;
+    GFRD_CLASS std::string const& operator[](std::string const& name) const;
 
-    std::string& operator[](std::string const& name);
+    GFRD_CLASS std::string& operator[](std::string const& name) { return attrs_[name]; };
     // Not sure. Get attribute by name?
 
     // Get all the attributes

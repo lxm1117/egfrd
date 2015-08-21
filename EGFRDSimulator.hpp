@@ -1535,7 +1535,7 @@ protected:
         particle_id_pair const& p1,
         position_type const& com,
         position_type const& iv,
-        length_type shell_size)
+        length_type shell_size_parm)
     {
         domain_kind kind(domain_kind::NONE);
         pair_type* new_pair(0);
@@ -1600,31 +1600,25 @@ protected:
 
             virtual void operator()(cuboidal_region_type const& structure) const
             {
-                spherical_shell_id_pair new_shell(
-                    _this->new_shell(did,
-                    sphere_type(com, shell_size)));
-                new_pair = new spherical_pair_type(did, p0, p1, new_shell,
-                    iv, rules);
+                BOOST_ASSERT(shell_size > 0);
+                spherical_shell_id_pair new_shell(_this->new_shell(did, sphere_type(com, shell_size)));
+                new_pair = new spherical_pair_type(did, p0, p1, new_shell, iv, rules);
                 kind = domain_kind::SPHERICAL_PAIR;
             }
 
-            factory(EGFRDSimulator* _this, particle_id_pair const& p0,
-                particle_id_pair const& p1, position_type const& com,
-                position_type const& iv, length_type shell_size,
-                domain_id_type const& did, pair_type*& new_pair,
-                domain_kind& kind)
-                : _this(_this), p0(p0), p1(p1), com(com), iv(iv),
-                shell_size(shell_size), did(did),
-                rules((*_this->network_rules_).query_reaction_rule(
-                p0.second.sid(), p1.second.sid())),
-                new_pair(new_pair), kind(kind) {}
+            factory(EGFRDSimulator* _this, particle_id_pair const& p0,particle_id_pair const& p1, position_type const& com,position_type const& iv, length_type _shell_size_,domain_id_type const& did, pair_type*& new_pair, domain_kind& kind)
+                : _this(_this), p0(p0), p1(p1), com(com), iv(iv), shell_size(_shell_size_), did(did), rules((*_this->network_rules_).query_reaction_rule(p0.second.sid(), p1.second.sid())), new_pair(new_pair), kind(kind)
+            {
+                BOOST_ASSERT(_shell_size_ > 0);
+                BOOST_ASSERT(shell_size > 0);
+            }
 
             EGFRDSimulator* _this;
             particle_id_pair const& p0;
             particle_id_pair const& p1;
             position_type const& com;
             position_type const& iv;
-            length_type const& shell_size;
+            length_type const shell_size;
             domain_id_type const& did;
             typename network_rules_type::reaction_rule_vector const& rules;
             pair_type*& new_pair;
@@ -1632,7 +1626,10 @@ protected:
         };
 
         //        species_type const& species((*base_type::world_).get_species(p0.second.sid()));
-        dynamic_cast<particle_simulation_structure_type&>(*(*base_type::world_).get_structure(p0.second.structure_id())).accept(factory(this, p0, p1, com, iv, shell_size, did, new_pair, kind));
+        auto& s = dynamic_cast<particle_simulation_structure_type&>(*(*base_type::world_).get_structure(p0.second.structure_id()));
+
+        auto& f = factory(this, p0, p1, com, iv, shell_size_parm, did, new_pair, kind);
+        s.accept(f);
 
         boost::shared_ptr<domain_type> const retval(new_pair);
         domains_.insert(std::make_pair(did, retval));
@@ -2160,34 +2157,20 @@ protected:
             int i = num_retries_;
             while (--i >= 0)
             {
-                boost::shared_ptr<structure_type> structure(
-                    (*base_type::world_).get_structure(
-                    reactant.second.structure_id()));
-                position_type vector(
-                    structure->random_vector(
-                    r01 * traits_type::MINIMAL_SEPARATION_FACTOR,
-                    base_type::rng_));
+                boost::shared_ptr<structure_type> structure( (*base_type::world_).get_structure( reactant.second.structure_id()));
+                position_type vector( structure->random_vector( r01 * /*traits_type:: is zero for some reason */ MINIMAL_SEPARATION_FACTOR, base_type::rng_));
+
                 // place particles according to the ratio D1:D2
                 // this way, species with D=0 doesn't move.
                 // FIXME: what if D1 == D2 == 0?
                 for (;;) {
-                    new_particles[0] = particle_shape_type(
-                        (*base_type::world_).apply_boundary(
-                        add(reactant.second.position(),
-                        multiply(vector, product_species[0]->D() / D01))),
-                        product_species[0]->radius());
-                    new_particles[1] = particle_shape_type(
-                        (*base_type::world_).apply_boundary(
-                        add(reactant.second.position(),
-                        multiply(vector, -product_species[1]->D() / D01))),
-                        product_species[1]->radius());
+                    new_particles[0] = particle_shape_type( (*base_type::world_).apply_boundary( add(reactant.second.position(), 
+                        multiply(vector, product_species[0]->D() / D01))), product_species[0]->radius());
+                    new_particles[1] = particle_shape_type( (*base_type::world_).apply_boundary( add(reactant.second.position(),
+                        multiply(vector, -product_species[1]->D() / D01))), product_species[1]->radius());
 
-                    length_type const distance_between_new_particles(
-                        (*base_type::world_).distance(
-                        new_particles[0].position(),
-                        new_particles[1].position()));
-                    if (distance_between_new_particles >= r01)
-                        break;
+                    length_type const distance_between_new_particles( (*base_type::world_).distance( new_particles[0].position(), new_particles[1].position()));
+                    if (distance_between_new_particles >= r01) break;
 
                     vector = multiply(vector, 1.0 + 1e-7);
                 }

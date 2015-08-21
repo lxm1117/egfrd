@@ -264,7 +264,8 @@ public:
     World(length_type world_size = 1., size_type size = 1)
         : base_type(world_size, size)
     {
-        base_type::structures_.initialize(structidgen_());
+        //base_type::structures_.initialize(structidgen_());
+        base_type::structures_.initialize(1);        // AAGGHH
     }
 
     // To create new particles

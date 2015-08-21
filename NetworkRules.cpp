@@ -1,5 +1,3 @@
 #include "NetworkRules.hpp"
 
-NetworkRules::~NetworkRules()
-{
-}
+NetworkRules::~NetworkRules() { }

@@ -35,22 +35,46 @@ public:
     StructureType(): model_(0) {}
  
     // Get the id
-    GFRD_CLASS identifier_type const& id() const;
+    identifier_type const& id() const
+    {
+        if (!model_)
+            throw illegal_state("not bound to Model");
+        return id_;
+    }
+
 
     // Get the id of the structure type the structure_type lives on/in
-    structure_type_id_type const& structure_type_id() const;
+    structure_type_id_type const& structure_type_id() const
+    {
+            if (!structure_type_id_)
+                throw illegal_state("no structure_type defined");
+            return structure_type_id_;
+
+    }
 
     // Check equality/inequality
-    bool operator==(StructureType const& rhs) const;
+    bool operator==(StructureType const& rhs) const
+    {
+        return id_ == rhs.id() && structure_type_id_ == rhs.structure_type_id() && model_ == rhs.model();
+    }
 
-    bool operator!=(StructureType const& rhs) const;
 
-    std::string const& operator[](std::string const& name) const;
+    bool operator!=(StructureType const& rhs) const {
+        return !operator==(rhs);
+    };
 
-    std::string& operator[](std::string const& name);
+    std::string const& operator[](std::string const& name) const
+    {
+            string_map_type::const_iterator i(attrs_.find(name));
+            if (i == attrs_.end())
+                throw not_found((boost::format("key %s not found") % name).str());
+            return (*i).second;
+    };
+
+    std::string& operator[](std::string const& name){ return attrs_[name]; };
 
     // Get all the attributes
-    attributes_range attributes() const;
+    attributes_range attributes() const { return attributes_range(attrs_.begin(), attrs_.end()); };
 
     // Get the particle model to which the structuretype is associated
     ParticleModel* model() const

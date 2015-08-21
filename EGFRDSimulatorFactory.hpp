@@ -49,42 +49,33 @@ public:
         catch (not_found const&) {}
 
         position_type const x(divide(position_type(world_size, world_size, world_size), 2));
-        boost::shared_ptr<world_type> world(
-            new world_type(world_size, matrix_size));
-        world->add_structure(
-            boost::shared_ptr<cuboidal_region_type>(
-                new cuboidal_region_type(
-                    "world", model.get_def_structure_type_id(),
-                    typename cuboidal_region_type::shape_type(x, x))));
+        boost::shared_ptr<world_type> world(new world_type(world_size, matrix_size));
+        
+        world->add_structure_type(*model.get_structure_type_by_id(model.get_def_structure_type_id()));   // or else next command fails with Unknown structure_type!
+        world->set_def_structure_type_id(model.get_def_structure_type_id());
 
-        BOOST_FOREACH (boost::shared_ptr<StructureType> st,
-                       model.get_structure_types())
+        world->add_structure(boost::shared_ptr<cuboidal_region_type>(new cuboidal_region_type("world", model.get_def_structure_type_id(), 0,typename cuboidal_region_type::shape_type(x, x))));
+
+        BOOST_FOREACH (boost::shared_ptr<StructureType> st, model.get_structure_types())
         {
             std::string const& type((*st)["type"]);
             // TODO: add surfaces to world
         }
 
         // Making sure that all the species have a structure_type defined?
-        BOOST_FOREACH (boost::shared_ptr<SpeciesType> st,
-                       model.get_species_types())
+        BOOST_FOREACH (boost::shared_ptr<SpeciesType> st, model.get_species_types())
         {
-            structure_type_id_type const& structure_type_id((*st)["structure_type"]);
-            world->add_species(
-                typename world_traits_type::species_type(
+            auto structure_type_id((*st)["structure_type"]);
+            world->add_species( typename world_traits_type::species_type(
                     st->id(),
-                    boost::lexical_cast<typename world_traits_type::D_type>(
-                        (*st)["D"]),
-                    boost::lexical_cast<length_type>((*st)["radius"]),
-                    boost::lexical_cast<typename world_traits_type::structure_type_id_type>(
-                        structure_type_id.empty() ? model.get_def_structure_type_id(): structure_type_id)
+                    //boost::lexical_cast<typename world_traits_type::structure_type_id_type>(structure_type_id.empty() ? model.get_def_structure_type_id() : (*st)["structure_type"]),     <- TODO MS, conversion does not compile?
+                    world->get_def_structure_type_id(),
+                    boost::lexical_cast<typename world_traits_type::D_type>((*st)["D"]),
+                    boost::lexical_cast<length_type>((*st)["radius"])
                     ));
         }
 
-        return new EGFRDSimulator<traits_type>(
-            world,
-            boost::shared_ptr<network_rules_type>(
-                new network_rules_type(model.network_rules())),
-            rng_, dissociation_retry_moves);
+        return new EGFRDSimulator<traits_type>( world, boost::shared_ptr<network_rules_type>( new network_rules_type(model.network_rules())), rng_, dissociation_retry_moves);
     }
 
 
