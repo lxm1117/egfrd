@@ -207,7 +207,7 @@ distance(Cylinder<T_> const& obj,
     }
     else
     {
-        if (dr > obj.radius())
+        if (dr > obj.radius())              // semantically incorrect, but the else branch returns correct distance, should be (dr > 0) to test inside/outside cylinder
         {
             // pos is somewhere 'parallel' to the cylinder.
             distance = dr;

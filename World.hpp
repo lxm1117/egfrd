@@ -264,8 +264,8 @@ public:
     World(length_type world_size = 1., size_type size = 1)
         : base_type(world_size, size)
     {
-        //base_type::structures_.initialize(structidgen_());
-        base_type::structures_.initialize(1);        // AAGGHH
+        base_type::structures_.initialize(structidgen_());              // AAGGHH1           works with python code
+        //base_type::structures_.initialize(1);                         // AAGGHH2           works with c++ egfrd sim
     }
 
     // To create new particles
