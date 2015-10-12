@@ -21,6 +21,8 @@
 #include "findRoot.hpp"
 #include "GreensFunction3DAbsSym.hpp"
 
+const Real GreensFunction3DAbsSym::CUTOFF = 1e-10;
+const Real GreensFunction3DAbsSym::CUTOFF_H = 6.0;
 /**
   EllipticTheta[4,0,q]
 
@@ -234,7 +236,7 @@ Real GreensFunction3DAbsSym::drawTime(Real rnd) const
 
     gsl_function F = 
         {
-            reinterpret_cast<typeof(F.function)>(&p_survival_F),
+            reinterpret_cast<double(*) (double x, void * params)>(&p_survival_F),
             &params 
         };
 
@@ -363,7 +365,7 @@ Real GreensFunction3DAbsSym::drawR(Real rnd, Real t) const
 
         assert(psurv >= 0.0);
 
-        F.function = reinterpret_cast<typeof(F.function)>(&p_r_F);
+        F.function = reinterpret_cast<double(*) (double x, void * params)>(&p_r_F);
     }
     else
     {
@@ -375,7 +377,7 @@ Real GreensFunction3DAbsSym::drawR(Real rnd, Real t) const
         }
 
         psurv = 1.0;
-        F.function = reinterpret_cast<typeof(F.function)>(&p_r_free_F);
+        F.function = reinterpret_cast<double(*) (double x, void * params)>(&p_r_free_F);
     }
 
     const Real target(psurv * rnd);

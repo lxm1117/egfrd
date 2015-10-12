@@ -85,7 +85,7 @@ struct MatrixSpaceExtrasBase
                 PyObject* retval = PyArray_NewFromDescr(&PyArray_Type,
                         result_type_descr_,
                         1, const_cast<npy_intp*>(dims), NULL,
-                        &const_cast<result_type&>(val)[0],
+                        val.size() ? &const_cast<result_type&>(val)[0] : nullptr,      // nullptr instead of zero sized array!
                         NPY_CARRAY, NULL);
                 if (!retval)
                     return NULL;

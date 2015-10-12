@@ -6,7 +6,7 @@
 #include "GreensFunction.hpp"
 #include <ostream>
 
-class GreensFunction3DAbsSym: public GreensFunction
+class GF_CLASS GreensFunction3DAbsSym: public GreensFunction
 {
 public:
     GreensFunction3DAbsSym(Real D, Real a)
@@ -47,11 +47,11 @@ private:
 
 private:
 
-    static const Real CUTOFF = 1e-10;
+    static const Real CUTOFF;
 
     // H = 4.0: ~3e-5, 4.26: ~1e-6, 5.0: ~3e-7, 5.2: ~1e-7,
     // 5.6: ~1e-8, 6.0: ~1e-9
-    static const Real CUTOFF_H = 6.0;
+    static const Real CUTOFF_H;
 
     const Real a;
 

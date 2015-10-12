@@ -1249,9 +1249,9 @@ get_pos_sid_pair_pair( PlanarSurface<Ttraits_>                const& origin_stru
         dist_to_edge_1 = origin_structure.project_point(new_positions.first).second.second;
         dist_to_edge_2 = origin_structure.project_point(new_positions.second).second.second;
         
-        positions_legal = (dist_to_edge_1 < 0.0) and (dist_to_edge_2 < 0.0);    
+        positions_legal = (dist_to_edge_1 < 0.0) && (dist_to_edge_2 < 0.0);    
     }
-    while( not(positions_legal) );
+    while( !(positions_legal) );
             
     return std::make_pair(      std::make_pair(new_positions.first,  origin_structure.id()),
                                 std::make_pair(new_positions.second, target_structure.id())    );    

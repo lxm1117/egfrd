@@ -22,6 +22,13 @@
 const unsigned int GreensFunction1DRadAbs::MAX_TERMS;
 const unsigned int GreensFunction1DRadAbs::MIN_TERMS;
 
+const Real GreensFunction1DRadAbs::L_TYPICAL = 1E-8;
+const Real GreensFunction1DRadAbs::T_TYPICAL = 1E-6;
+const Real GreensFunction1DRadAbs::EPSILON = 1E-10;
+const Real GreensFunction1DRadAbs::PDENS_TYPICAL = 1;
+const Real GreensFunction1DRadAbs::CUTOFF_H = 6.0;
+
+
 // This is the appropriate definition of the function defining
 // the roots of our Green's functions in GSL.
 // Later needed by the rootfinder.
@@ -111,7 +118,7 @@ void GreensFunction1DRadAbs::calculate_n_roots(uint const& n) const
 
 /* returns a guess for the number of terms needed for 
    the greensfunction to converge at time t */
-uint GreensFunction1DRadAbs::guess_maxi(Real const& t) const
+GreensFunction1DRadAbs::uint GreensFunction1DRadAbs::guess_maxi(Real const& t) const
 {
     const uint safety(2);
 

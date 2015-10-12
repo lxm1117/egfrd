@@ -564,7 +564,7 @@ private:
                         }
                         // Check overlap with surfaces
                         // Ignore reactant and product structure
-                        const bool product_mobile( product_species.D()>0.0 or product_species.v()>0 );
+                        const bool product_mobile( product_species.D()>0.0 || product_species.v()>0 );
                         if( product_mobile )
                         {
                             const boost::scoped_ptr<const structure_id_pair_and_distance_list> overlap_surfaces(
@@ -736,8 +736,8 @@ private:
                             product1_struct_id = pos0pos1_pair.second.second;
                             const boost::shared_ptr<const structure_type> product0_struct( tx_.get_structure(product0_struct_id) );
                             const boost::shared_ptr<const structure_type> product1_struct( tx_.get_structure(product1_struct_id) );
-                            const bool product0_mobile (product0_species.D()>0.0 or product0_species.v()>0);
-                            const bool product1_mobile (product1_species.D()>0.0 or product1_species.v()>0);
+                            const bool product0_mobile (product0_species.D()>0.0 || product0_species.v()>0);
+                            const bool product1_mobile (product1_species.D()>0.0 || product1_species.v()>0);
 
                             /* Now check for overlaps */
                             const particle_shape_type new_shape0(pos0pos1_pair.first.first, product0_species.radius());
@@ -1018,7 +1018,7 @@ private:
                             throw propagation_error("no space due to particle");
                         }
                         // Check for overlap with surfaces, ignoring the reactant structures
-                        bool product_mobile( product_species.D() > 0.0 or product_species.v() > 0.0 );
+                        bool product_mobile( product_species.D() > 0.0 || product_species.v() > 0.0 );
                         if( product_mobile ){
                           
                             const boost::scoped_ptr<const structure_id_pair_and_distance_list> overlap_structures(
@@ -1148,7 +1148,7 @@ private:
                             throw propagation_error("no space");
                         }
                         // Check overlap with structures, ignoring reactant_structures          
-                        const bool product_mobile( product_species.D()>0.0 or product_species.v()>0 );
+                        const bool product_mobile( product_species.D()>0.0 || product_species.v()>0 );
                         if( product_mobile ){
                           
                             const boost::scoped_ptr<const structure_id_pair_and_distance_list> overlap_structures(

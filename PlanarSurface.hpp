@@ -6,6 +6,7 @@
 #include "Plane.hpp"
 #include "freeFunctions.hpp"
 #include "StructureFunctions.hpp"
+#include <gsl/gsl_math.h>
 
 template <typename Tobj_, typename Tid_, typename Ttraits_>
 class StructureContainer;
@@ -189,7 +190,7 @@ public:
         // As a standard it is the plane's unit_z vector
         position_type unit_z( base_type::shape().unit_z() );
         // If the plane however is two-sided: randomize!
-        if( not(base_type::shape().is_one_sided()) )
+        if( !(base_type::shape().is_one_sided()) )
             unit_z = multiply(unit_z, rng.uniform_int(0, 1) * 2 - 1);
         
         // Construct randomly oriented dissociation vector

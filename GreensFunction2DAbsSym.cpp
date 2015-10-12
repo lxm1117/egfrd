@@ -19,6 +19,10 @@
 
 
 
+const Real GreensFunction2DAbsSym::CUTOFF = 1e-10;
+const Real GreensFunction2DAbsSym::CUTOFF_H = 6.0;
+
+
 
 // an alternative form, which is not very convergent.
 const Real 
@@ -147,7 +151,7 @@ GreensFunction2DAbsSym::drawTime( const Real rnd ) const
 
     gsl_function F = 
     {
-            reinterpret_cast<typeof(F.function)>( &p_survival_F ), &params 
+            reinterpret_cast<double(*) (double x, void * params)>( &p_survival_F ), &params
     };
 
     //for (Real t=0.0001; t<=1; t+=0.0001)
@@ -258,7 +262,7 @@ GreensFunction2DAbsSym::drawR( const Real rnd, const Real t ) const
 
         assert( psurv > 0.0 );
 
-        F.function = reinterpret_cast<typeof(F.function)>( &p_r_F );
+        F.function = reinterpret_cast<double(*) (double x, void * params)>( &p_r_F );
 /*  }
     else				// if the domain is very big, just use the free solution
     {
@@ -271,7 +275,7 @@ GreensFunction2DAbsSym::drawR( const Real rnd, const Real t ) const
         }
 
         psurv = 1.0;
-        F.function = reinterpret_cast<typeof(F.function)>( &p_r_free_F );
+        F.function = reinterpret_cast<double(*) (double x, void * params)>( &p_r_free_F );
     }
 */
     const Real target( psurv * rnd );

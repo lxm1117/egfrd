@@ -30,7 +30,7 @@ struct is_shape: public boost::mpl::false_ {};
 template<typename T_>
 struct shape_position_type
 {
-    struct argument_is_not_a_shape;
+    struct argument_is_not_a_shape {};    // added accolades 
     static const std::size_t x = sizeof(argument_is_not_a_shape);
 };
 

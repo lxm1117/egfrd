@@ -61,12 +61,20 @@ struct EGFRDSimulatorTraitsBase: public ParticleSimulatorTraitsBase<Tworld_>
         typedef Shell<Tshape_, domain_id_type> type;
     };
 
-    static const Real SAFETY = 1. + 1e-5;
-    static const Real SINGLE_SHELL_FACTOR = .1;
-    static const Real MULTI_SHELL_FACTOR = .05;
-    static const Real DEFAULT_DT_FACTOR = 1e-5;
-    static const Real CUTOFF_FACTOR = 5.6;
+    static const Real SAFETY;// = 1. + 1e-5;
+    static const Real SINGLE_SHELL_FACTOR;// = .1;
+    static const Real MULTI_SHELL_FACTOR;// = .05;
+    static const Real DEFAULT_DT_FACTOR;// = 1e-5;
+    static const Real CUTOFF_FACTOR;// = 5.6;
 };
+
+template<typename Tworld_> const Real EGFRDSimulatorTraitsBase<Tworld_>::SAFETY = 1. + 1e-5;
+template<typename Tworld_> const Real EGFRDSimulatorTraitsBase<Tworld_>::SINGLE_SHELL_FACTOR = .1;
+template<typename Tworld_> const Real EGFRDSimulatorTraitsBase<Tworld_>::MULTI_SHELL_FACTOR = .05;
+template<typename Tworld_> const Real EGFRDSimulatorTraitsBase<Tworld_>::DEFAULT_DT_FACTOR = 1e-5;
+template<typename Tworld_> const Real EGFRDSimulatorTraitsBase<Tworld_>::CUTOFF_FACTOR = 5.6;
+
+
 
 namespace detail {
 

@@ -21,7 +21,7 @@
 #include "PairGreensFunction.hpp"
 
 
-class GreensFunction2DRadAbs
+class GF_CLASS GreensFunction2DRadAbs
     :
     public PairGreensFunction
 {
@@ -33,16 +33,16 @@ public:
 
 private:
     // Error tolerance used by default.
-    static const Real TOLERANCE = 1e-8;
+    static const Real TOLERANCE;
 
     // SphericalBesselGenerator's accuracy, used by some
     // theta-related calculations.
 
-    static const Real MIN_T_FACTOR = 1e-8;
+    static const Real MIN_T_FACTOR;
 
-    static const Real L_TYPICAL = 1E-7; // typical length scale
-    static const Real T_TYPICAL = 1E-5; // typical time scale
-    static const Real EPSILON   = 1E-12; // relative numeric error  // TESTING temporarily increased; was 1e-12
+    static const Real L_TYPICAL; // typical length scale
+    static const Real T_TYPICAL; // typical time scale
+    static const Real EPSILON; // relative numeric error  // TESTING temporarily increased; was 1e-12
 
     // DEFAULT = 30
     static const unsigned int MAX_ORDER = 30;         // The maximum number of m 
@@ -56,9 +56,9 @@ private:
     //
     // Parameters for scanning method
     // Left boundary of 1st search interval 1st root
-    static const Real SCAN_START = 0.001;     
+    static const Real SCAN_START;     
     // Length of the scanning interval relative to estimated interval
-    static const Real FRACTION_SCAN_INTERVAL = .5; // TODO CHANGED THIS FROM .5 to .2
+    static const Real FRACTION_SCAN_INTERVAL; // TODO CHANGED THIS FROM .5 to .2
     
     // Other paramters
     // After CONVERGENCE_ASSUMED subsequent roots that lay within +/- 
@@ -66,8 +66,8 @@ private:
     // converge, it is assumed all following roots have a distances inbetween
     // that don't deviate for more than INTERVAL_MARGIN from the distance to 
     // which the roots are known to converge (Pi/(a-sigma)).
-    static const Real CONVERGENCE_ASSUMED = 25;
-    static const Real INTERVAL_MARGIN = .33; 
+    static const Real CONVERGENCE_ASSUMED;
+    static const Real INTERVAL_MARGIN; 
 
 
 

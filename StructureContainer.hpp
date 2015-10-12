@@ -180,7 +180,7 @@ public:
         if( feq(dot_product(structure1_unit_z, structure2_unit_z), 1.0, 1.0) )
             planes_are_parallel = true;
         // If they are neither parallel or orthogonal we cannot treat this situation and stop here
-        if( not(planes_are_orthogonal or planes_are_parallel) )
+        if( !(planes_are_orthogonal || planes_are_parallel) )
             throw unsupported("StructureContainer: only orthogonal or parallel planes can be connected.");
         
         // Now determine which of the unit vectors of the neighboring plane is the one that shall be
@@ -572,7 +572,7 @@ apply_boundary (std::pair<typename Ttraits_::position_type,
         // Check if we are in one of the corners. If yes -> do another round of border crossing from neighboring plane.
         // Only do this if the particle does not end up on another side of the same plane (the scenario of one plane 
         // with periodic BCs), as this may cause infinite loops.
-        if( not new_id==pos_structure_id.second && abs(component_x) > half_extents[0] && abs(component_y) > half_extents[1] )
+        if( ! new_id==pos_structure_id.second && abs(component_x) > half_extents[0] && abs(component_y) > half_extents[1] )
         {
             return sc.get_structure(new_id)->apply_boundary(std::make_pair(new_pos, new_id), sc);
         }

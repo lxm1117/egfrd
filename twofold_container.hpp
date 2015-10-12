@@ -75,7 +75,8 @@ public:
 
         bool equal(const_iterator const& that) const
         {
-            return &cntnr_ == &that.cntnr_ && idx_ == that.idx_;
+            //return &cntnr_ == &that.cntnr_ && idx_ == that.idx_;
+            return cntnr_ == that.cntnr_ && idx_ == that.idx_;
         }
 
         void increment()
@@ -85,18 +86,20 @@ public:
 
         value_type const& dereference() const
         {
-            return cntnr_[idx_];
+            //return cntnr_[idx_];
+            return (*cntnr_)[idx_];
         }
 
     public:
         const_iterator(twofold_container const& cntnr, size_type idx)
-            : cntnr_(cntnr), idx_(idx) {}
+            : cntnr_(&cntnr), idx_(idx) {}
 
         const_iterator(iterator const& that)
-            : cntnr_(that.cntnr_), idx_(that.idx_) {}
+            : cntnr_(&that.cntnr_), idx_(that.idx_) {}
 
     private:
-        twofold_container const& cntnr_;
+        //twofold_container const& cntnr_;
+        twofold_container const* cntnr_;
         size_type idx_;
     };
 

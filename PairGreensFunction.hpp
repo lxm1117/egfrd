@@ -5,7 +5,7 @@
 #include <string>
 #include "GreensFunction.hpp"
 
-class PairGreensFunction: public GreensFunction
+class GF_CLASS PairGreensFunction: public GreensFunction
 {
 public:
     PairGreensFunction(Real D, Real kf, Real r0, Real Sigma)

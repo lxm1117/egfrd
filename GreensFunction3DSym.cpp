@@ -12,6 +12,9 @@
 
 #include "GreensFunction3DSym.hpp"
 
+const Real GreensFunction3DSym::TOLERANCE = 1e-8;
+const Real GreensFunction3DSym::H = 6;
+
 Real GreensFunction3DSym::p_r(Real r, Real t) const
 {
     const Real D( getD() );
@@ -84,7 +87,7 @@ Real GreensFunction3DSym::drawR(Real rnd, Real t) const
 
     gsl_function F = 
         {
-            reinterpret_cast<typeof(F.function)>( &ip_r_F ),
+            reinterpret_cast<double(*) (double x, void * params)>( &ip_r_F ),
             &params 
         };
 

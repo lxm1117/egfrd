@@ -12,16 +12,16 @@
   Green's Function for a free diffusion particle.
 */
 
-class GreensFunction3DSym
+class GF_CLASS GreensFunction3DSym
     :
     public GreensFunction
 {
     
 private:
 
-    static const Real TOLERANCE = 1e-8;
+    static const Real TOLERANCE;
 
-    static const Real H = 6;
+    static const Real H;
     
 public:
     

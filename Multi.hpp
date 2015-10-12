@@ -484,10 +484,10 @@ public:
                     {
                         // In case that one of the two particles is static, make sure we modify the rate using the
                         // modifier function of the structure that holds the *mobile* species:
-                        if(s0.D()==0.0 and s0.v()==0.0) // s1 is the mobile species
+                        if(s0.D()==0.0 && s0.v()==0.0) // s1 is the mobile species
                           k = get_some_structure_of_type(s1.structure_type_id())->get_1D_rate_geminate( (*it).k(), r01 );
                         
-                        else if(s1.D()==0.0 and s1.v()==0.0) // s0 is the mobile species
+                        else if(s1.D()==0.0 && s1.v()==0.0) // s0 is the mobile species
                           k = get_some_structure_of_type(s0.structure_type_id())->get_1D_rate_geminate( (*it).k(), r01 );
                         
                         else{

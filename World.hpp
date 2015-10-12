@@ -65,9 +65,11 @@ struct WorldTraitsBase
     typedef typename particle_type::shape_type::position_type   position_type;
     typedef GSLRandomNumberGenerator                            rng_type;
 
-    static const Real TOLERANCE = 1e-7;         // tolerance of what?
+    static const Real TOLERANCE;// = 1e-7;         // tolerance of what?
 };
 
+template<typename Tderived_, typename Tlen_, typename TD_>
+const Real WorldTraitsBase<Tderived_, Tlen_, TD_>::TOLERANCE = 1e-7;
 
 
 template<typename Tlen_, typename TD_>
@@ -308,7 +310,7 @@ public:
         }
 
         // The particle didn't exist yet
-        BOOST_ASSERT(base_type::update_particle(pi_pair));                              // update particle
+        BOOST_VERIFY(base_type::update_particle(pi_pair));                              // update particle
         particle_pool_[pi_pair.second.sid()].insert(pi_pair.first);                     // update species->particles map
         particleonstruct_pool_[pi_pair.second.structure_id()].insert(pi_pair.first);    // update structure->particles map
         return true;
@@ -406,7 +408,7 @@ public:
         }
 
         // The structure was not yet in the world.
-        BOOST_ASSERT(base_type::update_structure(structid_pair));
+        BOOST_VERIFY(base_type::update_structure(structid_pair));
         // update the mapping 'structure_type_id -> set of structure ids'
         structure_pool_[structid_pair.second->sid()].insert(structid_pair.first);
         // create a new mapping from structure id -> set of particles

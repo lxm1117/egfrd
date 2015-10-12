@@ -15,4 +15,27 @@ typedef unsigned long int UnsignedInteger;
 const Real SEPARATION_TOLERANCE( 1e-07  );
 const Real MINIMAL_SEPARATION_FACTOR( 1.0 + SEPARATION_TOLERANCE );
 
+
+#ifdef _MSC_VER
+
+#ifdef GF_EXPORT
+#define GF_CLASS __declspec(dllexport)
+#else
+#define GF_CLASS __declspec(dllimport)
+#endif
+
+#ifdef GFRD_EXPORT
+#define GFRD_CLASS __declspec(dllexport)
+#else
+#define GFRD_CLASS __declspec(dllimport)
+#endif
+
+
+#else
+#define GF_CLASS
+#define GFRD_CLASS
+#endif
+
+
+
 #endif // __DEFS_HPP

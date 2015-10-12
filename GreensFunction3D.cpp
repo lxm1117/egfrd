@@ -10,6 +10,10 @@
 #include "freeFunctions.hpp"
 #include "GreensFunction3D.hpp"
 
+const Real GreensFunction3D::TOLERANCE = 1e-8;
+const Real GreensFunction3D::H = 7;
+
+
 GreensFunction3D::~GreensFunction3D()
 {
     ; // do nothing
@@ -110,7 +114,7 @@ Real GreensFunction3D::drawR(Real rnd, Real t) const
 
     gsl_function F = 
         {
-            reinterpret_cast<typeof(F.function)>( &ip_r_F ),
+            reinterpret_cast<double(*) (double x, void * params)>( &ip_r_F ),
             &params 
         };
 
@@ -216,7 +220,7 @@ Real GreensFunction3D::drawTheta(Real rnd, Real r, Real t) const
 
     gsl_function F = 
         {
-            reinterpret_cast<typeof(F.function)>( &ip_theta_F ),
+            reinterpret_cast<double(*) (double x, void * params)>( &ip_theta_F ),
             &params 
         };
 

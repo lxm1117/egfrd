@@ -42,8 +42,11 @@ struct ParticleSimulatorTraitsBase
     typedef VolumeClearer<typename world_type::particle_shape_type,
                           typename world_type::particle_id_type>    volume_clearer_type;
 
-    static const Real MINIMAL_SEPARATION_FACTOR = (1.0 + 1e-7);
+    static const Real MINIMAL_SEPARATION_FACTOR;// = (1.0 + 1e-7);
 };
+
+template<typename Tworld_>
+const Real ParticleSimulatorTraitsBase<Tworld_>::MINIMAL_SEPARATION_FACTOR = MINIMAL_SEPARATION_FACTOR;
 
 template<typename Ttraits_>
 class ParticleSimulator;

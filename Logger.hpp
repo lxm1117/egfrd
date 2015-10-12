@@ -8,6 +8,8 @@
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "Defs.hpp"
+
 class LogAppender;
 class LoggerManager;
 class LoggerManagerRegistry;
@@ -30,16 +32,16 @@ public:
 
     LoggerManager const& logging_manager() const;
 
-    void level(enum level level);
+    GF_CLASS void level(enum level level);
 
-    enum level level() const;
+    GF_CLASS enum level level() const;
 
     char const* name() const
     {
         return name_.c_str();
     }
 
-    boost::shared_ptr<LoggerManager> manager() const;
+    GF_CLASS boost::shared_ptr<LoggerManager> manager() const;
 
     void debug(char const* format, ...)
     {
@@ -89,18 +91,18 @@ public:
         va_end(ap);
     }
 
-    void logv(enum level lv, char const* format, va_list ap);
+    GF_CLASS void logv(enum level lv, char const* format, va_list ap);
 
-    void flush();
+    GF_CLASS void flush();
 
     Logger(LoggerManagerRegistry const& registry, char const* name);
 
-    static Logger& get_logger(char const* name);
+    GF_CLASS static Logger& get_logger(char const* name);
 
-    static char const* stringize_error_level(enum level lv);
+    GF_CLASS static char const* stringize_error_level(enum level lv);
 
 private:
-    void ensure_initialized();
+    GF_CLASS void ensure_initialized();
 
 protected:
     LoggerManagerRegistry const& registry_; 
@@ -110,7 +112,7 @@ protected:
     std::vector<boost::shared_ptr<LogAppender> > appenders_;
 };
 
-class LoggerManager: boost::noncopyable
+class GF_CLASS LoggerManager: boost::noncopyable
 {
     friend class Logger;
 
@@ -142,7 +144,7 @@ protected:
     std::vector<boost::shared_ptr<LogAppender> > appenders_;
 };
 
-class LogAppender
+class GF_CLASS LogAppender
 {
 public:
     virtual ~LogAppender();

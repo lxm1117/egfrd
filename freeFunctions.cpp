@@ -732,7 +732,7 @@ Real drawR_gbd_3D(Real rnd, Real sigma, Real t, Real D)
 
     gsl_function F =
     {
-        reinterpret_cast<typeof(F.function)>(&I_gbd_r_3D_F),
+        reinterpret_cast<double(*) (double x, void * params)>(&I_gbd_r_3D_F),
         &params
     };
 
@@ -783,7 +783,7 @@ Real drawR_gbd_1D(Real rnd, Real sigma, Real t, Real D, Real v)
 
     gsl_function F =
     {
-        reinterpret_cast<typeof(F.function)>(&I_gbd_r_1D_F),
+        reinterpret_cast<double(*) (double x, void * params)>(&I_gbd_r_1D_F),
         &params
     };
 

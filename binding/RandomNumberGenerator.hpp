@@ -45,7 +45,7 @@ static PyObject* RandomNumberGenerator_normal(Timpl_& impl, Real loc, Real scale
                 PyErr_Format(PyExc_ValueError, "sequence too large; must be smaller than %d", NPY_MAXDIMS);
                 boost::python::throw_error_already_set();
             }
-            npy_intp dims[len];
+            npy_intp* dims = new npy_intp[len];  // dynamic allocation, size is not a const on MSVC
             for (ssize_t i = 0; i < len; ++i)
             {
                 dims[i] = boost::python::extract<npy_intp>(size[i]);
@@ -55,6 +55,7 @@ static PyObject* RandomNumberGenerator_normal(Timpl_& impl, Real loc, Real scale
                     &PyArray_Type, len, dims,
                     peer::util::get_numpy_typecode<Real>::value,
                     NULL, NULL, 0, NPY_CARRAY, NULL);
+            delete[] dims;
         }
         Real* data(reinterpret_cast<Real*>(PyArray_DATA(retval)));
         for (std::size_t i = 0; i < num_samples; ++i)
