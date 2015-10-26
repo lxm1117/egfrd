@@ -508,7 +508,7 @@ class EGFRDSimulator(ParticleSimulatorBase):
             domain_counts = self.count_domains()
             log.info('\n\n%d: t=%s dt=%e (next_time=%s)\t' %
                      (self.step_counter, self.t,
-                      self.dt, self.scheduler.top[1].time) + 
+                      self.dt, self.scheduler.top[1].time if self.scheduler.size > 0 else 0) + 
                      'Singles: %d, Pairs: %d, Multis: %d\n' % domain_counts + 
                      'event=#%d reactions=%d rejectedmoves=%d' %
                      (id, self.reaction_events, self.rejected_moves))
