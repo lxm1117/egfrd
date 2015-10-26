@@ -43,8 +43,9 @@ def export(filename, s):
         f.write('Particle=%d\tRadius=%e\tPosition=%e,%e,%e\tSid=%d\n' % (pid.serial, particle.radius, particle.position[0], particle.position[1], particle.position[2], particle.sid.serial))
 
     for domain in s.domains.itervalues():
-       f.write('Domain=%d' % (domain.domain_id.serial))
+       f.write('Domain=%d\tMulti=%d' % (domain.domain_id.serial, domain.num_shells))
        for shell_id, shell in domain.shell_list:
-          f.write('\tShell=%d\tRadius=%e\tPosition=%e,%e,%e\t%s\n' % (shell_id.serial, shell.shape.radius, shell.shape.position[0], shell.shape.position[1], shell.shape.position[2], format_shell(shell.shape)))
+          f.write('\tShell=%d\tRadius=%e\tPosition=%e,%e,%e\t%s' % (shell_id.serial, shell.shape.radius, shell.shape.position[0], shell.shape.position[1], shell.shape.position[2], format_shell(shell.shape)))
+       f.write('\n')
     f.write('End\n')
     f.close()
