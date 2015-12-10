@@ -310,7 +310,7 @@ template<typename Trange_, typename Tpred_>
 inline typename detail2::get_filter_iterator_range<Tpred_, Trange_>::type
 make_filter_iterator_range(Trange_& range, Tpred_ pred)
 {
-    typedef typename detail::get_filter_iterator_range<Tpred_, Trange_> filter_range_gen;
+    typedef typename detail2::get_filter_iterator_range<Tpred_, Trange_> filter_range_gen;
     typedef typename filter_range_gen::iterator_type iterator;
     typedef typename filter_range_gen::type result_type;
 
@@ -322,7 +322,7 @@ template<typename Trange_, typename Tpred_>
 inline typename detail2::get_filter_iterator_range<Tpred_, const Trange_>::type
 make_filter_iterator_range(Trange_ const& range, Tpred_ pred)
 {
-    typedef typename detail::get_filter_iterator_range<Tpred_, const Trange_> filter_range_gen;
+    typedef typename detail2::get_filter_iterator_range<Tpred_, const Trange_> filter_range_gen;
     typedef typename filter_range_gen::iterator_type iterator;
     typedef typename filter_range_gen::type result_type;
 
