@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 
 #
 # Make sure that the egfrd system is added to your PYTHONPATH
@@ -22,7 +22,7 @@ size = 1e-6
 # Model
 m = model.ParticleModel(size)
 # Species
-P = model.Species('P', 1e-12, 3e-9)                                   
+P = model.Species('P', 1e-12, 3e-9)
 m.add_species_type(P) 
 
 # World
@@ -37,7 +37,11 @@ throw_in_particles(w, P, 60)
 l = logger.Logger('simple')
 interrupter = logger.FixedIntervalInterrupter(s, 3.33e-4, l.log)
 
+
+import gfrdVisualizer
 # Simulation
 l.start(s)
 while s.t < .1:
-    interrupter.step()
+    if (s.step_counter % 100 == 0)  :
+        gfrdVisualizer.export('D:\\dump.log',s)
+    s.step()
