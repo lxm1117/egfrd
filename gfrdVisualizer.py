@@ -31,9 +31,11 @@ def format_shell(s):
         return 'C\tUnitZ=%e,%e,%e\tHalfLength=%e' % (s.unit_z[0], s.unit_z[1], s.unit_z[2], s.half_length )
     return '';
 
-def export(filename, s):
+def export(filename, s, a=None):
     w = s.world;
-    f = open(filename,'w')
+    oflag = 'w'
+    if a != None and a : oflag = 'a'
+    f = open(filename, oflag)
     
     f.write('sim_step=%d\tsim_time=%e\t' % (s.step_counter, s.t))
     f.write('world_size=%e\tmatrix_size=%d\n' % (w.world_size, w.matrix_size))

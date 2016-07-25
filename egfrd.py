@@ -541,7 +541,7 @@ class EGFRDSimulator(ParticleSimulatorBase):
         if __debug__:
             if self.dt < 1e-10: # We consider 0.1 nanoseconds a zero-step
 
-                log.warning('dt = %e = %.10e-%.10e = zero step, working in s.t >> dt~0 Python limit.' % (self.dt, next_time, self.t))
+                # log.warning('dt = %e = %.10e-%.10e = zero step, working in s.t >> dt~0 Python limit.' % (self.dt, next_time, self.t))
                 self.zero_steps += 1
 
                 if self.zero_steps >= max(self.scheduler.size * 3, self.MAX_NUM_DT0_STEPS): 

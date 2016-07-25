@@ -1,4 +1,4 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python
 
 #####################################################
 ##### An example featuring a closed box made up #####
@@ -38,6 +38,7 @@ import _gfrd
 import os
 import math
 import sys
+import gfrdVisualizer
 
 # Set up the model
 def set_constants():  
@@ -75,7 +76,7 @@ def set_constants():
 
     # Some control flags
     _INFO_ = 1
-    _VLOG_ = 1
+    _VLOG_ = 0
 
     # Define flags
     place_bulk_particles	= 1
@@ -453,15 +454,18 @@ def main():
         if loadfile != '':
         
             s.load_state(loadfile)
+
+        gfrdVisualizer.export('D:\dump.log', s)
         
         while step < N_run:
-        
+
             step += 1
             s.step()
             #s.check() # can be expensive
 
-            if step % (N_run/100) == 0:
+            if step % 100 == 0:
                 print "***** SIMULATION PROGRESS = "+str(int(step/N_run*100.0))+"%"
+                gfrdVisualizer.export('D:\dump.log', s)
 
             if step % N_save == 0 or step in save_points:
                 print "***** SAVING STATE at step "+str(int(step))
