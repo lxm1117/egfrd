@@ -23,3 +23,9 @@ register_console_appender_class(char const* name)
 }
 
 } // namespace binding
+
+namespace boost
+{
+   template<>
+   inline const volatile ConsoleAppender* get_pointer(const volatile ConsoleAppender* p) { return p; }
+}

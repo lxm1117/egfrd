@@ -119,4 +119,94 @@ typedef ::LoggerManager LoggerManager;
 
 } // namespace binding
 
+
+
+
+#ifdef _MSC_VER
+namespace boost
+{
+   // FIXES for Visual Studio 2015 update 3
+   // should be fixed in upcomming version
+   // See: https://connect.microsoft.com/VisualStudio/Feedback/Details/2852624
+
+   // also modified: event_classes.cpp:44
+   // PythonAppender.cpp:561 and ConsoleAppender.cpp:27
+
+   template<>
+   inline const volatile binding::Domain* get_pointer(const volatile binding::Domain* p) { return p; }
+   
+   template<>
+   inline const volatile binding::Model* get_pointer(const volatile binding::Model* p) { return p; }
+
+   template<>
+   inline const volatile binding::ShapedDomain* get_pointer(const volatile binding::ShapedDomain* p) { return p; }
+
+   template<>
+   inline const volatile binding::Single* get_pointer(const volatile binding::Single* p) { return p; }
+
+   template<>
+   inline const volatile binding::Pair* get_pointer(const volatile binding::Pair* p) { return p; }
+
+   template<>
+   inline const volatile binding::Multi* get_pointer(const volatile binding::Multi* p) { return p; }
+
+   template<>
+   inline const volatile binding::SphericalSingle* get_pointer(const volatile binding::SphericalSingle* p) { return p; }
+
+   template<>
+   inline const volatile binding::CylindricalSingle* get_pointer(const volatile binding::CylindricalSingle* p) { return p; }
+
+   template<>
+   inline const volatile binding::SphericalPair* get_pointer(const volatile binding::SphericalPair* p) { return p; }
+
+   template<>
+   inline const volatile binding::CylindricalPair* get_pointer(const volatile binding::CylindricalPair* p) { return p; }
+
+   template<>
+   inline const volatile binding::LogAppender* get_pointer(const volatile binding::LogAppender* p) { return p; }
+
+   template<>
+   inline const volatile binding::NetworkRules* get_pointer(const volatile binding::NetworkRules* p) { return p; }
+
+   template<>
+   inline const volatile binding::CuboidalRegion* get_pointer(const volatile binding::CuboidalRegion* p) { return p; }
+
+   template<>
+   inline const volatile binding::DiskSurface* get_pointer(const volatile binding::DiskSurface* p) { return p; }
+
+   template<>
+   inline const volatile binding::CylindricalSurface* get_pointer(const volatile binding::CylindricalSurface* p) { return p; }
+
+   template<>
+   inline const volatile binding::SphericalSurface* get_pointer(const volatile binding::SphericalSurface* p) { return p; }
+
+   template<>
+   inline const volatile binding::PlanarSurface* get_pointer(const volatile binding::PlanarSurface* p) { return p; }
+
+   template<>
+   inline const volatile binding::Transaction* get_pointer(const volatile binding::Transaction* p) { return p; }
+
+   template<>
+   inline const volatile binding::ParticleSimulationStructure* get_pointer(const volatile binding::ParticleSimulationStructure* p) { return p; }
+
+   template<>
+   inline const volatile binding::Surface* get_pointer(const volatile binding::Surface* p) { return p; }
+
+   template<>
+   inline const volatile binding::Region* get_pointer(const volatile binding::Region* p) { return p; }
+
+   template<>
+   inline const volatile binding::World* get_pointer(const volatile binding::World* p) { return p; }
+
+   template<>
+   inline const volatile binding::Structure* get_pointer(const volatile binding::Structure* p) { return p; }
+
+   template<>
+   inline const volatile EventScheduler<double>* get_pointer(const volatile EventScheduler<double>* p) { return p; }
+
+   template<>
+   inline const volatile EventScheduler<double>::Event* get_pointer(const volatile EventScheduler<double>::Event* p) { return p; }
+}
+
+#endif /* _MSC_VER */
 #endif /* TRAITS_HPP */

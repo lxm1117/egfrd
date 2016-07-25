@@ -556,3 +556,10 @@ register_python_appender_class(char const* name)
 }
 
 } // namespace binding
+
+
+namespace boost
+{
+   template<>
+   inline const volatile binding::PythonAppender* get_pointer(const volatile binding::PythonAppender* p) { return p; }
+}
