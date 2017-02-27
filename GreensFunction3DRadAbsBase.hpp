@@ -3,7 +3,7 @@
 
 #include "PairGreensFunction.hpp"
 
-class GreensFunction3DRadAbsBase: public PairGreensFunction
+class GF_CLASS GreensFunction3DRadAbsBase: public PairGreensFunction
 {
 public:
     GreensFunction3DRadAbsBase(Real D, Real kf, Real r0, Real Sigma)

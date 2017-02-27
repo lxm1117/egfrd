@@ -515,7 +515,7 @@ Real GreensFunction1DAbsSinkAbs::flux_leaves(Real t) const
         return 0.0;
     }
 
-    const Real maxi( guess_maxi( t ) );
+    const uint maxi( guess_maxi( t ) );
 
     if( getr0() >= getrsink() )
         return flux_abs_Ll( t, maxi );
@@ -532,7 +532,7 @@ Real GreensFunction1DAbsSinkAbs::flux_leavea(Real t) const
         return 0.0;
     }
 
-    const Real maxi( guess_maxi( t ) );
+    const uint maxi( guess_maxi( t ) );
 
     if( getr0() < getrsink() )
         return - flux_abs_Ll( t, maxi );

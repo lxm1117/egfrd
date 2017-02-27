@@ -202,6 +202,7 @@ public:
             }
         }
         BOOST_ASSERT(0);
+        return pos;
     }
 
     value_type& operator[](std::size_t idx)
